@@ -271,7 +271,7 @@ export default function StudentRegistration() {
                       variant="body1"
                       sx={{ marginBottom: 2, color: "black" }}
                     >
-                      {label}
+                      Digite "sim" ou "não".
                     </Typography>
                     <TextField
                       fullWidth
