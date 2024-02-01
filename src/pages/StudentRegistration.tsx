@@ -267,7 +267,12 @@ export default function StudentRegistration() {
               <Grid container spacing={2}>
                 {fieldsUsoImagem.map(({ label, id }) => (
                   <Grid item xs={12} key={id}>
-                   
+                    <Typography
+                      variant="body1"
+                      sx={{ marginBottom: 2, color: "black" }}
+                    >
+                      {label}
+                    </Typography>
                     <TextField
                       fullWidth
                       id={id}
