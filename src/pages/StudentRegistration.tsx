@@ -267,16 +267,11 @@ export default function StudentRegistration() {
               <Grid container spacing={2}>
                 {fieldsUsoImagem.map(({ label, id }) => (
                   <Grid item xs={12} key={id}>
-                    <Typography
-                      variant="body1"
-                      sx={{ marginBottom: 2, color: "black" }}
-                    >
-                      Digite "sim" ou "não".
-                    </Typography>
+                   
                     <TextField
                       fullWidth
                       id={id}
-                      label="Tamanho do Uniforme"
+                      label="Digite Sim ou Não"
                       variant="standard"
                       sx={{ borderRadius: "4px" }}
                       required
