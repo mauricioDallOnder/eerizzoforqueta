@@ -11,8 +11,7 @@ import {
   gerarPresencasParaAluno,
   opcoesTermosAvisos,
   vinculosempresasparceiras,
-  fieldsUniforme,
-  fieldsUsoImagem,
+  fieldsUniforme
 } from "@/utils/Constants";
 import {
   Box,
@@ -260,32 +259,7 @@ export default function StudentRegistration() {
               </Grid>
             </List>
 
-            <List sx={ListStyle}>
-              <Typography sx={TituloSecaoStyle}>
-                Seção 7 - Autorização para Uso de Imagem
-              </Typography>
-              <Grid container spacing={2}>
-                {fieldsUsoImagem.map(({ label, id }) => (
-                  <Grid item xs={12} key={id}>
-                    <Typography
-                      variant="body1"
-                      sx={{ marginBottom: 2, color: "black" }}
-                    >
-                      {label}
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      id={id}
-                      label="Digite Sim ou Não"
-                      variant="standard"
-                      sx={{ borderRadius: "4px" }}
-                      required
-                      {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </List>
+           
 
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
