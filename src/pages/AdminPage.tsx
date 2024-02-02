@@ -195,7 +195,7 @@ export default function AdminPage() {
           {/* Cada cartão em um item de Grid */}
 
           <Box>
-            <TurmasInfoTableNoSSR modalidades={modalidades} />
+            <TurmasInfoTableNoSSR />
           </Box>
         </Grid>
         <Toolbar />

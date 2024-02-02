@@ -3,11 +3,6 @@
 import dynamic from 'next/dynamic';
 
 
-
-export const AdminTableInfoNoSSR = dynamic(() => import('./AdminInfoTable'), {
-    ssr: false,
-});
-
 export const ControleFrequenciaTableNoSSR = dynamic(() => import('./ControleFrequenciaTable'), {
     ssr: false,
 });

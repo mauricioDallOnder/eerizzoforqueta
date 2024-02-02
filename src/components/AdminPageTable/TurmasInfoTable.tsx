@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import { AdminPageProps, Turma } from "@/interface/interfaces";
+import { AdminPageProps, Modalidade, Turma } from "@/interface/interfaces";
 import {
   TableRow,
   TableCell,
@@ -12,136 +12,120 @@ import {
   Divider,
   Modal,
   TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Typography,
 } from "@mui/material";
 
 import { ControleFrequenciaTableNoSSR } from "./DynamicComponents";
-import { modalStyle } from "@/utils/Styles";
+import { BoxStyleCadastro, TituloSecaoStyle, modalStyle } from "@/utils/Styles";
+import { useData } from "@/context/context";
 
-export default function TurmasInfoTable({ modalidades }: AdminPageProps) {
-  const [search, setSearch] = useState("");
+export default function TurmasInfoTable () {
+  const { fetchModalidades } = useData();
+  const [modalidades, setModalidades] = useState<Modalidade[]>([]);
+  const [selectedModalidade, setSelectedModalidade] = useState<string>('');
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [selectedTurma, setSelectedTurma] = useState<Turma | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+    // Função para abrir o modal com a turma selecionada
+    const handleOpenModal = (turma: Turma) => {
+      setSelectedTurma(turma);
+      setIsModalOpen(true);
+    };
 
-  const [selectedTurma, setSelectedTurma] = React.useState<Turma | null>(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-
-  const handleRowClick = (turma: Turma) => {
-    setSelectedTurma(turma);
-    setIsModalOpen(true);
-  };
-
-  const rows = Array.isArray(modalidades)
-    ? modalidades.flatMap((modalidade) =>
-        modalidade.turmas.map((turma) => ({
-          ...turma, // Espalha as propriedades de 'turma' aqui
-          modalidade: modalidade.nome, // Adiciona a propriedade 'modalidade'
-        }))
-      )
-    : [];
-
-  // Função para lidar com a mudança no campo de pesquisa
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value);
-  };
-
-  // Filtrar as linhas com base na string de pesquisa
-  const filteredRows = rows.filter(
-    (row) =>
-      row.nome_da_turma.toLowerCase().includes(search.toLowerCase()) ||
-      row.modalidade.toLowerCase().includes(search.toLowerCase()) ||
-      row.categoria.toLowerCase().includes(search.toLowerCase()) ||
-      row.nucleo.toLowerCase().includes(search.toLowerCase())
+    const filteredTurmas = turmas.filter((aluno:Turma) =>
+    aluno.nome_da_turma.toLowerCase().includes(searchTerm)
   );
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  useEffect(() => {
+    fetchModalidades().then(setModalidades); // Certifique-se de que fetchModalidades retorne uma Promise<Modalidade[]>
+  }, [fetchModalidades]);
+
+  useEffect(() => {
+    const modalidadeEscolhida = modalidades.find(m => m.nome === selectedModalidade);
+    setTurmas(modalidadeEscolhida ? modalidadeEscolhida.turmas : []);
+  }, [selectedModalidade, modalidades]);
+
+  const handleModalidadeChange = (event: SelectChangeEvent<string>) => {
+    setSelectedModalidade(event.target.value);
+  };
+
 
   return (
-    <Box>
-      <TableContainer component={Paper}>
-        <TextField
-          label="Pesquisar por nome nome da turma"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={search}
-          onChange={handleSearchChange}
-          sx={{ width: "70%", marginLeft: "30px" }}
-        />
-        <Divider />
-        <Table aria-label="collapsible table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ border: "1px solid black" }} align="center">
-                Nome da Turma
+    <Box sx={BoxStyleCadastro}>
+      <Typography sx={TituloSecaoStyle}>
+              Informações Gerais das Turmas
+            </Typography>
+    <FormControl fullWidth margin="normal">
+      <InputLabel id="modalidade-select-label">Modalidade</InputLabel>
+      <Select
+        labelId="modalidade-select-label"
+        id="modalidade-select"
+        value={selectedModalidade}
+        label="Modalidade"
+        onChange={handleModalidadeChange}
+      >
+        {modalidades.map((modalidade) => (
+          <MenuItem key={modalidade.nome} value={modalidade.nome}>
+            {modalidade.nome}
+          </MenuItem>
+        ))}
+      </Select>
+      <TextField
+        label="Pesquisar pelo nome da turma"
+        variant="outlined"
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearchChange}
+        margin="normal"
+      />
+    </FormControl>
+    <Divider sx={{ my: 2 }} />
+    <TableContainer component={Paper}>
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Nome da Turma</TableCell>
+            <TableCell>Núcleo</TableCell>
+            <TableCell>Categoria</TableCell>
+            <TableCell>Capacidade Máxima</TableCell>
+            <TableCell>Capacidade Atual</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredTurmas.map((turma) => (
+            <TableRow
+              key={turma.nome_da_turma}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row" onClick={() => handleOpenModal(turma)}>
+                {turma.nome_da_turma}
               </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Modalidade
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Núcleo
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Categoria
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Número de Alunos
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Vagas Disponíveis
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Capacidade Atual
-              </TableCell>
-              <TableCell align="center" sx={{ border: "1px solid black" }}>
-                Capacidade Máxima
-              </TableCell>
+              <TableCell>{turma.nucleo}</TableCell>
+              <TableCell>{turma.categoria}</TableCell>
+              <TableCell>{turma.capacidade_maxima_da_turma}</TableCell>
+              <TableCell>{turma.capacidade_atual_da_turma}</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredRows.map((row, index) => (
-              <React.Fragment key={index}>
-                <TableRow
-                  onClick={() => handleRowClick(row)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.nome_da_turma}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.modalidade}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.nucleo}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.categoria}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.alunos?.length || 0}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.capacidade_maxima_da_turma - (row.alunos?.length || 0)}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.capacidade_atual_da_turma}
-                  </TableCell>
-                  <TableCell sx={{ border: "1px solid black" }} align="center">
-                    {row.capacidade_maxima_da_turma}
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Divider />
-
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <Box sx={modalStyle}>
-          {selectedTurma && (
-            <ControleFrequenciaTableNoSSR
-              alunosDaTurma={selectedTurma.alunos}
-              nomeDaTurma={selectedTurma.nome_da_turma}
-            />
-          )}
-        </Box>
-      </Modal>
-    </Box>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    {selectedTurma && (
+        <ControleFrequenciaTableNoSSR
+          alunosDaTurma={selectedTurma.alunos}
+          nomeDaTurma={selectedTurma.nome_da_turma}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+  </Box>
   );
 }

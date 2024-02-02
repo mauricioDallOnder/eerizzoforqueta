@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
   Box,
@@ -22,37 +22,46 @@ import Layout from "@/components/TopBarComponents/Layout";
 import TemporaryStudentRegistration from "@/components/TemporaryStudents/StudentTemporaryModalRegistration";
 
 export default function StudentPresenceTable() {
+  const { modalidades, fetchModalidades } = useData();
   const { handleSubmit, watch, setValue } = useForm<FormValuesStudent>({
     defaultValues: {
       modalidade: "", // Iniciar com valor vazio para evitar estado não controlado
       turmaSelecionada: "",
     },
   });
-  const { modalidades } = useData();
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
   const [selectedTurma, setSelectedTurma] = useState<string>("");
   const [alunosDaTurma, setAlunosDaTurma] = useState<Aluno[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+
   const watchedModalidade = watch("modalidade");
-  const refreshPage = ()=>{
-    alert('Dados salvos com sucesso')
-    window.location.reload();  }
+
+  // Carregar modalidades ao montar o componente
+  useEffect(() => {
+    fetchModalidades().catch(console.error);
+  }, [fetchModalidades]);
+
+  // Carregar núcleos disponíveis quando a modalidade é selecionada
   useEffect(() => {
     if (watchedModalidade) {
-      const turmas = modalidades.find(
-        (m) => m.nome === watchedModalidade
-      )?.turmas;
+      const turmas = modalidades.find((m) => m.nome === watchedModalidade)?.turmas;
       if (turmas) {
         const nucleos = new Set(turmas.map((turma) => turma.nucleo));
         setNucleosDisponiveis(Array.from(nucleos));
+      } else {
+        setNucleosDisponiveis([]);
       }
-
       setTurmasDisponiveis([]);
+      setSelectedNucleo('');
+      setSelectedTurma('');
+      setAlunosDaTurma([]);
     }
   }, [watchedModalidade, modalidades]);
 
+  // Carregar turmas disponíveis quando o núcleo é selecionado
   useEffect(() => {
     if (selectedNucleo && watchedModalidade) {
       const turmasFiltradas = modalidades
@@ -62,25 +71,21 @@ export default function StudentPresenceTable() {
     }
   }, [selectedNucleo, watchedModalidade, modalidades]);
 
-  const handleModalidadeChange = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+  const handleModalidadeChange = useCallback((event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as string;
     setValue("modalidade", value);
-    setValue("turmaSelecionada", ""); // Resetar a turma selecionada
-  };
+  }, [setValue]);
 
-  const handleNucleoChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleNucleoChange = useCallback((event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as string;
     setSelectedNucleo(value);
-    setValue("turmaSelecionada", ""); // Resetar a turma selecionada
-  };
+  }, []);
 
-  const handleTurmaChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleTurmaChange = useCallback((event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as string;
     setSelectedTurma(value);
-    setValue("turmaSelecionada", value); // Atualizar o valor da turma no formulário
-  };
+    setValue("turmaSelecionada", value);
+  }, [setValue]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -99,7 +104,10 @@ export default function StudentPresenceTable() {
       setAlunosDaTurma(turmaEscolhida.alunos);
     }
   };
-
+  const refreshPage = () => {
+    alert("Dados salvos com sucesso");
+    window.location.reload();
+  };
   return (
     <Layout>
       <Container>
@@ -123,7 +131,7 @@ export default function StudentPresenceTable() {
                     {modalidades
                       .filter(
                         (modalidade) =>
-                          modalidade.nome !== "arquivados"&&
+                          modalidade.nome !== "arquivados" &&
                           modalidade.nome !== "excluidos"
                       )
                       .map((modalidade) => (
@@ -177,7 +185,7 @@ export default function StudentPresenceTable() {
                   </TextField>
                 </Grid>
               </Grid>
-             
+
               {alunosDaTurma.length > 0 && (
                 <ListaDeChamada
                   alunosDaTurma={alunosDaTurma}
@@ -188,33 +196,38 @@ export default function StudentPresenceTable() {
               )}
             </List>
             <Button
-                sx={{ width: "100%", marginBottom: "8px" }}
-                type="submit"
-                variant="contained"
-              >
-                Pesquisar Turma
-              </Button>
+              sx={{ width: "100%", marginBottom: "8px" }}
+              type="submit"
+              variant="contained"
+            >
+              Pesquisar Turma
+            </Button>
             <Button
-          sx={{fontSize: "12px" }}
-          color="error"
-          variant="contained"
-          onClick={() => handleOpenModal()}
-        >
-          Adicionar aluno temporário
-        </Button>
-        <Button sx={{fontSize: "12px",mt:"8px" }} color="success"
-          variant="contained" onClick={refreshPage}>Salvar Dados/Atualizar Pagina</Button>
+              sx={{ fontSize: "12px" }}
+              color="error"
+              variant="contained"
+              onClick={() => handleOpenModal()}
+            >
+              Adicionar aluno temporário
+            </Button>
+            <Button
+              sx={{ fontSize: "12px", mt: "8px" }}
+              color="success"
+              variant="contained"
+              onClick={refreshPage}
+            >
+              Salvar Dados/Atualizar Pagina
+            </Button>
           </Box>
         </form>
         <Modal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
-      >
-        <TemporaryStudentRegistration handleCloseModal={handleCloseModal} />
-      </Modal>
-      
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <TemporaryStudentRegistration handleCloseModal={handleCloseModal} />
+        </Modal>
       </Container>
     </Layout>
   );

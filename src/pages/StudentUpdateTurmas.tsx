@@ -1,14 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import {
-  TextField, Button, Box, Autocomplete, Container,
-} from "@mui/material";
+import { TextField, Button, Box, Autocomplete, Container } from "@mui/material";
 
 import { DataContext } from "@/context/context";
-import {
- Modalidade, Turma
-} from "@/interface/interfaces";
-import { BoxStyleCadastro} from "@/utils/Styles";
+import { Modalidade, Turma } from "@/interface/interfaces";
+import { BoxStyleCadastro } from "@/utils/Styles";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
@@ -24,7 +20,7 @@ interface MoveStudentFormData {
 }
 
 interface AlunoAutocompleteOption {
-  id: string;
+  id: string | number;
   nome: string;
   modalidade: string;
   turma: string;
@@ -32,31 +28,41 @@ interface AlunoAutocompleteOption {
 }
 
 export default function MoveStudentForm() {
-  const { moveStudentInApi, modalidades } = useContext(DataContext);
+  const { moveStudentInApi, modalidades, fetchModalidades } = useContext(DataContext);
   const { register, handleSubmit, setValue, watch, reset, formState: { isSubmitting, errors } } = useForm<MoveStudentFormData>();
-  
+
   const [alunosOptions, setAlunosOptions] = useState<AlunoAutocompleteOption[]>([]);
   const [turmasDestinoOptions, setTurmasDestinoOptions] = useState<Turma[]>([]);
   const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
 
   useEffect(() => {
+    fetchModalidades().catch(console.error);
+  }, [fetchModalidades]);
+
+  useEffect(() => {
     setModalidadesOptions(modalidades);
   }, [modalidades]);
 
+ 
+
   useEffect(() => {
-    const alunosExtraidos = modalidades.flatMap((modalidade, modalidadeIndex) =>
-      modalidade.turmas.flatMap((turma, turmaIndex) =>
-        (turma.alunos ?? []).map((aluno, alunoIndex) => ({
-          id: `aluno-${modalidadeIndex}-${turmaIndex}-${alunoIndex}`,
-          nome: aluno?.nome,
+    const alunosExtraidos = modalidades.flatMap(modalidade =>
+      modalidade.turmas.flatMap(turma => {
+        // Certifique-se de que turma.alunos é um array antes de tentar filtrar
+        const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+        const alunosFiltrados = alunosArray.filter(Boolean);
+        return alunosFiltrados.map(aluno => ({
+          id: aluno.id,
+          nome: aluno.nome,
           modalidade: modalidade.nome,
           turma: turma.nome_da_turma,
           nucleo: turma.nucleo,
-        }))
-      )
-    ).filter(option => option.nome !== undefined);
+        }));
+      })
+    );
     setAlunosOptions(alunosExtraidos);
   }, [modalidades]);
+
 
   useEffect(() => {
     const modalidadeSelecionada = modalidades.find(
@@ -65,7 +71,7 @@ export default function MoveStudentForm() {
     setTurmasDestinoOptions(modalidadeSelecionada?.turmas || []);
   }, [watch("modalidadeDestino"), modalidades]);
 
-  const handleAlunoChange = (_event: any, value: AlunoAutocompleteOption | null) => {
+  const handleAlunoChange = useCallback((_event: any, value: AlunoAutocompleteOption | null) => {
     if (value) {
       setValue("alunoNome", value.nome);
       setValue("modalidadeOrigem", value.modalidade);
@@ -73,17 +79,17 @@ export default function MoveStudentForm() {
       setValue("modalidadeDestino", "");
       setValue("nomeDaTurmaDestino", "");
     }
-  };
+  }, [setValue]);
 
-  const onSubmit: SubmitHandler<MoveStudentFormData> = async (data) => {
+  const onSubmit: SubmitHandler<MoveStudentFormData> = useCallback(async (data) => {
     try {
       await moveStudentInApi(data);
-      alert("Cadastro atualizado com sucesso");
+      alert("Aluno movido com sucesso.");
       reset();
     } catch (error) {
-      console.error("Erro ao enviar os dados do formulário", error);
+      console.error("Erro ao mover aluno", error);
     }
-  };
+  }, [moveStudentInApi, reset]);
 
   return (
     <Layout>
@@ -111,7 +117,7 @@ export default function MoveStudentForm() {
             />
           )}
           renderOption={(props, option) => (
-            <li {...props} key={option.id}>
+            <li {...props} key={`${props.id}-${option}`}>
               {option.nome}
             </li>
           )}

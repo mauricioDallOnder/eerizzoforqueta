@@ -21,10 +21,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function StudentUpdatePersonalInformation() {
-  const { updateDataInApi, modalidades } = useContext(DataContext);
-  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(
-    null
-  );
+  const { updateDataInApi, modalidades, fetchModalidades } = useContext(DataContext);
+  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(null);
   const [alunosOptions, setAlunosOptions] = useState<IIAlunoUpdate[]>([]);
 
   const {
@@ -36,23 +34,24 @@ export default function StudentUpdatePersonalInformation() {
   } = useForm<IIAlunoUpdate>();
 
   useEffect(() => {
+    // Carregar todas as modalidades ao montar o componente
+    fetchModalidades().catch(console.error);
+  }, [fetchModalidades]);
+
+  useEffect(() => {
+    // Lógica para montar a lista de opções de alunos baseada nas modalidades carregadas
     const newAlunosOptions = modalidades.flatMap((modalidade) =>
       modalidade.turmas.flatMap((turma) =>
-        (Array.isArray(turma.alunos) ? turma.alunos : [])
-          .filter((aluno) => aluno !== null && aluno !== undefined) // This will remove any null or undefined entries
-          .map((aluno) => ({
-            ...aluno,
-            nome: aluno.nome,
-            anoNascimento: aluno.anoNascimento,
-            telefoneComWhatsapp: aluno.telefoneComWhatsapp,
-            informacoesAdicionais: aluno.informacoesAdicionais,
-            nomeDaTurma: turma.nome_da_turma,
-            modalidade: modalidade.nome,
-          }))
+        (turma.alunos ?? []).map((aluno) => ({ // Usando o operador de coalescência nula (??) para garantir que um array vazio seja usado se turma.alunos for undefined
+          ...aluno,
+          nomeDaTurma: turma.nome_da_turma,
+          modalidade: modalidade.nome,
+        }))
       )
     );
     setAlunosOptions(newAlunosOptions);
   }, [modalidades]);
+  
 
   const onSubmit: SubmitHandler<IIAlunoUpdate> = async (data) => {
     try {

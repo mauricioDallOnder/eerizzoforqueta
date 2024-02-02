@@ -56,7 +56,7 @@ export default function Home() {
                 </Link>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <Link href="/StudentUpdate" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href="/StudentUpdatePersonalInformation" style={{ textDecoration: 'none', color: 'inherit' }}>
                   {" "}
                   {/* Adiciona o link para o Card */}
                   <Card sx={cardStyle}>
