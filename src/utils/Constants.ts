@@ -151,7 +151,7 @@ export const opcoesTermosAvisos: OpcoesTermosAvisos = {
   ],
   desconto: ["Estou de acordo com o desconto"],
   condicaosaude: ["Sim, declaro."],
-  imagem:["Ciente]
+  imagem:["Ciente"]
 };
 
 //----------------------------------------------------------------------------------------------
