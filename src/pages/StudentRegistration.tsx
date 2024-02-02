@@ -532,14 +532,10 @@ export default function StudentRegistration() {
               {isSubmitting ? "Enviando dados,aguarde..." : "Cadastrar Atleta"}
             </Button>
 
-            <Button
-              variant="contained"
-              color="error"
-              sx={{ mt: "5px" }}
-              onClick={clearForm}
-            >
-              Limpar os campos do formulário
-            </Button>
+            <Button type="submit" variant="contained" disabled={isSubmitting}>
+  {isSubmitting ? "Enviando dados,aguarde..." : "Cadastrar Atleta"}
+</Button>
+
           </Box>
         </form>
       </Container>
