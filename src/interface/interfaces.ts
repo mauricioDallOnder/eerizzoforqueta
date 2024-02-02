@@ -50,6 +50,7 @@ export interface Aluno {
   anoNascimento: string;
   telefoneComWhatsapp: number | string;
   presencas: Record<string, Record<string, boolean>>;
+  foto?:string
 }
 
 export interface Turma {
