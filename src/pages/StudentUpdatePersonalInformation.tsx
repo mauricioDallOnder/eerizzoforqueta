@@ -15,14 +15,17 @@ import { IIAlunoUpdate } from "@/interface/interfaces";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
 import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
-
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function StudentUpdatePersonalInformation() {
-  const { updateDataInApi, modalidades, fetchModalidades } = useContext(DataContext);
-  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(null);
+  const { updateDataInApi, modalidades, fetchModalidades } =
+    useContext(DataContext);
+  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(
+    null
+  );
   const [alunosOptions, setAlunosOptions] = useState<IIAlunoUpdate[]>([]);
 
   const {
@@ -39,14 +42,14 @@ export default function StudentUpdatePersonalInformation() {
   }, [fetchModalidades]);
 
   useEffect(() => {
-    const newAlunosOptions = modalidades.flatMap(modalidade => {
-      return modalidade.turmas.flatMap(turma => {
+    const newAlunosOptions = modalidades.flatMap((modalidade) => {
+      return modalidade.turmas.flatMap((turma) => {
         // Certifique-se de que turma.alunos seja um array antes de tentar usar o .map()
         if (!Array.isArray(turma.alunos)) {
-          console.error('Alunos não é um array para a turma:', turma);
+          console.error("Alunos não é um array para a turma:", turma);
           return [];
         }
-        return turma.alunos.map(aluno => ({
+        return turma.alunos.map((aluno) => ({
           ...aluno,
           nomeDaTurma: turma.nome_da_turma,
           modalidade: modalidade.nome,
@@ -55,7 +58,6 @@ export default function StudentUpdatePersonalInformation() {
     });
     setAlunosOptions(newAlunosOptions);
   }, [modalidades]);
-  
 
   const onSubmit: SubmitHandler<IIAlunoUpdate> = async (data) => {
     try {
@@ -75,13 +77,11 @@ export default function StudentUpdatePersonalInformation() {
     if (value) {
       // Atualiza todos os campos do formulário com as informações do aluno
       setValue("nome", value.nome);
+      setValue("foto", value.foto);
       setValue("anoNascimento", value.anoNascimento);
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
-      setValue(
-        "informacoesAdicionais.rg",
-        value.informacoesAdicionais.rg
-      );
+      setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
       setValue(
         "informacoesAdicionais.filhofuncionarioJBS",
         value.informacoesAdicionais.filhofuncionarioJBS
@@ -188,9 +188,9 @@ export default function StudentUpdatePersonalInformation() {
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
-              Seção 1 - Identificação do Aluno
+                Seção 1 - Identificação do Aluno
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={2} alignItems="flex-start">
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
@@ -212,27 +212,94 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+
+                <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register("informacoesAdicionais.rg", {
                       required: true,
                     })}
-                    label="RG "
+                    label="RG"
                     fullWidth
                     margin="normal"
                     variant="standard"
                   />
                 </Grid>
+
+                {selectedAluno && selectedAluno.foto && (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Foto do Atleta
+                      </Typography>
+                      <Box
+                        sx={{
+                          border: "1px dashed grey",
+                          borderRadius: "4px", // Se você quiser cantos arredondados, senão remova esta linha
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "100%", // Largura total do contêiner
+                          height: "200px", // Ajuste conforme necessário para altura
+                          overflow: "hidden", // Isso garantirá que a imagem não ultrapasse a caixa
+                          position: "relative", // Posicionamento relativo para elementos internos absolutos
+                          "&:hover": {
+                            backgroundColor: "#f0f0f0",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        <img
+                          src={selectedAluno.foto}
+                          alt="Foto do Aluno"
+                          style={{
+                            width: "100%", // Isso fará com que a imagem preencha a largura da caixa
+                            height: "100%", // Isso fará com que a imagem preencha a altura da caixa
+                            objectFit: "cover", // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            position: "absolute", // Posicionamento absoluto para sobrepor a imagem
+                            bottom: 0,
+                            left: 0,
+                            width: "100%",
+                            backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo translúcido para o texto ser legível
+                            color: "white",
+                            textAlign: "center",
+                            p: "8px",
+                          }}
+                        >
+                           <Button
+                          variant="contained"
+                          color="primary"
+                          component="a"
+                          href={selectedAluno.foto}
+                          download
+                          startIcon={<CloudDownloadIcon />}
+                          sx={{
+                            marginTop: 3, // alinha verticalmente com a Box
+                          }}
+                        >
+                          Baixar Foto
+                        </Button>
+                        </Box>
+                       
+                      </Box>
+                    </Grid>
+                  </>
+                )}
               </Grid>
             </List>
-             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
-             <List sx={ListStyle}>
-             <Typography sx={TituloSecaoStyle}>
+
+            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            <List sx={ListStyle}>
+              <Typography sx={TituloSecaoStyle}>
                 Seção 3 - Endereço Residencial do Aluno
               </Typography>
               <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register("informacoesAdicionais.endereco.ruaAvenida", {
@@ -425,9 +492,8 @@ export default function StudentUpdatePersonalInformation() {
                     }}
                   />
                 </Grid>
-
               </Grid>
-             </List>
+            </List>
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
@@ -746,9 +812,12 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.filhofuncionariomarcopolo", {
-                      required: true,
-                    })}
+                    {...register(
+                      "informacoesAdicionais.filhofuncionariomarcopolo",
+                      {
+                        required: true,
+                      }
+                    )}
                     label="É filho(a) de funcionário(a) da Marcopolo?"
                     fullWidth
                     margin="normal"
@@ -758,9 +827,12 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.nomefuncionariomarcopolo", {
-                      required: true,
-                    })}
+                    {...register(
+                      "informacoesAdicionais.nomefuncionariomarcopolo",
+                      {
+                        required: true,
+                      }
+                    )}
                     label="Nome do Funcionário(a) da Marcopolo"
                     fullWidth
                     margin="normal"
