@@ -19,7 +19,7 @@ import UpdateIcon from '@mui/icons-material/Update';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
-import { Avatar, Grid } from "@mui/material";
+import { Avatar, Button, Grid } from "@mui/material";
 import { useData } from "@/context/context";
 import { TurmasInfoTableNoSSR } from "@/components/AdminPageTable/DynamicComponents";
 const drawerWidth = 240;
@@ -29,7 +29,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function AdminPage() {
-  const { modalidades } = useData();
+  const { fetchModalidades } = useData();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
 
@@ -47,6 +47,12 @@ export default function AdminPage() {
       setMobileOpen(!mobileOpen);
     }
   };
+
+  const AtualizarPagina=()=>{
+    fetchModalidades().catch(console.error);
+    window.location.reload();
+    alert("Página Atualizada com sucesso")
+  }
 
   const drawer = (
     <Box>
@@ -112,6 +118,8 @@ export default function AdminPage() {
             </ListItemIcon>
             <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/StudentUpdatePersonalInformation">Atualização de dados cadastrais</Link>} />
           </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
         </ListItem>
       </List>
     </Box>
