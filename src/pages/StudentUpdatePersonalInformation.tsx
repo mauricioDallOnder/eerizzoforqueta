@@ -311,7 +311,7 @@ export default function StudentUpdatePersonalInformation() {
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
-                Seção 3 - Endereço Residencial do Aluno
+                Seção 2 - Endereço Residencial do Aluno
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -512,7 +512,7 @@ export default function StudentUpdatePersonalInformation() {
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
-                Seção 4 - Informações do Responsável Financeiro
+                Seção 3 - Informações do Responsável Financeiro
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -689,7 +689,7 @@ export default function StudentUpdatePersonalInformation() {
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
-                Seção 5 - informações Gerais do Atleta
+                Seção 4 - informações Gerais do Atleta
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={4}>
