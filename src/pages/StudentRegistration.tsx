@@ -11,9 +11,9 @@ import {
   gerarPresencasParaAluno,
   opcoesTermosAvisos,
   vinculosempresasparceiras,
-  fieldsUniforme
 } from "@/utils/Constants";
 import {
+  Avatar,
   Box,
   Button,
   Container,
@@ -30,7 +30,11 @@ import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
 import { useData } from "@/context/context";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
-
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import "react-image-crop/dist/ReactCrop.css";
+import { storage } from "../config/firestoreConfig";
+import resizeImage from "../utils/Constants";
+import { v4 as uuidv4 } from "uuid";
 export default function StudentRegistration() {
   const {
     register,
@@ -45,45 +49,41 @@ export default function StudentRegistration() {
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
 
+  //upload de imagem
+  const [isUploading, setIsUploading] = useState(false);
+  const [crop, setCrop] = useState({
+    aspect: 512 / 768,
+    width: 512,
+    height: 768,
+  });
+  const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files![0];
+    try {
+      const resizedImageUrl = await resizeImage(file);
+      setFile(
+        new File([await (await fetch(resizedImageUrl)).blob()], file.name)
+      );
+      setAvatarUrl(resizedImageUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeImage = () => {
+    setFile(null);
+    setAvatarUrl("");
+  };
+
   const selectedModalidade = watch("modalidade");
   //const selectedTurma = watch('turmaSelecionada');
 
   useEffect(() => {
     fetchModalidades();
   }, [fetchModalidades]);
-
-  const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
-    const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
-    data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-
-    const turmaEscolhida = modalidades
-      .find((m) => m.nome === data.modalidade)
-      ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
-
-    if (
-      turmaEscolhida &&
-      turmaEscolhida.capacidade_atual_da_turma <
-        turmaEscolhida.capacidade_maxima_da_turma
-    ) {
-      try {
-        await sendDataToApi(data);
-        alert(
-          "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
-        );
-        // Resetar apenas os campos de seleção
-        setValue("modalidade", "");
-        setValue("turmaSelecionada", "");
-        setSelectedNucleo("");
-        setTurmasDisponiveis([]);
-      } catch (error) {
-        console.error("Erro ao enviar os dados do formulário", error);
-      }
-    } else {
-      alert(
-        "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
-      );
-    }
-  };
 
   const getNucleosForModalidade = (modalidade: string) => {
     const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
@@ -108,6 +108,57 @@ export default function StudentRegistration() {
   // Função para limpar todos os campos do formulário
   const clearForm = () => {
     reset();
+  };
+
+  const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
+    const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
+    data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
+    data.aluno.foto = avatarUrl;
+    const turmaEscolhida = modalidades
+      .find((m) => m.nome === data.modalidade)
+      ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
+    if (
+      turmaEscolhida &&
+      turmaEscolhida.capacidade_atual_da_turma <
+        turmaEscolhida.capacidade_maxima_da_turma
+    ) {
+      if (file) {
+        setIsUploading(true);
+        const fileName = uuidv4() + file.name;
+        const fileRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(fileRef, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Compute and update the progress
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+            console.log(error);
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(fileRef);
+            setAvatarUrl(downloadURL);
+            await sendDataToApi(data);
+            setValue("modalidade", "");
+            setValue("turmaSelecionada", "");
+            setSelectedNucleo("");
+            setTurmasDisponiveis([]);
+            setIsUploading(false); // reset after successful upload
+            setAvatarUrl(""); // reset avatar url after successful upload
+            alert("Aluno Cadastrado com sucesso");
+          }
+        );
+      }
+    } else {
+      alert(
+        "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
+      );
+    }
   };
 
   return (
@@ -138,6 +189,82 @@ export default function StudentRegistration() {
                     />
                   </Grid>
                 ))}
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      border: "1px dashed grey",
+                      borderRadius: "4px", // Se você quiser cantos arredondados, senão remova esta linha
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%", // Largura total do contêiner
+                      height: "200px", // Ajuste conforme necessário para altura
+                      overflow: "hidden", // Isso garantirá que a imagem não ultrapasse a caixa
+                      position: "relative", // Posicionamento relativo para elementos internos absolutos
+                      "&:hover": {
+                        backgroundColor: "#f0f0f0",
+                        cursor: "pointer",
+                      },
+                    }}
+                  >
+                    {avatarUrl ? (
+                      <>
+                        <img
+                          src={avatarUrl}
+                          alt="Avatar"
+                          style={{
+                            width: "100%", // Isso fará com que a imagem preencha a largura da caixa
+                            height: "100%", // Isso fará com que a imagem preencha a altura da caixa
+                            objectFit: "cover", // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            position: "absolute", // Posicionamento absoluto para sobrepor a imagem
+                            bottom: 0,
+                            left: 0,
+                            width: "100%",
+                            backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo translúcido para o texto ser legível
+                            color: "white",
+                            textAlign: "center",
+                            p: "8px",
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            component="label"
+                            size="small"
+                            color="primary"
+                          >
+                            Alterar Foto do Atleta
+                            <input
+                              type="file"
+                              hidden
+                              accept="image/*"
+                              onChange={onFileChange}
+                            />
+                          </Button>
+                        </Box>
+                      </>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        component="label"
+                        size="small"
+                        color="primary"
+                      >
+                        Carregar Foto do Atleta
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/*"
+                          onChange={onFileChange}
+                        />
+                      </Button>
+                    )}
+                  </Box>
+                </Grid>
               </Grid>
             </List>
 
@@ -233,44 +360,44 @@ export default function StudentRegistration() {
             </List>
 
             <List sx={ListStyle}>
-  <Typography sx={TituloSecaoStyle}>
-    Seção 6 - Especificações sobre o Uniforme
-  </Typography>
-  <Grid container spacing={2}>
-    <Grid item xs={12}>
-      <TextField
-        select
-        label="Tamanho do Uniforme"
-        variant="outlined"
-        fullWidth
-        required
-        {...register("aluno.informacoesAdicionais.uniforme")} // asserção de tipo aqui
-        helperText="Selecione o tamanho do uniforme"
-        error={!!errors.aluno?.informacoesAdicionais?.uniforme}
-      >
-        {[
-          { value: "Pi - 6", label: "Pi - 6" },
-          { value: "Mi - 8", label: "Mi - 8" },
-          { value: "Gi - 10", label: "Gi - 10" },
-          { value: "GGi - 12", label: "GGi - 12" },
-          { value: "PP - 14", label: "PP - 14" },
-          { value: "P adulto", label: "P adulto" },
-          { value: "M adulto", label: "M adulto" },
-          { value: "G adulto", label: "G adulto" },
-          { value: "GG adulto", label: "GG adulto" },
-          { value: "Outro", label: "Outro (informar pelo Whatsapp)" },
-        ].map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </TextField>
-    </Grid>
-  </Grid>
-</List>
-
-
-           
+              <Typography sx={TituloSecaoStyle}>
+                Seção 6 - Especificações sobre o Uniforme
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    label="Tamanho do Uniforme"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    {...register("aluno.informacoesAdicionais.uniforme")} // asserção de tipo aqui
+                    helperText="Selecione o tamanho do uniforme"
+                    error={!!errors.aluno?.informacoesAdicionais?.uniforme}
+                  >
+                    {[
+                      { value: "Pi - 6", label: "Pi - 6" },
+                      { value: "Mi - 8", label: "Mi - 8" },
+                      { value: "Gi - 10", label: "Gi - 10" },
+                      { value: "GGi - 12", label: "GGi - 12" },
+                      { value: "PP - 14", label: "PP - 14" },
+                      { value: "P adulto", label: "P adulto" },
+                      { value: "M adulto", label: "M adulto" },
+                      { value: "G adulto", label: "G adulto" },
+                      { value: "GG adulto", label: "GG adulto" },
+                      {
+                        value: "Outro",
+                        label: "Outro (informar pelo Whatsapp)",
+                      },
+                    ].map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+              </Grid>
+            </List>
 
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
@@ -293,7 +420,7 @@ export default function StudentRegistration() {
                         (modalidade) =>
                           modalidade.nome !== "temporarios" &&
                           modalidade.nome !== "arquivados" &&
-                           modalidade.nome !== "excluidos"
+                          modalidade.nome !== "excluidos"
                       )
                       .map((modalidade) => (
                         <MenuItem key={modalidade.nome} value={modalidade.nome}>
