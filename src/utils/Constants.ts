@@ -100,13 +100,6 @@ export const fieldsUniforme = [
     id: "aluno.informacoesAdicionais.uniforme",
   },
 ];
-export const fieldsUsoImagem = [
-  {
-    label:
-      "Você autoriza o uso da imagem e nome deste para fins legítimos de divulgação e promoção da marca, sem ônus?",
-      id: "aluno.informacoesAdicionais.imagem",
-  },
-];
 
 
 //
@@ -136,6 +129,11 @@ export const fieldsTermosAvisos = [
       "Você declara que o pré-mencionado menor está em perfeitas condições de saúde, podendo participar de treinos e competições?",
     id: "aluno.informacoesAdicionais.condicaosaude",
   },
+    {
+    label:
+      "O uso da imagem e nome do atleta será utilizado para fins legítimos de divulgação e promoção da marca, sem ônus?",
+      id: "aluno.informacoesAdicionais.imagem",
+  },
 ];
 
 type OpcoesTermosAvisos = {
@@ -153,6 +151,7 @@ export const opcoesTermosAvisos: OpcoesTermosAvisos = {
   ],
   desconto: ["Estou de acordo com o desconto"],
   condicaosaude: ["Sim, declaro."],
+  imagem:["Ciente]
 };
 
 //----------------------------------------------------------------------------------------------
