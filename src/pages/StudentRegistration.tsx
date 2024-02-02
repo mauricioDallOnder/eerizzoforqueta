@@ -233,31 +233,42 @@ export default function StudentRegistration() {
             </List>
 
             <List sx={ListStyle}>
-              <Typography sx={TituloSecaoStyle}>
-                Seção 6 - Especificações sobre o Uniforme
-              </Typography>
-              <Grid container spacing={2}>
-                {fieldsUniforme.map(({ label, id }) => (
-                  <Grid item xs={12} key={id}>
-                    <Typography
-                      variant="body1"
-                      sx={{ marginBottom: 2, color: "black" }}
-                    >
-                      {label}
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      id={id}
-                      label="Tamanho do Uniforme"
-                      variant="standard"
-                      sx={{ borderRadius: "4px" }}
-                      required
-                      {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </List>
+  <Typography sx={TituloSecaoStyle}>
+    Seção 6 - Especificações sobre o Uniforme
+  </Typography>
+  <Grid container spacing={2}>
+    <Grid item xs={12}>
+      <TextField
+        select
+        label="Tamanho do Uniforme"
+        variant="outlined"
+        fullWidth
+        required
+        {...register("aluno.informacoesAdicionais.uniforme")} // asserção de tipo aqui
+        helperText="Selecione o tamanho do uniforme"
+        error={!!errors.aluno?.informacoesAdicionais?.uniforme}
+      >
+        {[
+          { value: "Pi - 6", label: "Pi - 6" },
+          { value: "Mi - 8", label: "Mi - 8" },
+          { value: "Gi - 10", label: "Gi - 10" },
+          { value: "GGi - 12", label: "GGi - 12" },
+          { value: "PP - 14", label: "PP - 14" },
+          { value: "P adulto", label: "P adulto" },
+          { value: "M adulto", label: "M adulto" },
+          { value: "G adulto", label: "G adulto" },
+          { value: "GG adulto", label: "GG adulto" },
+          { value: "Outro", label: "Outro (informar pelo Whatsapp)" },
+        ].map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    </Grid>
+  </Grid>
+</List>
+
 
            
 
