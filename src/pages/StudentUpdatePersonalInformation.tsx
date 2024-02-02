@@ -39,16 +39,20 @@ export default function StudentUpdatePersonalInformation() {
   }, [fetchModalidades]);
 
   useEffect(() => {
-    // Lógica para montar a lista de opções de alunos baseada nas modalidades carregadas
-    const newAlunosOptions = modalidades.flatMap((modalidade) =>
-      modalidade.turmas.flatMap((turma) =>
-        (turma.alunos ?? []).map((aluno) => ({ // Usando o operador de coalescência nula (??) para garantir que um array vazio seja usado se turma.alunos for undefined
+    const newAlunosOptions = modalidades.flatMap(modalidade => {
+      return modalidade.turmas.flatMap(turma => {
+        // Certifique-se de que turma.alunos seja um array antes de tentar usar o .map()
+        if (!Array.isArray(turma.alunos)) {
+          console.error('Alunos não é um array para a turma:', turma);
+          return [];
+        }
+        return turma.alunos.map(aluno => ({
           ...aluno,
           nomeDaTurma: turma.nome_da_turma,
           modalidade: modalidade.nome,
-        }))
-      )
-    );
+        }));
+      });
+    });
     setAlunosOptions(newAlunosOptions);
   }, [modalidades]);
   
