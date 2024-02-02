@@ -276,7 +276,7 @@ export default function StudentRegistration() {
                     <TextField
                       fullWidth
                       id={id}
-                      label="Tamanho do Uniforme"
+                      label="Digite Sim ou Não"
                       variant="standard"
                       sx={{ borderRadius: "4px" }}
                       required
@@ -307,7 +307,8 @@ export default function StudentRegistration() {
                       .filter(
                         (modalidade) =>
                           modalidade.nome !== "temporarios" &&
-                          modalidade.nome !== "arquivados"
+                          modalidade.nome !== "arquivados" &&
+                           modalidade.nome !== "excluidos"
                       )
                       .map((modalidade) => (
                         <MenuItem key={modalidade.nome} value={modalidade.nome}>
