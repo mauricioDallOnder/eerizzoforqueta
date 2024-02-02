@@ -131,7 +131,7 @@ export const fieldsTermosAvisos = [
   },
     {
     label:
-      "O uso da imagem e nome do atleta será utilizado para fins legítimos de divulgação e promoção da marca, sem ônus?",
+      "O uso da imagem e nome do atleta será utilizado para fins legítimos de divulgação e promoção da marca, sem ônus",
       id: "aluno.informacoesAdicionais.imagem",
   },
 ];
