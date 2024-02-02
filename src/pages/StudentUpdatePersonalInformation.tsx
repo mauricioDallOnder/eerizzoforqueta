@@ -9,6 +9,7 @@ import {
   List,
   Typography,
 } from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DataContext } from "@/context/context";
 import { IIAlunoUpdate } from "@/interface/interfaces";
@@ -44,12 +45,11 @@ export default function StudentUpdatePersonalInformation() {
   useEffect(() => {
     const newAlunosOptions = modalidades.flatMap((modalidade) => {
       return modalidade.turmas.flatMap((turma) => {
-        // Certifique-se de que turma.alunos seja um array antes de tentar usar o .map()
-        if (!Array.isArray(turma.alunos)) {
-          console.error("Alunos não é um array para a turma:", turma);
-          return [];
-        }
-        return turma.alunos.map((aluno) => ({
+        // Primeiro, certifique-se de que turma.alunos é um array e filtre elementos nulos
+        const alunosFiltrados = (Array.isArray(turma.alunos) ? turma.alunos : [])
+          .filter(aluno => aluno && aluno.nome); // Isso também verifica se o aluno não é nulo
+        // Agora você pode mapear os alunos filtrados com segurança
+        return alunosFiltrados.map(aluno => ({
           ...aluno,
           nomeDaTurma: turma.nome_da_turma,
           modalidade: modalidade.nome,
@@ -58,6 +58,9 @@ export default function StudentUpdatePersonalInformation() {
     });
     setAlunosOptions(newAlunosOptions);
   }, [modalidades]);
+  
+  
+  
 
   const onSubmit: SubmitHandler<IIAlunoUpdate> = async (data) => {
     try {
@@ -81,6 +84,7 @@ export default function StudentUpdatePersonalInformation() {
       setValue("anoNascimento", value.anoNascimento);
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
+      if (value.informacoesAdicionais) {
       setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
       setValue(
         "informacoesAdicionais.filhofuncionarioJBS",
@@ -147,6 +151,15 @@ export default function StudentUpdatePersonalInformation() {
         "informacoesAdicionais.pagadorMensalidades",
         value.informacoesAdicionais.pagadorMensalidades
       );
+      } else{
+        setValue("informacoesAdicionais.rg", '');
+        setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", '');
+        setValue("informacoesAdicionais.pagadorMensalidades.email", '');
+        setValue("informacoesAdicionais.pagadorMensalidades.cpf", '');
+        setValue("informacoesAdicionais.endereco.ruaAvenida", '');
+
+
+      }
       setValue("nomeDaTurma", value.nomeDaTurma);
       setValue("modalidade", value.modalidade);
     } else {
@@ -163,9 +176,7 @@ export default function StudentUpdatePersonalInformation() {
               <HeaderForm titulo={"Atualização de dados dos Atletas"} />
               <Autocomplete
                 options={alunosOptions}
-                getOptionLabel={(option) => {
-                  return option ? option.nome : "";
-                }}
+                getOptionLabel={(option) => option.nome || ''}
                 onChange={handleAlunoChange}
                 renderInput={(params) => (
                   <TextField
@@ -176,11 +187,15 @@ export default function StudentUpdatePersonalInformation() {
                     fullWidth
                   />
                 )}
-                renderOption={(props, option) => (
-                  <li {...props} key={option.alunoId}>
-                    {option.nome}
-                  </li>
-                )}
+                renderOption={(props, option) => {
+                  // Use uma chave única concatenando o ID do aluno com o nome. Se o ID estiver faltando, você pode usar um fallback como um UUID ou índice.
+                  const key = uuidv4() + option.id
+                  return (
+                    <li {...props} key={key}>
+                      {option.nome}
+                    </li>
+                  );
+                }}
               />
             </Box>
             {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
