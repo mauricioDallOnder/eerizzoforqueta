@@ -33,10 +33,17 @@ export default function TurmasInfoTable () {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
     // Função para abrir o modal com a turma selecionada
-    const handleOpenModal = (turma: Turma) => {
-      setSelectedTurma(turma);
-      setIsModalOpen(true);
-    };
+    // Função para abrir o modal com a turma selecionada
+const handleOpenModal = (turma: Turma) => {
+  // Verifica se a capacidade atual da turma é maior que 0 antes de abrir o modal
+  if (turma.capacidade_atual_da_turma > 0) {
+    setSelectedTurma(turma);
+    setIsModalOpen(true);
+  } else{
+    alert('essa turma não possui alunos')
+  }
+};
+
 
     const filteredTurmas = turmas.filter((aluno:Turma) =>
     aluno.nome_da_turma.toLowerCase().includes(searchTerm)
