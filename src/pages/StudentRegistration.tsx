@@ -531,11 +531,6 @@ export default function StudentRegistration() {
             <Button type="submit" variant="contained" disabled={isSubmitting}>
               {isSubmitting ? "Enviando dados,aguarde..." : "Cadastrar Atleta"}
             </Button>
-
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-  {isSubmitting ? "Enviando dados,aguarde..." : "Cadastrar Atleta"}
-</Button>
-
           </Box>
         </form>
       </Container>
