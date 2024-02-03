@@ -109,9 +109,10 @@ export type FormValuesStudent = {
 
 
 export interface ModalidadesData {
-  [key: string]: { turmas: Turma[] };
+  [modalidade: string]: {
+    turmas: Turma[];
+  };
 }
-
 
 export interface AttendanceModalContentProps {
   aluno: Aluno;
