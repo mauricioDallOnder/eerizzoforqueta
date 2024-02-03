@@ -48,8 +48,11 @@ export default function StudentRegistration() {
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
+  useEffect(() => {
+    fetchModalidades();
+  }, [fetchModalidades]);
 
-  //upload de imagem
+  //upload de imagem-------------------------------------------------------------------------------------------------------
   const [isUploading, setIsUploading] = useState(false);
   const [crop, setCrop] = useState({
     aspect: 512 / 768,
@@ -77,13 +80,10 @@ export default function StudentRegistration() {
     setFile(null);
     setAvatarUrl("");
   };
+  //----------------------------------------------------------------------------------------------
 
   const selectedModalidade = watch("modalidade");
   //const selectedTurma = watch('turmaSelecionada');
-
-  useEffect(() => {
-    fetchModalidades();
-  }, [fetchModalidades]);
 
   const getNucleosForModalidade = (modalidade: string) => {
     const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
@@ -105,18 +105,14 @@ export default function StudentRegistration() {
     setTurmasDisponiveis(turmasFiltradas || []);
   }, [selectedNucleo, modalidades, selectedModalidade]);
 
-  // Função para limpar todos os campos do formulário
-  const clearForm = () => {
-    reset();
-  };
-
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
     const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
     data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-    data.aluno.foto = avatarUrl;
+
     const turmaEscolhida = modalidades
       .find((m) => m.nome === data.modalidade)
       ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
+
     if (
       turmaEscolhida &&
       turmaEscolhida.capacidade_atual_da_turma <
