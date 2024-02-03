@@ -32,3 +32,8 @@ export default async function getModalidades(req: NextApiRequest, res: NextApiRe
     res.status(405).end('Method Not Allowed');
   }
 }
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
