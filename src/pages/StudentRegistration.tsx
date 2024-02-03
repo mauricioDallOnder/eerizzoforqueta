@@ -411,18 +411,16 @@ export default function StudentRegistration() {
                     variant="outlined"
                     sx={{ marginBottom: 2 }}
                   >
-                    {modalidades
-                      .filter(
-                        (modalidade) =>
-                          modalidade.nome !== "temporarios" &&
-                          modalidade.nome !== "arquivados" &&
-                          modalidade.nome !== "excluidos"
-                      )
-                      .map((modalidade) => (
-                        <MenuItem key={modalidade.nome} value={modalidade.nome}>
-                          {modalidade.nome}
-                        </MenuItem>
-                      ))}
+                    {[
+                      { value: "futebol", label: "futebol" },
+                      { value: "futsal", label: "futsal" },
+                      { value: "volei", label: "volei" },
+                      
+                    ].map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
                   </TextField>
                 </Grid>
 
