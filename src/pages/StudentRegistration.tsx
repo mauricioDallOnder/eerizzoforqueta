@@ -35,34 +35,25 @@ import "react-image-crop/dist/ReactCrop.css";
 import { storage } from "../config/firestoreConfig";
 import resizeImage from "../utils/Constants";
 import { v4 as uuidv4 } from "uuid";
+import { dadosLocais } from "@/utils/estruturaLocal";
+
 export default function StudentRegistration() {
   const {
     register,
     handleSubmit,
     watch,
-    reset,
     setValue,
     formState: { isSubmitting, errors },
   } = useForm<FormValuesStudent>();
-  const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
+  const { sendDataToApi } = useData();
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
-  useEffect(() => {
-    fetchModalidades();
-  }, [fetchModalidades]);
-
-  //upload de imagem-------------------------------------------------------------------------------------------------------
   const [isUploading, setIsUploading] = useState(false);
-  const [crop, setCrop] = useState({
-    aspect: 512 / 768,
-    width: 512,
-    height: 768,
-  });
-  const [croppedImageUrl, setCroppedImageUrl] = useState(null);
   const [file, setFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files![0];
     try {
@@ -80,83 +71,83 @@ export default function StudentRegistration() {
     setFile(null);
     setAvatarUrl("");
   };
-  //----------------------------------------------------------------------------------------------
 
-  const selectedModalidade = watch("modalidade");
-  //const selectedTurma = watch('turmaSelecionada');
-
-  const getNucleosForModalidade = (modalidade: string) => {
-    const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
-    if (!turmas) return [];
-    const nucleos = new Set(turmas.map((turma) => turma.nucleo));
-    return Array.from(nucleos);
+  const atualizarNucleosDisponiveis = (modalidade: string) => {
+    const turmas = dadosLocais[modalidade]?.turmas || [];
+    const nucleosSet = new Set(turmas.map((turma) => turma.nucleo));
+    const nucleos = Array.from(nucleosSet);
+    setNucleosDisponiveis(nucleos);
   };
 
+  const atualizarTurmasDisponiveis = (modalidade: string, nucleo: string) => {
+    const turmas = dadosLocais[modalidade]?.turmas || [];
+    const turmasFiltradas = turmas.filter((turma) => turma.nucleo === nucleo);
+    setTurmasDisponiveis(turmasFiltradas);
+  };
+
+  // Monitorando mudanças na modalidade e núcleo selecionado
+  const selectedModalidade = watch("modalidade");
   useEffect(() => {
-    const nucleos = getNucleosForModalidade(selectedModalidade);
-    setNucleosDisponiveis(nucleos);
-    setSelectedNucleo("");
+    if (selectedModalidade) {
+      atualizarNucleosDisponiveis(selectedModalidade);
+    }
   }, [selectedModalidade]);
 
   useEffect(() => {
-    const turmasFiltradas = modalidades
-      .find((m) => m.nome === selectedModalidade)
-      ?.turmas.filter((turma) => turma.nucleo === selectedNucleo);
-    setTurmasDisponiveis(turmasFiltradas || []);
-  }, [selectedNucleo, modalidades, selectedModalidade]);
+    if (selectedModalidade && selectedNucleo) {
+      atualizarTurmasDisponiveis(selectedModalidade, selectedNucleo);
+    }
+  }, [selectedModalidade, selectedNucleo]);
 
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
+    setIsUploading(true);
     const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
     data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
 
-    const turmaEscolhida = modalidades
-      .find((m) => m.nome === data.modalidade)
-      ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
-
+    // Aqui você acessa os dados locais diretamente
+    const turmaEscolhida = dadosLocais[data.modalidade]?.turmas.find(
+      (turma) => turma.nome_da_turma === data.turmaSelecionada
+    );
     if (
       turmaEscolhida &&
       turmaEscolhida.capacidade_atual_da_turma <
         turmaEscolhida.capacidade_maxima_da_turma
     ) {
-      if (file) {
-        setIsUploading(true);
-        const fileName = uuidv4() + file.name;
-        const fileRef = ref(storage, fileName);
-        const uploadTask = uploadBytesResumable(fileRef, file);
+      {
+        if (file) {
+          const fileName = uuidv4() + file.name;
+          const fileRef = ref(storage, fileName);
+          const uploadTask = uploadBytesResumable(fileRef, file);
 
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            // Compute and update the progress
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-          },
-          (error) => {
-            // Handle unsuccessful uploads
-            console.log(error);
-          },
-          async () => {
-            const downloadURL = await getDownloadURL(fileRef);
-            setAvatarUrl(downloadURL);
-            await sendDataToApi(data);
-            setValue("modalidade", "");
-            setValue("turmaSelecionada", "");
-            setSelectedNucleo("");
-            setTurmasDisponiveis([]);
-            setIsUploading(false); // reset after successful upload
-            setAvatarUrl(""); // reset avatar url after successful upload
-            alert("Aluno Cadastrado com sucesso");
-          }
-        );
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Compute and update the progress
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            },
+            (error) => {
+              // Handle unsuccessful uploads
+              console.log(error);
+            },
+            async () => {
+              const downloadURL = await getDownloadURL(fileRef);
+              setAvatarUrl(downloadURL);
+              await sendDataToApi(data);
+              setValue("modalidade", "");
+              setValue("turmaSelecionada", "");
+              setSelectedNucleo("");
+              setTurmasDisponiveis([]);
+              setAvatarUrl(""); // reset avatar url after successful upload
+              setIsUploading(false); // reset after successful upload
+              alert("Aluno Cadastrado com sucesso");
+            }
+          );
+        }
       }
-    } else {
-      alert(
-        "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
-      );
     }
   };
-
   return (
     <Layout>
       <Container>
@@ -415,7 +406,6 @@ export default function StudentRegistration() {
                       { value: "futebol", label: "futebol" },
                       { value: "futsal", label: "futsal" },
                       { value: "volei", label: "volei" },
-                      
                     ].map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
@@ -429,10 +419,8 @@ export default function StudentRegistration() {
                   <TextField
                     select
                     label="Local de treinamento"
-                    value={selectedNucleo ? selectedNucleo : ""}
-                    onChange={(event) =>
-                      setSelectedNucleo(event.target.value as string)
-                    }
+                    value={selectedNucleo}
+                    onChange={(event) => setSelectedNucleo(event.target.value)}
                     fullWidth
                     required
                     variant="outlined"
@@ -522,8 +510,14 @@ export default function StudentRegistration() {
                 ))}
               </Grid>
             </List>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? "Enviando dados,aguarde..." : "Cadastrar Atleta"}
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting || isUploading}
+            >
+              {isSubmitting || isUploading
+                ? "Enviando dados, aguarde..."
+                : "Cadastrar Atleta"}
             </Button>
           </Box>
         </form>
