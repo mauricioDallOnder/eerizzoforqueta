@@ -122,7 +122,7 @@ export default function StudentRegistration() {
               await sendDataToApi(updatedData); // Envia os dados atualizados para o backend/Firebase
               setIsUploading(false);
   
-              //reset(); // Resetar o formulário aqui, se necessário
+              reset(); // Resetar o formulário aqui, se necessário
               alert("O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente.");
             } catch (error) {
               console.error("Erro ao enviar os dados do formulário", error);
@@ -323,6 +323,20 @@ export default function StudentRegistration() {
                     />
                   </Grid>
                 ))}
+                <Grid item xs={12} sm={6} >
+                    <TextField
+                      fullWidth
+                      
+                      label="Complemento"
+                      variant="standard"
+                      sx={{
+                        borderRadius: "4px",
+                      }}
+                     
+                      {...register("aluno.informacoesAdicionais.endereco.complemento")} // asserção de tipo aqui
+                    />
+                  </Grid>
+                //
               </Grid>
             </List>
 
@@ -432,7 +446,7 @@ export default function StudentRegistration() {
                       .filter(
                         (modalidade) =>
                           modalidade.nome !== "temporarios" &&
-                          modalidade.nome !== "arquivados" && modalidade.nome !== "excluidos"
+                          modalidade.nome !== "arquivados"
                       )
                       .map((modalidade) => (
                         <MenuItem key={modalidade.nome} value={modalidade.nome}>
