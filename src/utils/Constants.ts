@@ -64,7 +64,7 @@ export const fieldsDadosGeraisAtleta = [
   },
   {
     label:
-      "Você autoriza seu o aluno a participar de competições?",
+      "Você autoriza seu o seu filho(a) a participar de competições?",
     id: "aluno.informacoesAdicionais.competicao",
   },
  
