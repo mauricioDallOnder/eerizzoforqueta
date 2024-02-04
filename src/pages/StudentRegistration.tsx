@@ -122,7 +122,7 @@ export default function StudentRegistration() {
               await sendDataToApi(updatedData); // Envia os dados atualizados para o backend/Firebase
               setIsUploading(false);
   
-              reset(); // Resetar o formulário aqui, se necessário
+              //reset(); // Resetar o formulário aqui, se necessário
               alert("O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente.");
             } catch (error) {
               console.error("Erro ao enviar os dados do formulário", error);
