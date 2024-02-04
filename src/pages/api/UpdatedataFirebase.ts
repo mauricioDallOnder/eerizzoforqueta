@@ -6,7 +6,7 @@ import { Turma } from '@/interface/interfaces';
 export default async function updateAttendance(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {
     try {
-      const { modalidade, nomeDaTurma, anoNascimento,telefoneComWhatsapp, informacoesAdicionais,nome,alunoId } = req.body;
+      const { modalidade, nomeDaTurma, anoNascimento,telefoneComWhatsapp, informacoesAdicionais,nome,alunoId,foto } = req.body;
 
      // Caminho para as turmas da modalidade
      const turmasRef = admin.database().ref(`modalidades/${modalidade}/turmas`);
@@ -38,6 +38,7 @@ export default async function updateAttendance(req: NextApiRequest, res: NextApi
         anoNascimento: anoNascimento,
         telefoneComWhatsapp: telefoneComWhatsapp,
         informacoesAdicionais: informacoesAdicionais,
+        foto: foto, // Atualize o campo foto aqui
       });
 
       return res.status(200).json({ message: 'Informações do aluno atualizadas com sucesso' });
