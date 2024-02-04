@@ -94,37 +94,38 @@ const sendDataToApi = async (data: FormValuesStudent) => {
   };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar informações pessoais do estudante
-const updateDataInApi = async (data: IIAlunoUpdate ) => {
+const updateDataInApi = async (data: IIAlunoUpdate) => {
   const payload = {
     modalidade: data.modalidade,
     nomeDaTurma: data.nomeDaTurma,
-    alunoId: data.alunoId, // Add alunoId here
+    alunoId: data.alunoId,
     anoNascimento: data.anoNascimento,
     telefoneComWhatsapp: data.telefoneComWhatsapp,
     nome: data.nome,
     informacoesAdicionais: data.informacoesAdicionais,
+    foto: data.foto, // Inclua o campo foto aqui
   };
 
-    try {
-      const response = await fetch("/api/UpdatedataFirebase", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const response = await fetch("/api/UpdatedataFirebase", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      // Lide com a resposta...
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      } else {
-        const responseData = await response.json();
-       
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar presença:", error);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    } else {
+      const responseData = await response.json();
+      // Lide com a resposta da API aqui...
     }
-  };
+  } catch (error) {
+    console.error("Erro ao atualizar informações do aluno:", error);
+  }
+};
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar presenças do estudante
 const updateAttendanceInApi = async (data: AlunoPresencaUpdate) => {
