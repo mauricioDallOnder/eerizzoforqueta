@@ -15,10 +15,6 @@ export const fieldsEndereco = [
   },
   { label: "Bairro", id: "aluno.informacoesAdicionais.endereco.bairro" },
   { label: "CEP", id: "aluno.informacoesAdicionais.endereco.cep" },
-  {
-    label: "Complemento",
-    id: "aluno.informacoesAdicionais.endereco.complemento",
-  },
 ];
 //pagadorMensalidades
 export const fieldsResponsavelMensalidade = [
