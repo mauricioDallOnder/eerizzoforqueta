@@ -20,6 +20,8 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { storage } from "../config/firestoreConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default function StudentUpdatePersonalInformation() {
   const { updateDataInApi, modalidades, fetchModalidades } =
@@ -28,6 +30,50 @@ export default function StudentUpdatePersonalInformation() {
     null
   );
   const [alunosOptions, setAlunosOptions] = useState<IIAlunoUpdate[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [photoURL, setPhotoURL] = useState<string | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    setSelectedFile(file);
+    if (file) {
+      const photoPreviewUrl = URL.createObjectURL(file);
+      setPhotoURL(photoPreviewUrl); // Atualiza a visualização da foto na interface do usuário
+    }
+  };
+
+  const uploadPhoto = async (): Promise<string | null> => {
+    if (!selectedFile) return null; // Retorna null explicitamente se não houver arquivo selecionado
+  
+    const storageRef = ref(storage, `${selectedFile.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+  
+    return new Promise<string | null>((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Erro no upload da foto:", error);
+          reject(error); // Rejeita a Promise no caso de erro
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL); // Resolve com a URL em caso de sucesso
+            setPhotoURL(downloadURL)
+          } catch (error) {
+            console.error("Erro ao obter a URL da foto:", error);
+            resolve(null); // Resolve com null em caso de erro ao obter a URL
+          }
+        }
+      );
+    });
+  };
+  
 
   const {
     register,
@@ -46,10 +92,11 @@ export default function StudentUpdatePersonalInformation() {
     const newAlunosOptions = modalidades.flatMap((modalidade) => {
       return modalidade.turmas.flatMap((turma) => {
         // Primeiro, certifique-se de que turma.alunos é um array e filtre elementos nulos
-        const alunosFiltrados = (Array.isArray(turma.alunos) ? turma.alunos : [])
-          .filter(aluno => aluno && aluno.nome); // Isso também verifica se o aluno não é nulo
+        const alunosFiltrados = (
+          Array.isArray(turma.alunos) ? turma.alunos : []
+        ).filter((aluno) => aluno && aluno.nome); // Isso também verifica se o aluno não é nulo
         // Agora você pode mapear os alunos filtrados com segurança
-        return alunosFiltrados.map(aluno => ({
+        return alunosFiltrados.map((aluno) => ({
           ...aluno,
           nomeDaTurma: turma.nome_da_turma,
           modalidade: modalidade.nome,
@@ -58,22 +105,43 @@ export default function StudentUpdatePersonalInformation() {
     });
     setAlunosOptions(newAlunosOptions);
   }, [modalidades]);
-  
-  
-  
 
   const onSubmit: SubmitHandler<IIAlunoUpdate> = async (data) => {
+    console.log("Dados do formulário antes do upload:", data);
+
     try {
-      await updateDataInApi({
-        ...data,
-        alunoId: selectedAluno?.id, // Ensure that you include the student's ID here
-      });
-      alert("Cadastro atualizado com sucesso");
-      reset();
+        let finalPhotoUrl = photoURL; // Use a URL atual do estado
+
+        if (selectedFile) {
+            console.log("Iniciando upload da foto...");
+            finalPhotoUrl = await uploadPhoto(); // Aguarda o upload e atualiza a URL
+            console.log("Foto carregada com sucesso, URL:", finalPhotoUrl);
+        }
+
+        const updatedData = {
+            ...data,
+            foto: finalPhotoUrl || data.foto, // Garante que a foto seja atualizada corretamente
+        };
+
+        console.log("Atualizando dados do aluno com a nova URL da foto:", finalPhotoUrl);
+        await updateDataInApi({
+            ...updatedData,
+            alunoId: selectedAluno?.id,
+        });
+
+        console.log("Cadastro atualizado com sucesso");
+        alert("Cadastro atualizado com sucesso");
     } catch (error) {
-      console.error("Erro ao enviar os dados do formulário", error);
+        console.error("Erro ao enviar os dados do formulário", error);
+    } finally {
+        reset();
+        setSelectedFile(null);
+        setPhotoURL(null); // Limpa o estado após o envio
     }
-  };
+};
+
+
+  
 
   const handleAlunoChange = (_event: any, value: IIAlunoUpdate | null) => {
     setSelectedAluno(value);
@@ -85,80 +153,78 @@ export default function StudentUpdatePersonalInformation() {
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
       setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
       if (value.informacoesAdicionais) {
-      setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
-      setValue(
-        "informacoesAdicionais.filhofuncionarioJBS",
-        value.informacoesAdicionais.filhofuncionarioJBS
-      );
-      setValue(
-        "informacoesAdicionais.socioJBS",
-        value.informacoesAdicionais.socioJBS
-      );
-      setValue(
-        "informacoesAdicionais.nomefuncionarioJBS",
-        value.informacoesAdicionais.nomefuncionarioJBS
-      );
-      setValue(
-        "informacoesAdicionais.filhofuncionariomarcopolo",
-        value.informacoesAdicionais.filhofuncionariomarcopolo
-      );
-      setValue(
-        "informacoesAdicionais.nomefuncionariomarcopolo",
-        value.informacoesAdicionais.nomefuncionariomarcopolo
-      );
-      setValue(
-        "informacoesAdicionais.uniforme",
-        value.informacoesAdicionais.uniforme
-      );
+        setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
+        setValue(
+          "informacoesAdicionais.filhofuncionarioJBS",
+          value.informacoesAdicionais.filhofuncionarioJBS
+        );
+        setValue(
+          "informacoesAdicionais.socioJBS",
+          value.informacoesAdicionais.socioJBS
+        );
+        setValue(
+          "informacoesAdicionais.nomefuncionarioJBS",
+          value.informacoesAdicionais.nomefuncionarioJBS
+        );
+        setValue(
+          "informacoesAdicionais.filhofuncionariomarcopolo",
+          value.informacoesAdicionais.filhofuncionariomarcopolo
+        );
+        setValue(
+          "informacoesAdicionais.nomefuncionariomarcopolo",
+          value.informacoesAdicionais.nomefuncionariomarcopolo
+        );
+        setValue(
+          "informacoesAdicionais.uniforme",
+          value.informacoesAdicionais.uniforme
+        );
 
-      setValue(
-        "informacoesAdicionais.escolaEstuda",
-        value.informacoesAdicionais.escolaEstuda
-      );
-      setValue(
-        "informacoesAdicionais.irmaos",
-        value.informacoesAdicionais.irmaos
-      );
-      setValue(
-        "informacoesAdicionais.saude",
-        value.informacoesAdicionais.saude
-      );
-      setValue(
-        "informacoesAdicionais.problemasaude",
-        value.informacoesAdicionais.problemasaude
-      );
-      setValue(
-        "informacoesAdicionais.medicacao",
-        value.informacoesAdicionais.medicacao
-      );
-      setValue(
-        "informacoesAdicionais.tipomedicacao",
-        value.informacoesAdicionais.tipomedicacao
-      );
-      setValue(
-        "informacoesAdicionais.convenio",
-        value.informacoesAdicionais.convenio
-      );
-      setValue(
-        "informacoesAdicionais.imagem",
-        value.informacoesAdicionais.imagem
-      );
-      setValue(
-        "informacoesAdicionais.endereco",
-        value.informacoesAdicionais.endereco
-      );
-      setValue(
-        "informacoesAdicionais.pagadorMensalidades",
-        value.informacoesAdicionais.pagadorMensalidades
-      );
-      } else{
-        setValue("informacoesAdicionais.rg", '');
-        setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", '');
-        setValue("informacoesAdicionais.pagadorMensalidades.email", '');
-        setValue("informacoesAdicionais.pagadorMensalidades.cpf", '');
-        setValue("informacoesAdicionais.endereco.ruaAvenida", '');
-
-
+        setValue(
+          "informacoesAdicionais.escolaEstuda",
+          value.informacoesAdicionais.escolaEstuda
+        );
+        setValue(
+          "informacoesAdicionais.irmaos",
+          value.informacoesAdicionais.irmaos
+        );
+        setValue(
+          "informacoesAdicionais.saude",
+          value.informacoesAdicionais.saude
+        );
+        setValue(
+          "informacoesAdicionais.problemasaude",
+          value.informacoesAdicionais.problemasaude
+        );
+        setValue(
+          "informacoesAdicionais.medicacao",
+          value.informacoesAdicionais.medicacao
+        );
+        setValue(
+          "informacoesAdicionais.tipomedicacao",
+          value.informacoesAdicionais.tipomedicacao
+        );
+        setValue(
+          "informacoesAdicionais.convenio",
+          value.informacoesAdicionais.convenio
+        );
+        setValue(
+          "informacoesAdicionais.imagem",
+          value.informacoesAdicionais.imagem
+        );
+        setValue(
+          "informacoesAdicionais.endereco",
+          value.informacoesAdicionais.endereco
+        );
+        setValue(
+          "informacoesAdicionais.pagadorMensalidades",
+          value.informacoesAdicionais.pagadorMensalidades
+        );
+      } else {
+        setValue("informacoesAdicionais.rg", "");
+        setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", "");
+        setValue("informacoesAdicionais.pagadorMensalidades.email", "");
+        setValue("informacoesAdicionais.pagadorMensalidades.cpf", "");
+        setValue("informacoesAdicionais.endereco.ruaAvenida", "");
       }
       setValue("nomeDaTurma", value.nomeDaTurma);
       setValue("modalidade", value.modalidade);
@@ -176,7 +242,7 @@ export default function StudentUpdatePersonalInformation() {
               <HeaderForm titulo={"Atualização de dados dos Atletas"} />
               <Autocomplete
                 options={alunosOptions}
-                getOptionLabel={(option) => option.nome || ''}
+                getOptionLabel={(option) => option.nome || ""}
                 onChange={handleAlunoChange}
                 renderInput={(params) => (
                   <TextField
@@ -189,7 +255,7 @@ export default function StudentUpdatePersonalInformation() {
                 )}
                 renderOption={(props, option) => {
                   // Use uma chave única concatenando o ID do aluno com o nome. Se o ID estiver faltando, você pode usar um fallback como um UUID ou índice.
-                  const key = uuidv4() + option.id
+                  const key = uuidv4() + option.id;
                   return (
                     <li {...props} key={key}>
                       {option.nome}
@@ -231,9 +297,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.rg", {
-                      required: true,
-                    })}
+                    {...register("informacoesAdicionais.rg", {})}
                     label="RG"
                     fullWidth
                     margin="normal"
@@ -241,70 +305,49 @@ export default function StudentUpdatePersonalInformation() {
                   />
                 </Grid>
 
-                {selectedAluno && selectedAluno.foto && (
-                  <>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Foto do Atleta
-                      </Typography>
-                      <Box
-                        sx={{
-                          border: "1px dashed grey",
-                          borderRadius: "4px", // Se você quiser cantos arredondados, senão remova esta linha
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%", // Largura total do contêiner
-                          height: "200px", // Ajuste conforme necessário para altura
-                          overflow: "hidden", // Isso garantirá que a imagem não ultrapasse a caixa
-                          position: "relative", // Posicionamento relativo para elementos internos absolutos
-                          "&:hover": {
-                            backgroundColor: "#f0f0f0",
-                            cursor: "pointer",
-                          },
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Foto do Atleta
+                  </Typography>
+                  <Box
+                    sx={{
+                      border: "1px dashed grey",
+                      padding: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: 200,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {photoURL || selectedAluno?.foto ? (
+                      <img
+                        src={photoURL || selectedAluno?.foto}
+                        alt="Foto do Aluno"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                         }}
-                      >
-                        <img
-                          src={selectedAluno.foto}
-                          alt="Foto do Aluno"
-                          style={{
-                            width: "100%", // Isso fará com que a imagem preencha a largura da caixa
-                            height: "100%", // Isso fará com que a imagem preencha a altura da caixa
-                            objectFit: "cover", // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            position: "absolute", // Posicionamento absoluto para sobrepor a imagem
-                            bottom: 0,
-                            left: 0,
-                            width: "100%",
-                            backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo translúcido para o texto ser legível
-                            color: "white",
-                            textAlign: "center",
-                            p: "8px",
-                          }}
-                        >
-                           <Button
-                          variant="contained"
-                          color="primary"
-                          component="a"
-                          href={selectedAluno.foto}
-                          download
-                          startIcon={<CloudDownloadIcon />}
-                          sx={{
-                            marginTop: 3, // alinha verticalmente com a Box
-                          }}
-                        >
-                          Baixar Foto
-                        </Button>
-                        </Box>
-                       
-                      </Box>
-                    </Grid>
-                  </>
-                )}
+                      />
+                    ) : (
+                      <Typography variant="body1">
+                        Nenhuma foto selecionada
+                      </Typography>
+                    )}
+                    <Button
+                      variant="contained"
+                      component="label"
+                      sx={{ mt: 2 }}
+                    >
+                      {selectedAluno?.foto || photoURL
+                        ? "Alterar Foto"
+                        : "Carregar Foto"}
+                      <input type="file" hidden onChange={handleFileChange} />
+                    </Button>
+                  </Box>
+                </Grid>
               </Grid>
             </List>
 
@@ -472,9 +515,10 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.endereco.complemento", {
-                      required: true,
-                    })}
+                    {...register(
+                      "informacoesAdicionais.endereco.complemento",
+                      {}
+                    )}
                     label="Complemento"
                     fullWidth
                     margin="normal"
