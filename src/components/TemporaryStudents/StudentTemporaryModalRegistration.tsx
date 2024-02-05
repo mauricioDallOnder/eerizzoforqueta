@@ -39,9 +39,16 @@ export default function TemporaryStudentRegistration({
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
+  const [studentName, setStudentName] = useState("");
 
+  // Atualiza o nome do aluno sempre que o campo de texto muda
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = event.target.value + " Temporário"; // Adiciona " Temporário" ao nome
+    setStudentName(newName); // Atualiza o estado
+  };
   const selectedModalidade = watch("modalidade");
-  //const selectedTurma = watch('turmaSelecionada');
+  
+
 
   useEffect(() => {
     fetchModalidades();
@@ -50,7 +57,7 @@ export default function TemporaryStudentRegistration({
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
     const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
     data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-
+    data.aluno.nome = studentName
     const turmaEscolhida = modalidades
       .find((m) => m.nome === data.modalidade)
       ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
@@ -107,14 +114,19 @@ export default function TemporaryStudentRegistration({
               alignItems="center"
             >
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Nome do Aluno"
-                  variant="standard"
-                  required
-                  {...register("aluno.nome")}
-                />
-              </Grid>
+            <TextField
+              fullWidth
+              label="Nome do Aluno"
+              variant="standard"
+              {...register("aluno.nome")}
+              required
+              value={studentName.replace(" Temporário", "")} // Remove " Temporário" ao exibir
+              onChange={handleNameChange} // Atualiza o nome quando o campo é alterado
+              InputProps={{
+                endAdornment: <Typography variant="caption">Temporário</Typography>, // Adiciona a palavra "Temporário" como sufixo no campo de texto
+              }}
+            />
+          </Grid>
               {/* Restante dos campos do formulário */}
               <Grid item xs={12} sm={4}>
                 <TextField
