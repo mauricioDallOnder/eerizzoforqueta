@@ -168,7 +168,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
           onChange={(e) => setSelectedMonth(e.target.value)}
           fullWidth
         >
-          <MenuItem value="janeiro">Janeiro</MenuItem>
+          
           <MenuItem value="fevereiro">Fevereiro</MenuItem>
           <MenuItem value="março">Março</MenuItem>
           <MenuItem value="abril">Abril</MenuItem>
