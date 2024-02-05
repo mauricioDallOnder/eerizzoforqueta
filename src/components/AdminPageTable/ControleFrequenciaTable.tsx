@@ -10,6 +10,8 @@ import {
   TextField,
   Container,
   Button,
+  Box,
+  Typography,
 } from "@mui/material";
 import { AdminTableProps, Aluno } from "@/interface/interfaces";
 import Modal from "@mui/material/Modal";
@@ -54,32 +56,39 @@ export default function ControleFrequenciaTable({
   return (
     <>
       <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
+      <Box
+  sx={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: { xs: '90%', sm: '80%', md: '70%', lg: '60%' }, // Responsivo
+    maxHeight: '90vh',
+    overflowY: 'auto', // Para tabelas grandes
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  }}
+>
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      pb: 2, // Espaçamento no fundo do cabeçalho
+    }}
+  >
+    <Typography variant="h6" component="h2" sx={{color:"black"}}>
+      Turma: {nomeDaTurma} - Total de Faltas Mês a Mês
+    </Typography>
+    <Button onClick={onClose} variant="contained" color="error">
+      Fechar
+    </Button>
+  </Box>
         <TableContainer component={Paper}>
           <Table aria-label="collapsible table">
             <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    border: "1px solid black",
-                    display: "flex",
-                    justifyContent: "space-between", // Alinha os itens nos extremos
-                    alignItems: "center", // Centraliza verticalmente
-                    width: "100%", // Ocupa toda a largura disponível
-                    paddingRight: 2, // Garante um espaçamento interno à direita
-                  }}
-                  colSpan={13}
-                >
-                  <span>Turma: {nomeDaTurma} - Total de Faltas Mês a Mês</span>
-                  <Button
-                    onClick={onClose}
-                    variant="contained"
-                    color="error"
-                    sx={{ ml: "auto" }}
-                  >
-                    Fechar
-                  </Button>
-                </TableCell>
-              </TableRow>
+              
               <TableRow>
                 <TableCell sx={{ border: "1px solid black" }}>Nome</TableCell>
                 {months.map((month) => (
@@ -126,6 +135,7 @@ export default function ControleFrequenciaTable({
             </TableBody>
           </Table>
         </TableContainer>
+        </Box>
       </Modal>
     </>
   );
