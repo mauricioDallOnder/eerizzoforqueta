@@ -15,6 +15,7 @@ export const fieldsEndereco = [
   },
   { label: "Bairro", id: "aluno.informacoesAdicionais.endereco.bairro" },
   { label: "CEP", id: "aluno.informacoesAdicionais.endereco.cep" },
+  
 ];
 //pagadorMensalidades
 export const fieldsResponsavelMensalidade = [
@@ -60,7 +61,7 @@ export const fieldsDadosGeraisAtleta = [
   },
   {
     label:
-      "Você autoriza seu o seu filho(a) a participar de competições?",
+      "Você autoriza seu o aluno a participar de competições?",
     id: "aluno.informacoesAdicionais.competicao",
   },
  
@@ -107,7 +108,7 @@ export const fieldsTermosAvisos = [
   },
   {
     label:
-      "Você se compromete a avisar antecipadamente a ausência de seu filho aos treinos, bem como a informar sobre possíveis problemas de saúde?",
+      "Você se compromete a avisar antecipadamente a ausência de seu filho(a) aos treinos, bem como a informar sobre possíveis problemas de saúde?",
     id: "aluno.informacoesAdicionais.avisaAusencia",
   },
   {
@@ -127,7 +128,7 @@ export const fieldsTermosAvisos = [
   },
     {
     label:
-      "O uso da imagem e nome do atleta será utilizado para fins legítimos de divulgação e promoção da marca, sem ônus",
+      "O uso da imagem e nome do(a) atleta será utilizado para fins legítimos de divulgação e promoção da marca, sem ônus",
       id: "aluno.informacoesAdicionais.imagem",
   },
 ];
@@ -192,7 +193,7 @@ export function gerarPresencasParaAluno(diaDaSemana: string): Presencas {
   };
 
   let presencas: Presencas = {};
-  for (let mes = 0; mes < 12; mes++) {
+  for (let mes = 1; mes < 7; mes++) {
     let nomeMes = new Date(ano, mes, 1).toLocaleString("pt-BR", {
       month: "long",
     });
