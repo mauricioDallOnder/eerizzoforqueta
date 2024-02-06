@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -36,6 +36,16 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   const [search, setSearch] = useState("");
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("xs"));
+
+  // Estado para alunos ordenados
+  const [alunosOrdenados, setAlunosOrdenados] = useState<Aluno[]>([]);
+
+  useEffect(() => {
+    // Ordena os alunos por nome em ordem alfabética
+    const alunosOrdenados = [...alunosDaTurma].sort((a, b) => a.nome.localeCompare(b.nome));
+    setAlunosOrdenados(alunosOrdenados);
+  }, [alunosDaTurma]);
+
 
   const tableContainerStyles = {
     marginTop: 2,
@@ -80,10 +90,9 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
     setSearch(event.target.value);
   };
   // Filtre os alunos com base na string de pesquisa
-  const filteredAlunos = alunosDaTurma.filter((aluno) => {
-    // Verificar se o aluno não é nulo antes de acessar suas propriedades
-    return aluno && aluno.nome.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredAlunos = alunosOrdenados.filter((aluno) =>
+  aluno.nome.toLowerCase().includes(search.toLowerCase())
+);
 
   const toggleAttendance = (alunoId: number, day: string) => {
     setAlunosDaTurma((current) =>
