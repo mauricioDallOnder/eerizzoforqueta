@@ -43,7 +43,7 @@ export default function TemporaryStudentRegistration({
 
   // Atualiza o nome do aluno sempre que o campo de texto muda
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = event.target.value + " Temporário"; // Adiciona " Temporário" ao nome
+    const newName = event.target.value // Adiciona " Temporário" ao nome
     setStudentName(newName); // Atualiza o estado
   };
   const selectedModalidade = watch("modalidade");
@@ -120,11 +120,9 @@ export default function TemporaryStudentRegistration({
               variant="standard"
               {...register("aluno.nome")}
               required
-              value={studentName.replace(" Temporário", "")} // Remove " Temporário" ao exibir
+              
               onChange={handleNameChange} // Atualiza o nome quando o campo é alterado
-              InputProps={{
-                endAdornment: <Typography variant="caption">Temporário</Typography>, // Adiciona a palavra "Temporário" como sufixo no campo de texto
-              }}
+             
             />
           </Grid>
               {/* Restante dos campos do formulário */}
