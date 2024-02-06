@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { TextField, Button, Box, Autocomplete, Container } from "@mui/material";
+import { TextField, Button, Box, Autocomplete, Container, Typography } from "@mui/material";
 
 import { DataContext } from "@/context/context";
 import { Modalidade, Turma } from "@/interface/interfaces";
@@ -34,7 +34,12 @@ export default function MoveStudentForm() {
   const [alunosOptions, setAlunosOptions] = useState<AlunoAutocompleteOption[]>([]);
   const [turmasDestinoOptions, setTurmasDestinoOptions] = useState<Turma[]>([]);
   const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
+  const turmaOrigem = alunosOptions.find(a => a.nome === watch("alunoNome"))?.turma;
+  // Encontre a turma correspondente para obter a quantidade de alunos
+  const quantidadeAlunosTurmaOrigem = modalidades.flatMap(m => m.turmas)
+    .find(t => t.nome_da_turma === turmaOrigem)?.capacidade_atual_da_turma
 
+   
   useEffect(() => {
     fetchModalidades().catch(console.error);
   }, [fetchModalidades]);
@@ -43,7 +48,7 @@ export default function MoveStudentForm() {
     setModalidadesOptions(modalidades);
   }, [modalidades]);
 
- 
+
 
   useEffect(() => {
     const alunosExtraidos = modalidades.flatMap(modalidade =>
@@ -79,6 +84,7 @@ export default function MoveStudentForm() {
       setValue("modalidadeDestino", "");
       setValue("nomeDaTurmaDestino", "");
     }
+    
   }, [setValue]);
 
   const onSubmit: SubmitHandler<MoveStudentFormData> = useCallback(async (data) => {
@@ -93,118 +99,123 @@ export default function MoveStudentForm() {
 
   return (
     <Layout>
-    <Container>
-      <Box
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        sx={BoxStyleCadastro}
-      >
-        <HeaderForm titulo={"Mudança de Turma"}/>
-        <Autocomplete
-          options={alunosOptions}
-          getOptionLabel={(option) => option.nome}
-          onChange={handleAlunoChange}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Nome do Aluno"
-              margin="normal"
-              required
-              fullWidth
-              error={!!errors.alunoNome}
-              helperText={errors.alunoNome?.message}
-            />
-          )}
-          renderOption={(props, option) => (
-            <li {...props} key={`${props.id}-${option}`}>
-              {option.nome}
-            </li>
-          )}
-        />
+      <Container>
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={BoxStyleCadastro}
+        >
+          <HeaderForm titulo={"Mudança de Turma"} />
+          <Autocomplete
+            options={alunosOptions}
+            getOptionLabel={(option) => option.nome}
+            onChange={handleAlunoChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Nome do Aluno"
+                margin="normal"
+                required
+                fullWidth
+                error={!!errors.alunoNome}
+                helperText={errors.alunoNome?.message}
+              />
+            )}
+            renderOption={(props, option) => (
+              <li {...props} key={`${props.id}-${option}`}>
+                {option.nome}
+              </li>
+            )}
+          />
 
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          label="Modalidade de Origem"
-          {...register("modalidadeOrigem", {
-            required: "Modalidade de origem é obrigatória",
-          })}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          error={!!errors.modalidadeOrigem}
-          helperText={errors.modalidadeOrigem?.message}
-          disabled
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          label="Nome da Turma de Origem"
-          {...register("nomeDaTurmaOrigem", {
-            required: "Turma de origem é obrigatória",
-          })}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          disabled
-          error={!!errors.nomeDaTurmaOrigem}
-          helperText={errors.nomeDaTurmaOrigem?.message}
-        />
-        <Autocomplete
-          options={modalidadesOptions}
-          getOptionLabel={(option) => option.nome}
-          onChange={(_, newValue) => {
-            setValue("modalidadeDestino", newValue?.nome ?? "");
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              {...register("modalidadeDestino")}
-              label="Modalidade de Destino"
-              margin="normal"
-              required
-              fullWidth
-              error={!!errors.modalidadeDestino}
-              helperText={
-                errors.modalidadeDestino?.message ||
-                "Selecione a modalidade de destino"
-              }
-            />
-          )}
-        />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Modalidade de Origem"
+            {...register("modalidadeOrigem", {
+              required: "Modalidade de origem é obrigatória",
+            })}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            error={!!errors.modalidadeOrigem}
+            helperText={errors.modalidadeOrigem?.message}
+            disabled
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Nome da Turma de Origem"
+            {...register("nomeDaTurmaOrigem", {
+              required: "Turma de origem é obrigatória",
+            })}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            disabled
+            error={!!errors.nomeDaTurmaOrigem}
+            helperText={errors.nomeDaTurmaOrigem?.message}
+          />
+          <Autocomplete
+            options={modalidadesOptions}
+            getOptionLabel={(option) => option.nome}
+            onChange={(_, newValue) => {
+              setValue("modalidadeDestino", newValue?.nome ?? "");
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                {...register("modalidadeDestino")}
+                label="Modalidade de Destino"
+                margin="normal"
+                required
+                fullWidth
+                error={!!errors.modalidadeDestino}
+                helperText={
+                  errors.modalidadeDestino?.message ||
+                  "Selecione a modalidade de destino"
+                }
+              />
+            )}
+          />
 
-        {/* Campo Autocomplete para Nome da Turma de Destino */}
-        <Autocomplete
-          options={turmasDestinoOptions}
-          getOptionLabel={(option) => option.nome_da_turma}
-          onChange={(_, newValue) => {
-            setValue("nomeDaTurmaDestino", newValue?.nome_da_turma ?? "");
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              {...register("nomeDaTurmaDestino")}
-              label="Nome da Turma de Destino"
-              margin="normal"
-              required
-              fullWidth
-              error={!!errors.nomeDaTurmaDestino}
-              helperText={
-                errors.nomeDaTurmaDestino?.message ||
-                "Selecione a turma de destino"
-              }
-            />
-          )}
-        />
+          {/* Campo Autocomplete para Nome da Turma de Destino */}
+          <Autocomplete
+            options={turmasDestinoOptions}
+            getOptionLabel={(option) => option.nome_da_turma}
+            onChange={(_, newValue) => {
+              setValue("nomeDaTurmaDestino", newValue?.nome_da_turma ?? "");
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                {...register("nomeDaTurmaDestino")}
+                label="Nome da Turma de Destino"
+                margin="normal"
+                required
+                fullWidth
+                error={!!errors.nomeDaTurmaDestino}
+                helperText={
+                  errors.nomeDaTurmaDestino?.message ||
+                  "Selecione a turma de destino"
+                }
+              />
+            )}
+          />
 
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? "Enviando dados,aguarde..." : "Mover Aluno"}
-        </Button>
-      </Box>
-    </Container>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isSubmitting || quantidadeAlunosTurmaOrigem! <= 1}
+          >
+            {isSubmitting ? "Enviando dados, aguarde..." : quantidadeAlunosTurmaOrigem! <= 1 ? "A turma de origem deve ter mais de um aluno para permitir a movimentação" : "Mover Aluno"}
+          </Button>
+          <p style={{color:"black"}}>{quantidadeAlunosTurmaOrigem}</p>
+        </Box>
+      </Container>
     </Layout>
   );
 }
