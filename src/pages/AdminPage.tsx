@@ -120,6 +120,12 @@ export default function AdminPage() {
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
+        <ListItemButton>
+            <ListItemIcon>
+              <UpdateIcon />
+            </ListItemIcon>
+            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfTemporaryStudants">Lista de alunos temporários</Link>} />
+          </ListItemButton>
         </ListItem>
       </List>
     </Box>
