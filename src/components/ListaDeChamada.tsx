@@ -33,6 +33,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   const [selectedDay, setSelectedDay] = useState<string>("");
   const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filteredAlunos, setFilteredAlunos] = useState<Aluno[]>([]);
   const [search, setSearch] = useState("");
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("xs"));
@@ -41,8 +42,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   const [alunosOrdenados, setAlunosOrdenados] = useState<Aluno[]>([]);
 
   useEffect(() => {
-    // Ordena os alunos por nome em ordem alfabética
-    const alunosOrdenados = [...alunosDaTurma].sort((a, b) => a.nome.localeCompare(b.nome));
+    const alunosOrdenados = [...alunosDaTurma].filter(Boolean).sort((a, b) => a.nome.localeCompare(b.nome));
     setAlunosOrdenados(alunosOrdenados);
   }, [alunosDaTurma]);
 
@@ -90,9 +90,19 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
     setSearch(event.target.value);
   };
   // Filtre os alunos com base na string de pesquisa
-  const filteredAlunos = alunosOrdenados.filter((aluno) =>
+  const filteredAlunosFind = alunosOrdenados.filter((aluno) =>
   aluno.nome.toLowerCase().includes(search.toLowerCase())
 );
+
+useEffect(() => {
+  const searchTermLowercased = search.toLowerCase();
+  const filtered = filteredAlunosFind.filter(
+    (aluno) =>
+      aluno.nome.toLowerCase().includes(searchTermLowercased) ||
+      nomeDaTurma.toLowerCase().includes(searchTermLowercased)
+  );
+  setFilteredAlunos(filtered);
+}, [search, filteredAlunosFind, nomeDaTurma]);
 
   const toggleAttendance = (alunoId: number, day: string) => {
     setAlunosDaTurma((current) =>
