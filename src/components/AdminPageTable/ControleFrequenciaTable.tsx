@@ -53,11 +53,12 @@ export default function ControleFrequenciaTable({
       : 0;
   };
 
+  // Filtrar para garantir que não há alunos nulos no array antes de mapeá-los
+  const validAlunosDaTurma = alunosDaTurma.filter(Boolean);
+
   return (
-    <>
-      <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
-      <Box
-  sx={{
+    <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
+      <Box sx={{
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -68,58 +69,31 @@ export default function ControleFrequenciaTable({
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
-  }}
->
-  <Box
-    sx={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      pb: 2, // Espaçamento no fundo do cabeçalho
-    }}
-  >
-    <Typography variant="h6" component="h2" sx={{color:"black"}}>
-      Turma: {nomeDaTurma} - Total de Faltas Mês a Mês
-    </Typography>
-    <Button onClick={onClose} variant="contained" color="error">
-      Fechar
-    </Button>
-  </Box>
+  }}>
+        <Typography variant="h6" component="h2">
+          Turma: {nomeDaTurma} - Total de Faltas Mês a Mês
+        </Typography>
         <TableContainer component={Paper}>
           <Table aria-label="collapsible table">
             <TableHead>
-              
               <TableRow>
                 <TableCell sx={{ border: "1px solid black" }}>Nome</TableCell>
                 {months.map((month) => (
-                  <TableCell
-                    key={month}
-                    sx={{ border: "1px solid black" }}
-                    align="right"
-                  >
-                    {month.charAt(0).toUpperCase() + month.slice(1)}{" "}
-                    {/* Capitalize month names */}
+                  <TableCell key={month} sx={{ border: "1px solid black" }} align="right">
+                    {month.charAt(0).toUpperCase() + month.slice(1)}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {alunosDaTurma.length > 0 ? (
-                alunosDaTurma.map((aluno: Aluno) => (
+              {validAlunosDaTurma.length > 0 ? (
+                validAlunosDaTurma.map((aluno: Aluno) => (
                   <TableRow key={aluno.id}>
-                    <TableCell
-                      sx={{ border: "1px solid black" }}
-                      component="th"
-                      scope="row"
-                    >
+                    <TableCell sx={{ border: "1px solid black" }} component="th" scope="row">
                       {aluno.nome}
                     </TableCell>
-                    {months.map((month, monthIndex) => (
-                      <TableCell
-                        key={monthIndex}
-                        sx={{ border: "1px solid black" }}
-                        align="center"
-                      >
+                    {months.map((month) => (
+                      <TableCell key={month} sx={{ border: "1px solid black" }} align="center">
                         {countMonthlyAbsence(aluno.presencas, month)}
                       </TableCell>
                     ))}
@@ -127,16 +101,16 @@ export default function ControleFrequenciaTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={months.length + 1} align="center">
-                    Nenhum aluno encontrado para o termo de busca.
-                  </TableCell>
+                  <TableCell colSpan={13} align="center">Nenhum aluno encontrado nesta turma.</TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        </Box>
-      </Modal>
-    </>
+        <Button onClick={onClose} variant="contained" color="error" sx={{ mt: 2 }}>
+          Fechar
+        </Button>
+      </Box>
+    </Modal>
   );
 }
