@@ -66,7 +66,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   };
 
   // Gera uma lista de dias com base no mês selecionado
-  console.log(alunosDaTurma)
+  
   const daysInMonth =
     alunosDaTurma.length > 0
       ? Object.keys(
