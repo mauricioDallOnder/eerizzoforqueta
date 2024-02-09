@@ -252,3 +252,12 @@ const resizeImage = (file: File) => {
     });
   };
 export default resizeImage
+
+
+export const normalizeText = (text?: string | number | null) => {
+  // Garante que o valor seja convertido para string antes de chamar .normalize()
+  const safeText = String(text || ''); // Convertendo para string e lidando com undefined ou null
+  return safeText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
+
