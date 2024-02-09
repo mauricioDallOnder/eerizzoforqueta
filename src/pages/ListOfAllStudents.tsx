@@ -174,6 +174,7 @@ export default function TurmasTemporariosTable() {
     const camposParaPesquisa = [
       normalizeText(aluno.nome),
       normalizeText(aluno.anoNascimento),
+      normalizeText(aluno.dataMatricula) ? normalizeText(aluno.dataMatricula) : '',
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.rg) : '',
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.uniforme) : '',
       normalizeText(String(aluno.telefoneComWhatsapp)),
@@ -334,6 +335,15 @@ export default function TurmasTemporariosTable() {
                     align="left"
                   >
                     E-mail do Responsável Financeiro
+                  </StyledTableCell>
+                  <StyledTableCell
+                    sx={{
+                      borderBottom: "1px solid black",
+                      fontWeight: "bold",
+                    }}
+                    align="left"
+                  >
+                    Data de Ingresso
                   </StyledTableCell>
                 </StyledTableRow>
               </TableHead>
@@ -553,6 +563,16 @@ export default function TurmasTemporariosTable() {
                       >
                         {aluno.informacoesAdicionais?.pagadorMensalidades
                           ?.email || "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell
+                        sx={{
+                          borderBottom: "1px solid black",
+                          cursor: "pointer",
+                        }}
+                        align="center"
+                        onClick={handleCopy( String(aluno?.dataMatricula))}
+                      >
+                        {aluno?.dataMatricula || "N/A"}
                       </StyledTableCell>
                     </StyledTableRow>
                   </React.Fragment>
