@@ -27,7 +27,8 @@ import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 export default function AdminPage() {
   const { fetchModalidades } = useData();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -122,9 +123,17 @@ export default function AdminPage() {
         <ListItem disablePadding>
         <ListItemButton>
             <ListItemIcon>
-              <UpdateIcon />
+              <AssignmentLateIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfAllStudents">Lista geral com todos alunos</Link>} />
+            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfTemporaryStudants">Lista de alunos temporários</Link>} />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+        <ListItemButton>
+            <ListItemIcon>
+              <AssignmentIndIcon />
+            </ListItemIcon>
+            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfAllStudents">Lista Geral com todos os alunos</Link>} />
           </ListItemButton>
         </ListItem>
       </List>
