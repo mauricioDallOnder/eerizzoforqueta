@@ -11,7 +11,6 @@ import resizeImage, {
   gerarPresencasParaAluno,
   opcoesTermosAvisos,
   vinculosempresasparceiras,
-  fieldsUniforme,
 } from "@/utils/Constants";
 import {
   Box,
@@ -65,10 +64,6 @@ export default function StudentRegistration() {
     }
   };
 
-  const removeImage = () => {
-    setFile(null);
-    setAvatarUrl("");
-  };
 
   //--------------------
 
@@ -84,6 +79,8 @@ export default function StudentRegistration() {
     
     const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
     data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
+    const mydate=new Date(Date.now()).toLocaleString().split(',')[0]
+    data.aluno.dataMatricula=mydate
   
     const turmaEscolhida = modalidades
       .find((m) => m.nome === data.modalidade)
