@@ -124,7 +124,7 @@ export default function AdminPage() {
             <ListItemIcon>
               <UpdateIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfTemporaryStudants">Lista de alunos temporários</Link>} />
+            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfAllStudents">Lista geral com todos alunos</Link>} />
           </ListItemButton>
         </ListItem>
       </List>
