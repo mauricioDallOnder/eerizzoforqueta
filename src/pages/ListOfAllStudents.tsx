@@ -179,6 +179,8 @@ export default function TurmasTemporariosTable() {
       normalizeText(String(aluno.telefoneComWhatsapp)),
       normalizeText(nomeDaTurma),
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.irmaos) : '',
+      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionarioJBS) : '',
+      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionariomarcopolo) : '',
       aluno.informacoesAdicionais && aluno.informacoesAdicionais.endereco ? normalizeText(aluno.informacoesAdicionais.endereco.ruaAvenida) : '',
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.nomeCompleto) : '',
       aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)) : '',
