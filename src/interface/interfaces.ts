@@ -51,6 +51,7 @@ export interface Aluno {
   telefoneComWhatsapp: number | string;
   presencas: Record<string, Record<string, boolean>>;
   foto?:string
+  dataMatricula?:string
 }
 
 export interface Turma {
@@ -129,3 +130,5 @@ export interface IIAlunoUpdate extends Aluno {
   nome: string;
   informacoesAdicionais: InformacoesAdicionais
 }
+
+
