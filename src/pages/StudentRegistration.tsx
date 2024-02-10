@@ -32,7 +32,6 @@ import Layout from "@/components/TopBarComponents/Layout";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../config/firestoreConfig";
-import Footer from "@/components/Footer/Footer";
 import { ChakraProvider } from "@chakra-ui/react";
 export default function StudentRegistration() {
   const {
