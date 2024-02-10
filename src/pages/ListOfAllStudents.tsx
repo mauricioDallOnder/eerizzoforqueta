@@ -174,7 +174,7 @@ export default function TurmasTemporariosTable() {
     const camposParaPesquisa = [
       normalizeText(aluno.nome),
       normalizeText(aluno.anoNascimento),
-      normalizeText(aluno.dataMatricula) ? normalizeText(aluno.dataMatricula) : '',
+      normalizeText(String(aluno.dataMatricula)) ? normalizeText(String(aluno.dataMatricula)) : '',
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.rg) : '',
       aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.uniforme) : '',
       normalizeText(String(aluno.telefoneComWhatsapp)),
