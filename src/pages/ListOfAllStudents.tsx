@@ -17,6 +17,7 @@ import {
   Snackbar,
   tableCellClasses,
   Container,
+  Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useCopyToClipboard } from "@/hooks/CopyToClipboardHook";
@@ -129,7 +130,7 @@ export default function TurmasTemporariosTable() {
       // Percorra as modalidades de interesse
       modalidadesFetched.forEach((modalidade) => {
         if (
-         ["temporarios", "volei", "futsal", "futebol"].includes(
+          ["temporarios", "volei", "futsal", "futebol"].includes(
             modalidade.nome.toLowerCase()
           )
         ) {
@@ -168,433 +169,563 @@ export default function TurmasTemporariosTable() {
     setPage(0);
   };
 
-  const filteredAlunosComTurma = alunosComTurma.filter(({ aluno, nomeDaTurma }) => {
-    const searchNormalized = normalizeText(searchTerm);
-    // Crie uma lista de strings a serem verificadas, certificando-se de que cada campo seja seguro para acessar
-    const camposParaPesquisa = [
-      normalizeText(aluno.nome),
-      normalizeText(aluno.anoNascimento),
-      normalizeText(String(aluno.dataMatricula)) ? normalizeText(String(aluno.dataMatricula)) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.rg) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.uniforme) : '',
-      normalizeText(String(aluno.telefoneComWhatsapp)),
-      normalizeText(nomeDaTurma),
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.irmaos) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionarioJBS) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionariomarcopolo) : '',
-      aluno.informacoesAdicionais && aluno.informacoesAdicionais.endereco ? normalizeText(aluno.informacoesAdicionais.endereco.ruaAvenida) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.nomeCompleto) : '',
-      aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)) : '',
-      aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.email) : '',
-      aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.celularWhatsapp)) : '',
-      // Adicione mais campos conforme necessário
-    ];
-  
-    // Verifique se algum dos campos normalizados contém o termo de pesquisa normalizado
-    return camposParaPesquisa.some(campo => campo.includes(searchNormalized));
-  });
-  
+  const filteredAlunosComTurma = alunosComTurma.filter(
+    ({ aluno, nomeDaTurma }) => {
+      const searchNormalized = normalizeText(searchTerm);
+      // Crie uma lista de strings a serem verificadas, certificando-se de que cada campo seja seguro para acessar
+      const camposParaPesquisa = [
+        normalizeText(aluno.nome),
+        normalizeText(aluno.anoNascimento),
+        normalizeText(String(aluno.dataMatricula))
+          ? normalizeText(String(aluno.dataMatricula))
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(aluno.informacoesAdicionais.rg)
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(aluno.informacoesAdicionais.uniforme)
+          : "",
+        normalizeText(String(aluno.telefoneComWhatsapp)),
+        normalizeText(nomeDaTurma),
+        aluno.informacoesAdicionais
+          ? normalizeText(aluno.informacoesAdicionais.irmaos)
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(aluno.informacoesAdicionais.nomefuncionarioJBS)
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(aluno.informacoesAdicionais.nomefuncionariomarcopolo)
+          : "",
+        aluno.informacoesAdicionais && aluno.informacoesAdicionais.endereco
+          ? normalizeText(aluno.informacoesAdicionais.endereco.ruaAvenida)
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(
+              aluno.informacoesAdicionais.pagadorMensalidades?.nomeCompleto
+            )
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(
+              String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)
+            )
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(
+              aluno.informacoesAdicionais.pagadorMensalidades?.email
+            )
+          : "",
+        aluno.informacoesAdicionais
+          ? normalizeText(
+              String(
+                aluno.informacoesAdicionais.pagadorMensalidades?.celularWhatsapp
+              )
+            )
+          : "",
+        // Adicione mais campos conforme necessário
+      ];
 
+      // Verifique se algum dos campos normalizados contém o termo de pesquisa normalizado
+      return camposParaPesquisa.some((campo) =>
+        campo.includes(searchNormalized)
+      );
+    }
+  );
 
   return (
     <Layout>
-    <Box  sx={{ margin: "auto", width:"90%", height:"90%", padding: "16px" }}>
-     
-      <Box sx={{ marginTop: 4,width:"100%",height:"100%" }}>
-        
-        <Box
-          sx={{
-            background: "transparent",
-            padding: "16px",
-            borderRadius: "8px",
-          }}
-        >
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{ color: "#FFFFFF", marginBottom: "24px", fontWeight: "bold" }}
+      <Box
+        sx={{ margin: "auto", width: "90%", height: "90%", padding: "16px" }}
+      >
+        <Box sx={{ marginTop: 4, width: "100%", height: "100%" }}>
+          <Box
+            sx={{
+              background: "transparent",
+              padding: "16px",
+              borderRadius: "8px",
+            }}
           >
-            Lista de Atletas e suas informações
-          </Typography>
-          {loading && <LinearProgress color="secondary" />}
-          <SearchInput
-            variant="outlined"
-            placeholder="Pesquisar por nome do aluno ou turma"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <StyledTableContainer>
-            <Table aria-label="collapsible table">
-              <TableHead>
-                <StyledTableRow>
-                  <StyledTableCell
-                    align="center"
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                  >
-                    Nome do Atleta
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Data de Nascimento
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Documento do Atleta
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Telefone
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Endereço
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Uniforme
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Irmãos
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Filho de func.JBS?
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Nome do func.JBS?
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Filho de func.Marcopolo?
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Nome do func.Marcopolo
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{ borderBottom: "1px solid black", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Turma
-                  </StyledTableCell>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                color: "#FFFFFF",
+                marginBottom: "24px",
+                fontWeight: "bold",
+              }}
+            >
+              Lista de Atletas e suas informações
+            </Typography>
+            {loading && <LinearProgress color="secondary" />}
+            <SearchInput
+              variant="outlined"
+              placeholder="Pesquisar por nome do aluno ou turma"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <StyledTableContainer>
+              <Table aria-label="collapsible table">
+                <TableHead>
+                  <StyledTableRow>
+                    <StyledTableCell
+                      align="center"
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Foto do Atleta
+                    </StyledTableCell>
+                    <StyledTableCell
+                      align="center"
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Nome do Atleta
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Data de Nascimento
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Documento do Atleta
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Telefone
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Endereço
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Uniforme
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Irmãos
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Filho de func.JBS?
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Nome do func.JBS?
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Filho de func.Marcopolo?
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Nome do func.Marcopolo
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
+                      Turma
+                    </StyledTableCell>
 
-                  <StyledTableCell
-                    sx={{
-                      borderBottom: "1px solid black",
-                      fontWeight: "bold",
-                    }}
-                    align="left"
-                  >
-                    Responsável Financeiro
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      borderBottom: "1px solid black",
-                      fontWeight: "bold",
-                    }}
-                    align="left"
-                  >
-                    Telefone do Responsável
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      borderBottom: "1px solid black",
-                      fontWeight: "bold",
-                    }}
-                    align="left"
-                  >
-                    CPF do Responsável
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      borderBottom: "1px solid black",
-                      fontWeight: "bold",
-                    }}
-                    align="left"
-                  >
-                    E-mail do Responsável Financeiro
-                  </StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      borderBottom: "1px solid black",
-                      fontWeight: "bold",
-                    }}
-                    align="left"
-                  >
-                    Data de Ingresso
-                  </StyledTableCell>
-                </StyledTableRow>
-              </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? filteredAlunosComTurma.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : filteredAlunosComTurma
-                ).map(({ aluno, nomeDaTurma }, index) => (
-                  <React.Fragment key={index}>
-                    <StyledTableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        component="th"
-                        scope="row"
-                        onClick={handleCopy(aluno.nome)}
-                        align="center"
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="left"
+                    >
+                      Responsável Financeiro
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="left"
+                    >
+                      Telefone do Responsável
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="left"
+                    >
+                      CPF do Responsável
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="left"
+                    >
+                      E-mail do Responsável Financeiro
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="left"
+                    >
+                      Data de Ingresso
+                    </StyledTableCell>
+                  </StyledTableRow>
+                </TableHead>
+                <TableBody>
+                  {(rowsPerPage > 0
+                    ? filteredAlunosComTurma.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                    : filteredAlunosComTurma
+                  ).map(({ aluno, nomeDaTurma }, index) => (
+                    <React.Fragment key={index}>
+                      <StyledTableRow
+                        sx={{ "& > *": { borderBottom: "unset" } }}
                       >
-                        {aluno.nome}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(aluno.anoNascimento)}
-                      >
-                        {aluno.anoNascimento}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(aluno.informacoesAdicionais?.rg)}
-                      >
-                        {aluno.informacoesAdicionais?.rg || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(String(aluno.telefoneComWhatsapp))}
-                      >
-                        {aluno.telefoneComWhatsapp}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais &&
-                            aluno.informacoesAdicionais.endereco
+                        <StyledTableCell  sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}>
+                          <Avatar
+                            sx={{
+                              width: 80, // tamanho do Avatar
+                              height: 80, // tamanho do Avatar
+                              // boxShadow: 'none' // Descomente se necessário
+                              backgroundColor: "white",
+                              marginTop: "5px",
+                              marginBottom: "5px",
+                            }}
+                          >
+                          
+                            <img
+                              src={aluno.foto!}
+                              alt="Avatar"
+                              style={{
+                                width: "100%", // Isso fará com que a imagem preencha a largura da caixa
+                                height: "100%", // Isso fará com que a imagem preencha a altura da caixa
+                                objectFit: "cover", // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
+                              }}
+                            />
+                          </Avatar>
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          component="th"
+                          scope="row"
+                          onClick={handleCopy(aluno.nome)}
+                          align="center"
+                        >
+                          {aluno.nome}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(aluno.anoNascimento)}
+                        >
+                          {aluno.anoNascimento}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(aluno.informacoesAdicionais?.rg)}
+                        >
+                          {aluno.informacoesAdicionais?.rg || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            String(aluno.telefoneComWhatsapp)
+                          )}
+                        >
+                          {aluno.telefoneComWhatsapp}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais &&
+                              aluno.informacoesAdicionais.endereco
+                              ? `${
+                                  aluno.informacoesAdicionais.endereco
+                                    .ruaAvenida
+                                }, ${
+                                  aluno.informacoesAdicionais.endereco
+                                    .numeroResidencia || "N/A"
+                                }`
+                              : "N/A"
+                          )}
+                        >
+                          {aluno.informacoesAdicionais &&
+                          aluno.informacoesAdicionais.endereco
                             ? `${
                                 aluno.informacoesAdicionais.endereco.ruaAvenida
                               }, ${
                                 aluno.informacoesAdicionais.endereco
                                   .numeroResidencia || "N/A"
                               }`
-                            : "N/A"
-                        )}
-                      >
-                        {aluno.informacoesAdicionais &&
-                        aluno.informacoesAdicionais.endereco
-                          ? `${
-                              aluno.informacoesAdicionais.endereco.ruaAvenida
-                            }, ${
-                              aluno.informacoesAdicionais.endereco
-                                .numeroResidencia || "N/A"
-                            }`
-                          : "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.uniforme
-                        )}
-                      >
-                        {aluno.informacoesAdicionais?.uniforme || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.irmaos
-                        )}
-                      >
-                        {aluno.informacoesAdicionais?.irmaos || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.filhofuncionarioJBS
-                        )}
-                      >
-                        {aluno.informacoesAdicionais?.filhofuncionarioJBS ||
-                          "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.nomefuncionarioJBS
-                        )}
-                      >
-                        {aluno.informacoesAdicionais?.nomefuncionarioJBS ||
-                          "N/A"}
-                      </StyledTableCell>
+                            : "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais?.uniforme
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.uniforme || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais?.irmaos
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.irmaos || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais?.filhofuncionarioJBS
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.filhofuncionarioJBS ||
+                            "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais?.nomefuncionarioJBS
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.nomefuncionarioJBS ||
+                            "N/A"}
+                        </StyledTableCell>
 
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.filhofuncionariomarcopolo
-                        )}
-                      >
-                        {aluno.informacoesAdicionais
-                          ?.filhofuncionariomarcopolo || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.nomefuncionariomarcopolo
-                        )}
-                      >
-                        {aluno.informacoesAdicionais
-                          ?.nomefuncionariomarcopolo || "N/A"}
-                      </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais
+                              ?.filhofuncionariomarcopolo
+                          )}
+                        >
+                          {aluno.informacoesAdicionais
+                            ?.filhofuncionariomarcopolo || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais
+                              ?.nomefuncionariomarcopolo
+                          )}
+                        >
+                          {aluno.informacoesAdicionais
+                            ?.nomefuncionariomarcopolo || "N/A"}
+                        </StyledTableCell>
 
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(nomeDaTurma)}
-                      >
-                        {nomeDaTurma}
-                      </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(nomeDaTurma)}
+                        >
+                          {nomeDaTurma}
+                        </StyledTableCell>
 
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy(
-                          aluno.informacoesAdicionais?.pagadorMensalidades
-                            ?.nomeCompleto
-                        )}
-                      >
-                        {aluno.informacoesAdicionais?.pagadorMensalidades
-                          ?.nomeCompleto || "N/A"}
-                      </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            aluno.informacoesAdicionais?.pagadorMensalidades
+                              ?.nomeCompleto
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.pagadorMensalidades
+                            ?.nomeCompleto || "N/A"}
+                        </StyledTableCell>
 
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy( String(aluno.informacoesAdicionais?.pagadorMensalidades ?.celularWhatsapp))}
-                      >
-                        {aluno.informacoesAdicionais?.pagadorMensalidades
-                          ?.celularWhatsapp || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy( String(aluno.informacoesAdicionais?.pagadorMensalidades ?.cpf))}
-                      >
-                        {aluno.informacoesAdicionais?.pagadorMensalidades
-                          ?.cpf || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy( String(aluno.informacoesAdicionais?.pagadorMensalidades ?.email))}
-                      >
-                        {aluno.informacoesAdicionais?.pagadorMensalidades
-                          ?.email || "N/A"}
-                      </StyledTableCell>
-                      <StyledTableCell
-                        sx={{
-                          borderBottom: "1px solid black",
-                          cursor: "pointer",
-                        }}
-                        align="center"
-                        onClick={handleCopy( String(aluno?.dataMatricula))}
-                      >
-                        {aluno?.dataMatricula || "N/A"}
-                      </StyledTableCell>
-                    </StyledTableRow>
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-          <Box sx={{ backgroundColor: "white", color: "black" }}>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredAlunosComTurma.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            String(
+                              aluno.informacoesAdicionais?.pagadorMensalidades
+                                ?.celularWhatsapp
+                            )
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.pagadorMensalidades
+                            ?.celularWhatsapp || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            String(
+                              aluno.informacoesAdicionais?.pagadorMensalidades
+                                ?.cpf
+                            )
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.pagadorMensalidades
+                            ?.cpf || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            String(
+                              aluno.informacoesAdicionais?.pagadorMensalidades
+                                ?.email
+                            )
+                          )}
+                        >
+                          {aluno.informacoesAdicionais?.pagadorMensalidades
+                            ?.email || "N/A"}
+                        </StyledTableCell>
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(String(aluno?.dataMatricula))}
+                        >
+                          {aluno?.dataMatricula || "N/A"}
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </StyledTableContainer>
+            <Box sx={{ backgroundColor: "white", color: "black" }}>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredAlunosComTurma.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
-     
-    </Box>
     </Layout>
   );
 }
@@ -613,5 +744,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   // Retornar props aqui se a permissão for válida
-  return { props: { /* props adicionais aqui */ } };
+  return {
+    props: {
+      /* props adicionais aqui */
+    },
+  };
 };
