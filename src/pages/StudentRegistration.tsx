@@ -183,7 +183,7 @@ export default function StudentRegistration() {
   };
 
   return (
-    <>
+   
       <Layout>
         <Container>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -589,9 +589,6 @@ export default function StudentRegistration() {
           </form>
         </Container>
       </Layout>
-      <ChakraProvider>
-        <Footer />
-      </ChakraProvider>
-    </>
+     
   );
 }
