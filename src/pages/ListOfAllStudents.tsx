@@ -129,7 +129,7 @@ export default function TurmasTemporariosTable() {
       // Percorra as modalidades de interesse
       modalidadesFetched.forEach((modalidade) => {
         if (
-          ["temporarios", "vôlei", "futsal", "futebol"].includes(
+         ["temporarios", "volei", "futsal", "futebol"].includes(
             modalidade.nome.toLowerCase()
           )
         ) {
