@@ -473,7 +473,7 @@ console.log("Dados enviados com sucesso");
                   <Grid item xs={12}>
                     <TextField
                       select
-                      defaultValue={"Outro (informar pelo Whatsapp)"}
+                      defaultValue={""}
                       label="Tamanho do Uniforme"
                       variant="outlined"
                       fullWidth
@@ -667,4 +667,3 @@ console.log("Dados enviados com sucesso");
     </>
   );
 }
-
