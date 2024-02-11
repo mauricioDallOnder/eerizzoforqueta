@@ -1,3 +1,61 @@
+import { anoNascimentoSchema } from '@/utils/Constants';
+import { z } from 'zod';
+// Definindo schema para os campos do formulario de registro
+
+// Esquema para Endereço
+const enderecoSchema = z.object({
+  ruaAvenida: z.string().min(5,{ message: "A rua deve ter pelo menos 5 caracteres." }).transform((str) => str.trim()),
+  numeroResidencia: z.union([z.string().min(1,{ message: "O número obrigatório" }), z.number().min(1,{ message: "O número obrigatório" })]),
+  bairro: z.string().min(3,{ message: "O bairro deve ter pelo menos 3 caracteres." }).transform((str) => str.trim()),
+  cep: z.union([z.string().min(8,{ message: "O CEP deve ter pelo menos 8 dígitos." }), z.number().min(8,{ message: "O CEP deve ter pelo menos 8 dígitos." })]),
+  complemento: z.string().optional(),
+});
+
+// Esquema para Pagador de Mensalidades
+const pagadorMensalidadesSchema = z.object({
+  nomeCompleto: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }).transform((str) => str.trim()),
+  cpf: z.union([z.string().min(11, { message: "O CPF deve ter conter 11 dígitos." }).transform((str) => str.trim()), z.number().min(11, { message: "O CPF deve ter conter 11 dígitos." })]),
+  email: z.string().email( { message: "E-mail invalido" }).transform((str) => str.trim()),
+  celularWhatsapp: z.union([z.string().min(12, { message: "O telefone deve conter 12 dígitos." }), z.number().min(12, { message: "O telefone deve conter 12 dígitos." })]),
+});
+
+// Esquema para Informações Adicionais, completo com todos os campos
+const informacoesAdicionaisSchema = z.object({
+  endereco: enderecoSchema,
+  pagadorMensalidades: pagadorMensalidadesSchema,
+  escolaEstuda: z.string().min(3, { message: "O nome da escola é obrigatório" }),
+  irmaos: z.string().min(3, { message: "Escreva (sim) ou (não)" }),
+  problemasaude: z.string(),
+  tipomedicacao: z.string().optional(),
+  convenio: z.string().optional(),
+  competicao: z.string().min(3, { message: "Escreva (sim) ou (não)" }),
+  rg: z.string().min(5, { message: "O RG deve conter no mínimo 5 números" }).transform((str) => str.trim()),
+  filhofuncionarioJBS: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
+  socioJBS: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
+  nomefuncionarioJBS: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
+  filhofuncionariomarcopolo: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
+  nomefuncionariomarcopolo: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
+  uniforme: z.string()
+});
+
+// Esquema para Aluno, agora incluindo todos os campos
+const alunoSchema = z.object({
+  informacoesAdicionais: informacoesAdicionaisSchema, // Assumindo que este esquema já foi definido
+  nome: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }).transform((str) => str.trim()), // Transformação aplicada aqui
+  anoNascimento: anoNascimentoSchema,
+  telefoneComWhatsapp: z.union([z.string().min(12, { message: "O telefone deve conter 12 dígitos." }), z.number().min(12, { message: "O telefone deve conter 12 dígitos." })]),
+ 
+});
+
+// Esquema para FormValuesStudent, ajustado para a estrutura completa
+export const formValuesStudentSchema = z.object({
+  aluno: alunoSchema,
+  modalidade: z.string(),
+  turmaSelecionada: z.string(),
+  //nucleoSelecionado: z.string()
+});
+
+
 
 // Definindo interfaces para os tipos de dados
 interface Endereco {
@@ -21,9 +79,9 @@ export interface InformacoesAdicionais {
   cobramensalidade: string;
   escolaEstuda: string;
   irmaos: string;
-  saude: string;
+  saude?: string;
   problemasaude: string;
-  medicacao: string;
+  medicacao?: string;
   tipomedicacao: string;
   convenio: string;
   nucleoTreinamento: string;
@@ -132,4 +190,4 @@ export interface IIAlunoUpdate extends Aluno {
 }
 
 
- //update
+
