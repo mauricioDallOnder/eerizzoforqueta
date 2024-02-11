@@ -52,15 +52,15 @@ export default function StudentRegistration() {
   } = useForm<FormValuesStudent>({
     resolver: zodResolver(formValuesStudentSchema),
     defaultValues: {
-      modalidade: "", 
-      turmaSelecionada: "", 
+      modalidade: "", // Um valor inicial válido ou a primeira opção das suas modalidades
+      turmaSelecionada: "", // Valor inicial para turmaSelecionada
       aluno: {
         informacoesAdicionais: {
-          uniforme: "", 
+          uniforme: "", // Aqui você pode colocar um valor padrão válido ou uma string vazia
         },
-        
+        // Outros campos dentro de aluno...
       },
-      
+      // Outros campos necessários...
     },
   });
   const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
@@ -473,7 +473,7 @@ console.log("Dados enviados com sucesso");
                   <Grid item xs={12}>
                     <TextField
                       select
-                      defaultValue={"Pi - 6"}
+                      defaultValue={"Outro (informar pelo Whatsapp)"}
                       label="Tamanho do Uniforme"
                       variant="outlined"
                       fullWidth
