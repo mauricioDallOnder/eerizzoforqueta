@@ -23,19 +23,21 @@ const pagadorMensalidadesSchema = z.object({
 const informacoesAdicionaisSchema = z.object({
   endereco: enderecoSchema,
   pagadorMensalidades: pagadorMensalidadesSchema,
-  escolaEstuda: z.string().min(3, { message: "O nome da escola é obrigatório" }),
+  cobramensalidade: z.string().optional(),
+  escolaEstuda: z.string().optional(),
   irmaos: z.string().min(3, { message: "Escreva (sim) ou (não)" }),
-  problemasaude: z.string(),
+  problemasaude: z.string().optional(),
   tipomedicacao: z.string().optional(),
   convenio: z.string().optional(),
   competicao: z.string().min(3, { message: "Escreva (sim) ou (não)" }),
+  imagem: z.string(),
   rg: z.string().min(5, { message: "O RG deve conter no mínimo 5 números" }).transform((str) => str.trim()),
   filhofuncionarioJBS: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
   socioJBS: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
   nomefuncionarioJBS: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
   filhofuncionariomarcopolo: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
   nomefuncionariomarcopolo: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
-  uniforme: z.string()
+  uniforme: z.string().optional(),
 });
 
 // Esquema para Aluno, agora incluindo todos os campos
