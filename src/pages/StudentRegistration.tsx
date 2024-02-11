@@ -1,5 +1,9 @@
-import { useForm, SubmitHandler } from "react-hook-form";
-import { FormValuesStudent, Turma } from "@/interface/interfaces";
+import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import {
+  FormValuesStudent,
+  Turma,
+  formValuesStudentSchema,
+} from "@/interface/interfaces";
 import { useEffect, useState } from "react";
 import resizeImage, {
   extrairDiaDaSemana,
@@ -18,10 +22,13 @@ import {
   Container,
   FormControlLabel,
   Grid,
+  InputLabel,
   List,
   MenuItem,
+  NativeSelect,
   Radio,
   RadioGroup,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -32,6 +39,8 @@ import Layout from "@/components/TopBarComponents/Layout";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../config/firestoreConfig";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FieldErrors } from "react-hook-form";
 export default function StudentRegistration() {
   const {
     register,
@@ -40,7 +49,20 @@ export default function StudentRegistration() {
     reset,
     setValue,
     formState: { isSubmitting, errors },
-  } = useForm<FormValuesStudent>();
+  } = useForm<FormValuesStudent>({
+    resolver: zodResolver(formValuesStudentSchema),
+    defaultValues: {
+      modalidade: "", // Um valor inicial válido ou a primeira opção das suas modalidades
+      turmaSelecionada: "", // Valor inicial para turmaSelecionada
+      aluno: {
+        informacoesAdicionais: {
+          uniforme: "", // Aqui você pode colocar um valor padrão válido ou uma string vazia
+        },
+        // Outros campos dentro de aluno...
+      },
+      // Outros campos necessários...
+    },
+  });
   const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
@@ -74,85 +96,93 @@ export default function StudentRegistration() {
   }, [fetchModalidades]);
 
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
-    setIsUploading(true);
+    console.log("Submit iniciado", data);
+    // Checando se existem erros
+   
+      setIsUploading(true);
 
-    const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
-    data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-    const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
-    data.aluno.dataMatricula = mydate;
+      const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
+      data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
+      const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
+      data.aluno.dataMatricula = mydate;
 
-    const turmaEscolhida = modalidades
-      .find((m) => m.nome === data.modalidade)
-      ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
+      const turmaEscolhida = modalidades
+        .find((m) => m.nome === data.modalidade)
+        ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
 
-    if (
-      turmaEscolhida &&
-      turmaEscolhida.capacidade_atual_da_turma <
-        turmaEscolhida.capacidade_maxima_da_turma
-    ) {
-      if (file) {
-        const fileName = uuidv4() + file.name;
-        const fileRef = ref(storage, fileName);
-        const uploadTask = uploadBytesResumable(fileRef, file);
+      if (
+        turmaEscolhida &&
+        turmaEscolhida.capacidade_atual_da_turma <
+          turmaEscolhida.capacidade_maxima_da_turma
+      ) {
+        if (file) {
+          const fileName = uuidv4() + file.name;
+          const fileRef = ref(storage, fileName);
+          const uploadTask = uploadBytesResumable(fileRef, file);
 
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-          },
-          (error) => {
-            console.log(error);
-            setIsUploading(false);
-          },
-          async () => {
-            try {
-              const downloadURL = await getDownloadURL(fileRef);
-              setAvatarUrl(downloadURL);
-
-              // Atualiza os dados do aluno com a URL da foto
-              const updatedData = {
-                ...data,
-                aluno: {
-                  ...data.aluno,
-                  foto: downloadURL, // Adiciona a URL da foto aqui
-                },
-              };
-
-              await sendDataToApi(updatedData); // Envia os dados atualizados para o backend/Firebase
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            },
+            (error) => {
+              console.log(error);
               setIsUploading(false);
+            },
+            async () => {
+              try {
+                const downloadURL = await getDownloadURL(fileRef);
+                setAvatarUrl(downloadURL);
 
-              //reset(); // Resetar o formulário aqui, se necessário
-              alert(
-                "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
-              );
-            } catch (error) {
-              console.error("Erro ao enviar os dados do formulário", error);
-              setIsUploading(false);
+                // Atualiza os dados do aluno com a URL da foto
+                const updatedData = {
+                  ...data,
+                  aluno: {
+                    ...data.aluno,
+                    foto: downloadURL, // Adiciona a URL da foto aqui
+                  },
+                };
+
+                console.log("Enviando dados para a API", updatedData);
+await sendDataToApi(updatedData);
+console.log("Dados enviados com sucesso");
+                //console.log(updatedData)
+                setIsUploading(false);
+
+                //reset(); // Resetar o formulário aqui, se necessário
+                alert(
+                  "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
+                );
+              } catch (error) {
+                console.error("Erro ao enviar os dados do formulário", error);
+                setIsUploading(false);
+              }
             }
-          }
-        );
-      } else {
-        // Se não houver arquivo para upload, apenas envia os dados sem a foto
-        try {
-          await sendDataToApi(data); // Envia os dados sem a foto
-          alert(
-            "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
           );
-          //reset(); // Resetar o formulário aqui, se necessário
-        } catch (error) {
-          console.error("Erro ao enviar os dados do formulário", error);
-        } finally {
-          setIsUploading(false);
+        } else {
+          // Se não houver arquivo para upload, apenas envia os dados sem a foto
+          try {
+            await sendDataToApi(data);
+            console.log(data); // Envia os dados sem a foto
+            alert(
+              "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
+            );
+            //reset(); // Resetar o formulário aqui, se necessário
+          } catch (error) {
+            console.error("Erro ao enviar os dados do formulário", error);
+          } finally {
+            setIsUploading(false);
+          }
         }
+      } else {
+        alert(
+          "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
+        );
+        setIsUploading(false);
       }
-    } else {
-      alert(
-        "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
-      );
-      setIsUploading(false);
-    }
+    
   };
 
   const getNucleosForModalidade = (modalidade: string) => {
@@ -173,15 +203,51 @@ export default function StudentRegistration() {
       .find((m) => m.nome === selectedModalidade)
       ?.turmas.filter((turma) => turma.nucleo === selectedNucleo);
     setTurmasDisponiveis(turmasFiltradas || []);
-  }, [selectedNucleo, modalidades, selectedModalidade]);
+
+    // Verifica se a turma selecionada atualmente está entre as turmas filtradas
+    const turmaSelecionadaValida = turmasFiltradas?.some(
+      (turma) => turma.nome_da_turma === watch("turmaSelecionada")
+    );
+
+    // Se não estiver, reset o valor para um estado inicial válido (pode ser uma string vazia ou a primeira turma disponível)
+    if (!turmaSelecionadaValida) {
+      setValue(
+        "turmaSelecionada",
+        turmasFiltradas!?.length > 0 ? turmasFiltradas![0].nome_da_turma : ""
+      );
+    }
+  }, [selectedNucleo, modalidades, selectedModalidade, setValue, watch]);
 
   // Função para limpar todos os campos do formulário
   const clearForm = () => {
     reset();
   };
 
+  // Função auxiliar para acessar de forma segura a mensagem de erro de campos aninhados
+  function getErrorMessage<FormValues extends FieldValues>(
+    errors: FieldErrors<FormValues>,
+    path: string
+  ): string | undefined {
+    const paths = path.split(".");
+    let current: any = errors;
+
+    for (const segment of paths) {
+      if (current[segment] === undefined) {
+        return undefined;
+      }
+      current = current[segment];
+    }
+
+    // Se chegamos a um objeto que contém a propriedade 'message', retornamos essa mensagem
+    if (typeof current === "object" && "message" in current) {
+      return current.message;
+    }
+
+    return undefined;
+  }
+
   return (
-   
+    <>
       <Layout>
         <Container>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -198,17 +264,15 @@ export default function StudentRegistration() {
                     <Grid item xs={12} sm={6} key={id}>
                       <TextField
                         fullWidth
-                        id={id}
                         label={label}
                         variant="standard"
-                        sx={{
-                          borderRadius: "4px",
-                        }}
-                        required
-                        {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
+                        error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
+                        helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
+                        {...register(id as keyof FormValuesStudent)}
                       />
                     </Grid>
                   ))}
+
                   <Grid item xs={12} sm={6}>
                     <Box
                       sx={{
@@ -303,7 +367,9 @@ export default function StudentRegistration() {
                         sx={{
                           borderRadius: "4px",
                         }}
-                        {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
+                        error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
+                        helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
+                        {...register(id as keyof FormValuesStudent)}
                       />
                     </Grid>
                   ))}
@@ -326,7 +392,9 @@ export default function StudentRegistration() {
                           borderRadius: "4px",
                         }}
                         required
-                        {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
+                        error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
+                        helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
+                        {...register(id as keyof FormValuesStudent)}
                       />
                     </Grid>
                   ))}
@@ -362,6 +430,8 @@ export default function StudentRegistration() {
                         sx={{
                           borderRadius: "4px",
                         }}
+                        error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
+                        helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
                         required
                         {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
                       />
@@ -385,6 +455,8 @@ export default function StudentRegistration() {
                         sx={{
                           borderRadius: "4px",
                         }}
+                        error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
+                        helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
                         required
                         {...register(id as keyof FormValuesStudent)} // asserção de tipo aqui
                       />
@@ -401,6 +473,7 @@ export default function StudentRegistration() {
                   <Grid item xs={12}>
                     <TextField
                       select
+                      defaultValue={"Pi - 6"}
                       label="Tamanho do Uniforme"
                       variant="outlined"
                       fullWidth
@@ -443,6 +516,7 @@ export default function StudentRegistration() {
                     <TextField
                       select
                       required
+                      defaultValue={""}
                       label="Modalidade"
                       {...register("modalidade")}
                       fullWidth
@@ -459,11 +533,12 @@ export default function StudentRegistration() {
                         .map((modalidade) => (
                           <MenuItem
                             key={modalidade.nome}
-                            value={modalidade.nome}
+                            value={modalidade.nome ? modalidade.nome:"-"}
                           >
                             {modalidade.nome}
                           </MenuItem>
                         ))}
+                       
                     </TextField>
                   </Grid>
 
@@ -472,6 +547,7 @@ export default function StudentRegistration() {
                     <TextField
                       select
                       label="Local de treinamento"
+                      defaultValue={""}
                       value={selectedNucleo ? selectedNucleo : ""}
                       onChange={(event) =>
                         setSelectedNucleo(event.target.value as string)
@@ -493,6 +569,7 @@ export default function StudentRegistration() {
                   <Grid item xs={12} sm={4}>
                     <TextField
                       select
+                      defaultValue={""}
                       label="Turma"
                       {...register("turmaSelecionada")}
                       fullWidth
@@ -587,6 +664,7 @@ export default function StudentRegistration() {
           </form>
         </Container>
       </Layout>
-     
+    </>
   );
 }
+
