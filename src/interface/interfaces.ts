@@ -37,7 +37,7 @@ const informacoesAdicionaisSchema = z.object({
   nomefuncionarioJBS: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
   filhofuncionariomarcopolo: z.string().min(3, { message: "Escreva (sim) ou (não)" }).transform((str) => str.trim()),
   nomefuncionariomarcopolo: z.string().min(3, { message: "Escreva o nome do funcionário" }).transform((str) => str.trim()),
-  uniforme: z.string().optional(),
+  uniforme: z.string()
 });
 
 // Esquema para Aluno, agora incluindo todos os campos
