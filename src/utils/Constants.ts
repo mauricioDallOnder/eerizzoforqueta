@@ -1,3 +1,4 @@
+import { z } from 'zod';
 export const fieldsIdentificacao = [
   { label: "Nome Completo do Aluno(a)", id: "aluno.nome" },
   { label: "Data de Nascimento do Aluno(a)", id: "aluno.anoNascimento" },
@@ -41,27 +42,23 @@ export const fieldsDadosGeraisAtleta = [
     label: "Escola em que o Aluno(a) estuda atualmente",
     id: "aluno.informacoesAdicionais.escolaEstuda",
   },
-  { label: "Informe se possui irmão(s) que também treinam conosco e seus nomes.", id: "aluno.informacoesAdicionais.irmaos" },
+  { label: "Possui irmãos que treinam conosco?.", id: "aluno.informacoesAdicionais.irmaos" },
   {
-    label: "Possui algum problema de saúde? ",
-    id: "aluno.informacoesAdicionais.saude",
-  },
-  {
-    label: "Caso possua problema de saúde, descreva-os abaixo: ",
+    label: "Possui problemas de saúde? Quais? ",
     id: "aluno.informacoesAdicionais.problemasaude",
   },
-  { label: "Faz uso de algum tipo de medicação?: ", id: "medicacao" },
+
   {
-    label: "Quais medicações faz uso?",
+    label: "Quais medicamentos utiliza?",
     id: "aluno.informacoesAdicionais.tipomedicacao",
   },
   {
-    label: "Em qual convênio de saúde seu filho(a) é atendido?",
+    label: "Qual convênio/ plano de saúde?",
     id: "aluno.informacoesAdicionais.convenio",
   },
   {
     label:
-      "Você autoriza seu o aluno a participar de competições?",
+      "Está autorizado a participar de competições?",
     id: "aluno.informacoesAdicionais.competicao",
   },
  
@@ -261,3 +258,16 @@ export const normalizeText = (text?: string | number | null) => {
 };
 
 
+
+
+// Função para validar se a data é válida
+export const validateDate = (dateStr: string): boolean => {
+  const [day, month, year] = dateStr.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+};
+
+// Esquema para o campo anoNascimento com validação de formato e validade da data
+export const anoNascimentoSchema = z.string()
+  .regex(/^\d{2}\/\d{2}\/\d{4}$/, { message: "Preencha este campo no formato DD/MM/YYYY." })
+  .refine(dateStr => validateDate(dateStr), { message: "Data de nascimento inválida." });
