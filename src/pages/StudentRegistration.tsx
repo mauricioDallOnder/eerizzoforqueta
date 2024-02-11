@@ -52,15 +52,15 @@ export default function StudentRegistration() {
   } = useForm<FormValuesStudent>({
     resolver: zodResolver(formValuesStudentSchema),
     defaultValues: {
-      modalidade: "", // Um valor inicial válido ou a primeira opção das suas modalidades
-      turmaSelecionada: "", // Valor inicial para turmaSelecionada
+      modalidade: "", 
+      turmaSelecionada: "", 
       aluno: {
         informacoesAdicionais: {
-          uniforme: "", // Aqui você pode colocar um valor padrão válido ou uma string vazia
+          uniforme: "", 
         },
-        // Outros campos dentro de aluno...
+        
       },
-      // Outros campos necessários...
+      
     },
   });
   const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
