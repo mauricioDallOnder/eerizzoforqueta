@@ -330,15 +330,24 @@ export default function StudentRegistration() {
     }));
 
     try {
-      //await sendDataToApi(dadosAlunos);
-
-      sendDataToApi(dataParaProcessar);
-      alert("Cadastro Efetuado com sucesso!");
-
-      // Resetar estados/formulários aqui
-      resetFormulario();
+      const { resultados } = await sendDataToApi(dataParaProcessar);
+      // Verificar se todos os cadastros foram bem-sucedidos
+    const todosSucessos = resultados.every(resultado => resultado.sucesso);
+    if (todosSucessos) {
+      alert("Todos os cadastros foram efetuados com sucesso!");
+      resetFormulario()
+    } else {
+      // Processar e exibir mensagens de erro específicas
+      const mensagensErro = resultados
+        .filter(resultado => !resultado.sucesso)
+        .map(resultado => resultado.erro)
+        .join("\n");
+      alert(`O cadastro falhou, motivo:\n${mensagensErro}`);
+    }
+    
     } catch (error) {
       console.error("Erro ao enviar dados dos alunos: ", error);
+      alert("Ocorreu um erro ao tentar realizar o cadastro. Por favor, tente novamente.");
     }
   };
 
