@@ -51,3 +51,4 @@ export default async function updateAttendance(req: NextApiRequest, res: NextApi
     res.status(405).end('Method Not Allowed');
   }
 }
+//update
