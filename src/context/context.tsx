@@ -99,6 +99,7 @@ const sendDataToApi = async (data: FormValuesStudent[]) => {
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar informações pessoais do estudante
+
 const updateDataInApi = async (data: IIAlunoUpdate) => {
   const payload = {
     modalidade: data.modalidade,
@@ -130,6 +131,8 @@ const updateDataInApi = async (data: IIAlunoUpdate) => {
     console.error("Erro ao atualizar informações do aluno:", error);
   }
 };
+
+
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar presenças do estudante
