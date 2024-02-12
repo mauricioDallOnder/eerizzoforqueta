@@ -89,7 +89,14 @@ export default function StudentUpdatePersonalInformation() {
   }, [fetchModalidades]);
 
   useEffect(() => {
-    const newAlunosOptions = modalidades.flatMap((modalidade) => {
+    const FilteredModalidades=modalidades
+    .filter(
+      (modalidade) =>
+        modalidade.nome !== "temporarios" &&
+        modalidade.nome !== "arquivados" &&
+        modalidade.nome !== "excluidos"
+    )
+    const newAlunosOptions = FilteredModalidades.flatMap((modalidade) => {
       return modalidade.turmas.flatMap((turma) => {
         // Primeiro, certifique-se de que turma.alunos é um array e filtre elementos nulos
         const alunosFiltrados = (
@@ -187,18 +194,12 @@ export default function StudentUpdatePersonalInformation() {
           "informacoesAdicionais.irmaos",
           value.informacoesAdicionais.irmaos
         );
-        setValue(
-          "informacoesAdicionais.saude",
-          value.informacoesAdicionais.saude
-        );
+       
         setValue(
           "informacoesAdicionais.problemasaude",
           value.informacoesAdicionais.problemasaude
         );
-        setValue(
-          "informacoesAdicionais.medicacao",
-          value.informacoesAdicionais.medicacao
-        );
+      
         setValue(
           "informacoesAdicionais.tipomedicacao",
           value.informacoesAdicionais.tipomedicacao
@@ -215,10 +216,9 @@ export default function StudentUpdatePersonalInformation() {
           "informacoesAdicionais.endereco",
           value.informacoesAdicionais.endereco
         );
-        setValue(
-          "informacoesAdicionais.pagadorMensalidades",
-          value.informacoesAdicionais.pagadorMensalidades
-        );
+        setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", "");
+        setValue("informacoesAdicionais.pagadorMensalidades.email", "");
+        setValue("informacoesAdicionais.pagadorMensalidades.cpf", "");
       } else {
         setValue("informacoesAdicionais.rg", "");
         setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", "");
@@ -573,8 +573,7 @@ export default function StudentUpdatePersonalInformation() {
                     margin="normal"
                     variant="standard"
                     value={
-                      selectedAluno?.informacoesAdicionais.pagadorMensalidades
-                        .nomeCompleto || ""
+                      selectedAluno?.informacoesAdicionais.pagadorMensalidades.nomeCompleto || ""
                     }
                     onChange={(e) => {
                       if (
@@ -760,18 +759,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.saude", {
-                      required: true,
-                    })}
-                    fullWidth
-                    label="Possui problemas de saúde? "
-                    margin="normal"
-                    variant="standard"
-                  />
-                </Grid>
+                
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
@@ -784,18 +772,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.medicacao", {
-                      required: true,
-                    })}
-                    label="Faz uso de medicação? "
-                    fullWidth
-                    margin="normal"
-                    variant="standard"
-                  />
-                </Grid>
+               
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
