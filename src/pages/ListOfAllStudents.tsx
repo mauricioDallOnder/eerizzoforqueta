@@ -135,22 +135,26 @@ export default function TurmasTemporariosTable() {
           )
         ) {
           // Percorra as turmas dentro da modalidade
-          modalidade.turmas.forEach((turma) => {
-            // Garanta que turma.alunos seja um array antes de continuar
-            if (Array.isArray(turma.alunos)) {
-              // Percorra os alunos da turma
-              turma.alunos.forEach((aluno) => {
-                // Se o aluno não for nulo ou undefined, adicione-o ao array temporário com um UUID único
-                if (aluno) {
-                  alunosComTurmaTemp.push({
-                    aluno,
-                    nomeDaTurma: turma.nome_da_turma,
-                    uniqueId: uuidv4(), // Gera um UUID único para cada aluno
-                  });
-                }
-              });
-            }
-          });
+          if (Array.isArray(modalidade.turmas)) {
+            modalidade.turmas.forEach((turma) => {
+              // Garanta que turma.alunos seja um array antes de continuar
+              if (Array.isArray(turma.alunos)) {
+                // Percorra os alunos da turma
+                turma.alunos.forEach((aluno) => {
+                  // Se o aluno não for nulo ou undefined, adicione-o ao array temporário com um UUID único
+                  if (aluno) {
+                    alunosComTurmaTemp.push({
+                      aluno,
+                      nomeDaTurma: turma.nome_da_turma,
+                      uniqueId: uuidv4(), // Gera um UUID único para cada aluno
+                    });
+                  }
+                });
+              }
+            });
+          } else {
+            return;
+          }
         }
       });
 
@@ -532,18 +536,34 @@ export default function TurmasTemporariosTable() {
                           onClick={handleCopy(
                             aluno.informacoesAdicionais &&
                               aluno.informacoesAdicionais.endereco
-                              ? `${aluno.informacoesAdicionais.endereco.ruaAvenida}, ${aluno.informacoesAdicionais.endereco.numeroResidencia}, 
-                              ${aluno.informacoesAdicionais.endereco.bairro}, ${aluno.informacoesAdicionais.endereco.complemento || "N/A"} `
+                              ? `${
+                                  aluno.informacoesAdicionais.endereco
+                                    .ruaAvenida
+                                }, ${
+                                  aluno.informacoesAdicionais.endereco
+                                    .numeroResidencia
+                                }, 
+                              ${aluno.informacoesAdicionais.endereco.bairro}, ${
+                                  aluno.informacoesAdicionais.endereco
+                                    .complemento || "N/A"
+                                } `
                               : "N/A"
                           )}
                         >
                           {aluno.informacoesAdicionais &&
-                              aluno.informacoesAdicionais.endereco
-                              ? `${aluno.informacoesAdicionais.endereco.ruaAvenida}, ${aluno.informacoesAdicionais.endereco.numeroResidencia}, 
-                              ${aluno.informacoesAdicionais.endereco.bairro}, ${aluno.informacoesAdicionais.endereco.complemento || "N/A"} `
-                              : "N/A"}
+                          aluno.informacoesAdicionais.endereco
+                            ? `${
+                                aluno.informacoesAdicionais.endereco.ruaAvenida
+                              }, ${
+                                aluno.informacoesAdicionais.endereco
+                                  .numeroResidencia
+                              }, 
+                              ${aluno.informacoesAdicionais.endereco.bairro}, ${
+                                aluno.informacoesAdicionais.endereco
+                                  .complemento || "N/A"
+                              } `
+                            : "N/A"}
                         </StyledTableCell>
-
 
                         <StyledTableCell
                           sx={{
@@ -555,9 +575,8 @@ export default function TurmasTemporariosTable() {
                             String(aluno.informacoesAdicionais?.endereco.cep)
                           )}
                         >
-                           {aluno.informacoesAdicionais?.endereco.cep || "N/A"}
+                          {aluno.informacoesAdicionais?.endereco.cep || "N/A"}
                         </StyledTableCell>
-                        
 
                         <StyledTableCell
                           sx={{
