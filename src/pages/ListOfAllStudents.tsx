@@ -327,6 +327,15 @@ export default function TurmasTemporariosTable() {
                       }}
                       align="center"
                     >
+                      CEP
+                    </StyledTableCell>
+                    <StyledTableCell
+                      sx={{
+                        borderBottom: "1px solid black",
+                        fontWeight: "bold",
+                      }}
+                      align="center"
+                    >
                       Uniforme
                     </StyledTableCell>
                     <StyledTableCell
@@ -443,10 +452,12 @@ export default function TurmasTemporariosTable() {
                       <StyledTableRow
                         sx={{ "& > *": { borderBottom: "unset" } }}
                       >
-                        <StyledTableCell  sx={{
+                        <StyledTableCell
+                          sx={{
                             borderBottom: "1px solid black",
                             cursor: "pointer",
-                          }}>
+                          }}
+                        >
                           <Avatar
                             sx={{
                               width: 80, // tamanho do Avatar
@@ -457,7 +468,6 @@ export default function TurmasTemporariosTable() {
                               marginBottom: "5px",
                             }}
                           >
-                          
                             <img
                               src={aluno.foto!}
                               alt="Avatar"
@@ -522,26 +532,33 @@ export default function TurmasTemporariosTable() {
                           onClick={handleCopy(
                             aluno.informacoesAdicionais &&
                               aluno.informacoesAdicionais.endereco
-                              ? `${
-                                  aluno.informacoesAdicionais.endereco
-                                    .ruaAvenida
-                                }, ${
-                                  aluno.informacoesAdicionais.endereco
-                                    .numeroResidencia || "N/A"
-                                }`
+                              ? `${aluno.informacoesAdicionais.endereco.ruaAvenida}, ${aluno.informacoesAdicionais.endereco.numeroResidencia}, 
+                              ${aluno.informacoesAdicionais.endereco.bairro}, ${aluno.informacoesAdicionais.endereco.complemento || "N/A"} `
                               : "N/A"
                           )}
                         >
                           {aluno.informacoesAdicionais &&
-                          aluno.informacoesAdicionais.endereco
-                            ? `${
-                                aluno.informacoesAdicionais.endereco.ruaAvenida
-                              }, ${
-                                aluno.informacoesAdicionais.endereco
-                                  .numeroResidencia || "N/A"
-                              }`
-                            : "N/A"}
+                              aluno.informacoesAdicionais.endereco
+                              ? `${aluno.informacoesAdicionais.endereco.ruaAvenida}, ${aluno.informacoesAdicionais.endereco.numeroResidencia}, 
+                              ${aluno.informacoesAdicionais.endereco.bairro}, ${aluno.informacoesAdicionais.endereco.complemento || "N/A"} `
+                              : "N/A"}
                         </StyledTableCell>
+
+
+                        <StyledTableCell
+                          sx={{
+                            borderBottom: "1px solid black",
+                            cursor: "pointer",
+                          }}
+                          align="center"
+                          onClick={handleCopy(
+                            String(aluno.informacoesAdicionais?.endereco.cep)
+                          )}
+                        >
+                           {aluno.informacoesAdicionais?.endereco.cep || "N/A"}
+                        </StyledTableCell>
+                        
+
                         <StyledTableCell
                           sx={{
                             borderBottom: "1px solid black",
