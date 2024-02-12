@@ -193,3 +193,10 @@ export interface IIAlunoUpdate extends Aluno {
 
 
 
+export interface SelecaoModalidadeTurma {
+  modalidade: string;
+  nucleo: string;
+  turma: string;
+  turmasDisponiveis?: Turma[]; // Adicionando a propriedade turmasDisponiveis como opcional
+}
+
