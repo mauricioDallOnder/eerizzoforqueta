@@ -1,3 +1,4 @@
+import { FieldValues, FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
 export const fieldsIdentificacao = [
   { label: "Nome Completo do Aluno(a)", id: "aluno.nome" },
@@ -271,3 +272,28 @@ export const validateDate = (dateStr: string): boolean => {
 export const anoNascimentoSchema = z.string()
   .regex(/^\d{2}\/\d{2}\/\d{4}$/, { message: "Preencha este campo no formato DD/MM/YYYY." })
   .refine(dateStr => validateDate(dateStr), { message: "Data de nascimento inválida." });
+
+
+
+  // Função auxiliar para acessar de forma segura a mensagem de erro de campos aninhados
+  export function getErrorMessage<FormValues extends FieldValues>(
+    errors: FieldErrors<FormValues>,
+    path: string
+  ): string | undefined {
+    const paths = path.split(".");
+    let current: any = errors;
+
+    for (const segment of paths) {
+      if (current[segment] === undefined) {
+        return undefined;
+      }
+      current = current[segment];
+    }
+
+    // Se chegamos a um objeto que contém a propriedade 'message', retornamos essa mensagem
+    if (typeof current === "object" && "message" in current) {
+      return current.message;
+    }
+
+    return undefined;
+  }
