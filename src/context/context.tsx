@@ -12,7 +12,7 @@ import axios from "axios";
 import React, {
   createContext,
   useState,
-  useEffect,
+
   ReactNode,
   useContext,
 } from "react";
@@ -23,12 +23,13 @@ interface ChildrenProps {
 
 interface DataContextType {
   ContextData: FormValuesStudent[];
-  sendDataToApi: (data: FormValuesStudent) => Promise<void>;
+  sendDataToApi: (data: FormValuesStudent[]) => Promise<void>; // Atualizado para aceitar um array
   updateDataInApi: (data: IIAlunoUpdate) => Promise<void>;
   modalidades: Modalidade[]; // Adicione esta linha
   fetchModalidades: (filtro?: string) => Promise<Modalidade[]>; // Atualizado para re
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>;
   moveStudentInApi: (payload: MoveStudentPayload) => Promise<void>;
+  
 }
 
 const DataContext = createContext<DataContextType>({
@@ -46,6 +47,7 @@ const DataContext = createContext<DataContextType>({
   moveStudentInApi: async (payload: MoveStudentPayload) => {
     console.warn("moveStudentInApi not implemented", payload);
   },
+  
 });
 
 const useData = () => {
@@ -83,15 +85,18 @@ const fetchModalidades = useCallback(async (filtro?: string): Promise<Modalidade
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // cadastrar novo estudante
-const sendDataToApi = async (data: FormValuesStudent) => {
-    try {
-      const response = await axios.post("/api/SubmitFormRegistration", data);
-      
-      setDataStudents(response.data);
-    } catch (error) {
-      console.error("Ocorreu um erro ao enviar dados para a API:", error);
-    }
-  };
+// Atualizar a assinatura do método para aceitar um array de FormValuesStudent
+const sendDataToApi = async (data: FormValuesStudent[]) => {
+  try {
+    await Promise.all(data.map(aluno => 
+      axios.post("/api/SubmitFormRegistration", aluno)
+    ));
+    // Processamento adicional, se necessário
+  } catch (error) {
+    console.error("Ocorreu um erro ao enviar dados para a API:", error);
+  }
+};
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar informações pessoais do estudante
 const updateDataInApi = async (data: IIAlunoUpdate) => {
