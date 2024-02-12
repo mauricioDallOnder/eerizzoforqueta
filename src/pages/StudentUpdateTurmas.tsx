@@ -51,22 +51,24 @@ export default function MoveStudentForm() {
 
 
   useEffect(() => {
-    const alunosExtraidos = modalidades.flatMap(modalidade =>
-      modalidade.turmas.flatMap(turma => {
-        // Certifique-se de que turma.alunos é um array antes de tentar filtrar
-        const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
-        const alunosFiltrados = alunosArray.filter(Boolean);
-        return alunosFiltrados.map(aluno => ({
-          id: aluno.id,
-          nome: aluno.nome,
-          modalidade: modalidade.nome,
-          turma: turma.nome_da_turma,
-          nucleo: turma.nucleo,
-        }));
-      })
-    );
+    const alunosExtraidos = modalidades
+      .filter(modalidade => Array.isArray(modalidade.turmas)) // Garante que só processa modalidades com turmas sendo array
+      .flatMap(modalidade =>
+        modalidade.turmas.flatMap(turma => {
+          // Garante que turma.alunos é um array antes de tentar filtrar
+          const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+          return alunosArray.filter(Boolean).map(aluno => ({
+            id: aluno.id,
+            nome: aluno.nome,
+            modalidade: modalidade.nome,
+            turma: turma.nome_da_turma,
+            nucleo: turma.nucleo,
+          }));
+        })
+      );
     setAlunosOptions(alunosExtraidos);
   }, [modalidades]);
+  
 
 
   useEffect(() => {
