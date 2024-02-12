@@ -1,18 +1,21 @@
-import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import {
+  useForm,
+  SubmitHandler,
+} from "react-hook-form";
 import {
   FormValuesStudent,
+  SelecaoModalidadeTurma,
   Turma,
   formValuesStudentSchema,
 } from "@/interface/interfaces";
 import { useEffect, useState } from "react";
-import resizeImage, {
-  extrairDiaDaSemana,
+import {
   fieldsDadosGeraisAtleta,
   fieldsEndereco,
   fieldsIdentificacao,
   fieldsResponsavelMensalidade,
   fieldsTermosAvisos,
-  gerarPresencasParaAluno,
+  getErrorMessage,
   opcoesTermosAvisos,
   vinculosempresasparceiras,
 } from "@/utils/Constants";
@@ -20,15 +23,13 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   FormControlLabel,
   Grid,
-  InputLabel,
   List,
   MenuItem,
-  NativeSelect,
   Radio,
   RadioGroup,
-  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -36,18 +37,18 @@ import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
 import { useData } from "@/context/context";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
-import { v4 as uuidv4 } from "uuid";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import "react-image-crop/dist/ReactCrop.css";
 import { storage } from "../config/firestoreConfig";
+import resizeImage from "../utils/Constants";
+import { v4 as uuidv4 } from "uuid";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldErrors } from "react-hook-form";
 export default function StudentRegistration() {
   const {
     register,
     handleSubmit,
-    watch,
     reset,
-    setValue,
     formState: { isSubmitting, errors },
   } = useForm<FormValuesStudent>({
     resolver: zodResolver(formValuesStudentSchema),
@@ -64,16 +65,15 @@ export default function StudentRegistration() {
     },
   });
   const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
-  const [selectedNucleo, setSelectedNucleo] = useState<string>("");
-  const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
-  const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
+
+  //upload de imagem----------------------------
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  //-----upload de imagem
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("onFileChange - Início");
     const file = event.target.files![0];
     try {
       const resizedImageUrl = await resizeImage(file);
@@ -81,171 +81,295 @@ export default function StudentRegistration() {
         new File([await (await fetch(resizedImageUrl)).blob()], file.name)
       );
       setAvatarUrl(resizedImageUrl);
+      console.log("onFileChange - Imagem processada");
     } catch (error) {
       console.error(error);
+      console.error("onFileChange - Erro", error);
     }
   };
-
-  //--------------------
-
-  const selectedModalidade = watch("modalidade");
-  //const selectedTurma = watch('turmaSelecionada');
 
   useEffect(() => {
     fetchModalidades();
   }, [fetchModalidades]);
+  //----------------------------------------------------------------------------
+  // seleção de modalidades
 
-  const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
-    console.log("Submit iniciado", data);
-    // Checando se existem erros
-   
-      setIsUploading(true);
+ 
 
-      const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
-      data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-      const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
-      data.aluno.dataMatricula = mydate;
+  const [selecoes, setSelecoes] = useState<SelecaoModalidadeTurma[]>([
+    {
+      modalidade: "",
+      nucleo: "",
+      turma: "",
+      turmasDisponiveis: [],
+    },
+  ]);
 
-      const turmaEscolhida = modalidades
-        .find((m) => m.nome === data.modalidade)
-        ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
+  // Função para adicionar nova seleção de modalidade e turma
+  const adicionarSelecao = () => {
+    setSelecoes((prevSelecoes) => [
+      ...prevSelecoes,
+      {
+        modalidade: "",
+        nucleo: "",
+        turma: "",
+        turmasDisponiveis: [],
+      },
+    ]);
+  };
 
-      if (
-        turmaEscolhida &&
-        turmaEscolhida.capacidade_atual_da_turma <
-          turmaEscolhida.capacidade_maxima_da_turma
-      ) {
-        if (file) {
-          const fileName = uuidv4() + file.name;
-          const fileRef = ref(storage, fileName);
-          const uploadTask = uploadBytesResumable(fileRef, file);
+  // Função para atualizar seleções de modalidade, núcleo e turma
+  const atualizarSelecao = (
+    index: number,
+    campo: keyof SelecaoModalidadeTurma,
+    valor: string | Turma[]
+  ) => {
+    setSelecoes((prevSelecoes) => {
+      return prevSelecoes.map((selecao, idx) => {
+        if (idx === index) {
+          if (campo === "turmasDisponiveis" && Array.isArray(valor)) {
+            // Garantindo que valor é um array de Turma para o campo 'turmasDisponiveis'
+            return { ...selecao, [campo]: valor };
+          } else if (typeof valor === "string") {
+            // Para campos 'modalidade', 'nucleo' e 'turma', o valor é uma string
+            const novaSelecao = { ...selecao, [campo]: valor };
 
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setUploadProgress(progress);
-            },
-            (error) => {
-              console.log(error);
-              setIsUploading(false);
-            },
-            async () => {
-              try {
-                const downloadURL = await getDownloadURL(fileRef);
-                setAvatarUrl(downloadURL);
-
-                // Atualiza os dados do aluno com a URL da foto
-                const updatedData = {
-                  ...data,
-                  aluno: {
-                    ...data.aluno,
-                    foto: downloadURL, // Adiciona a URL da foto aqui
-                  },
-                };
-
-                console.log("Enviando dados para a API", updatedData);
-await sendDataToApi(updatedData);
-console.log("Dados enviados com sucesso");
-                //console.log(updatedData)
-                setIsUploading(false);
-
-                //reset(); // Resetar o formulário aqui, se necessário
-                alert(
-                  "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
-                );
-              } catch (error) {
-                console.error("Erro ao enviar os dados do formulário", error);
-                setIsUploading(false);
-              }
+            // Se o campo for 'nucleo', atualiza as turmas disponíveis
+            if (campo === "nucleo") {
+              const modalidadeSelecionada = novaSelecao.modalidade;
+              const turmasFiltradas = atualizarTurmasDisponiveis(
+                modalidadeSelecionada,
+                valor,
+                index
+              );
+              novaSelecao.turmasDisponiveis! = turmasFiltradas;
             }
-          );
-        } else {
-          // Se não houver arquivo para upload, apenas envia os dados sem a foto
-          try {
-            await sendDataToApi(data);
-            console.log(data); // Envia os dados sem a foto
-            alert(
-              "O aluno foi cadastrado com sucesso na modalidade selecionada. Se desejar cadastrar em outra modalidade, selecione os novos valores nos campos 'Modalidade', 'Local de treinamento' e 'Turma', e envie o formulário novamente."
-            );
-            //reset(); // Resetar o formulário aqui, se necessário
-          } catch (error) {
-            console.error("Erro ao enviar os dados do formulário", error);
-          } finally {
-            setIsUploading(false);
+
+            // Se o campo for 'modalidade', reset 'nucleo' e 'turma'
+            if (campo === "modalidade") {
+              novaSelecao.nucleo = "";
+              novaSelecao.turma = "";
+              novaSelecao.turmasDisponiveis = [];
+            }
+
+            return novaSelecao;
           }
         }
-      } else {
-        alert(
-          "Não há vagas disponíveis na turma selecionada. Por favor, escolha outra turma."
-        );
-        setIsUploading(false);
-      }
-    
+        return selecao;
+      });
+    });
   };
 
-  const getNucleosForModalidade = (modalidade: string) => {
-    const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
-    if (!turmas) return [];
-    const nucleos = new Set(turmas.map((turma) => turma.nucleo));
-    return Array.from(nucleos);
-  };
-
-  useEffect(() => {
-    const nucleos = getNucleosForModalidade(selectedModalidade);
-    setNucleosDisponiveis(nucleos);
-    setSelectedNucleo("");
-  }, [selectedModalidade]);
-
-  useEffect(() => {
-    const turmasFiltradas = modalidades
-      .find((m) => m.nome === selectedModalidade)
-      ?.turmas.filter((turma) => turma.nucleo === selectedNucleo);
-    setTurmasDisponiveis(turmasFiltradas || []);
-
-    // Verifica se a turma selecionada atualmente está entre as turmas filtradas
-    const turmaSelecionadaValida = turmasFiltradas?.some(
-      (turma) => turma.nome_da_turma === watch("turmaSelecionada")
+  const atualizarTurmasDisponiveis = (
+    modalidade: string,
+    nucleo: string,
+    index: number
+  ): Turma[] => {
+    // Busca as turmas da modalidade e núcleo selecionados
+    const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas ?? [];
+    // Filtra apenas as turmas que ainda têm vaga
+    return turmas.filter(
+      (turma) =>
+        turma.nucleo === nucleo &&
+        turma.capacidade_atual_da_turma < turma.capacidade_maxima_da_turma
     );
-
-    // Se não estiver, reset o valor para um estado inicial válido (pode ser uma string vazia ou a primeira turma disponível)
-    if (!turmaSelecionadaValida) {
-      setValue(
-        "turmaSelecionada",
-        turmasFiltradas!?.length > 0 ? turmasFiltradas![0].nome_da_turma : ""
-      );
-    }
-  }, [selectedNucleo, modalidades, selectedModalidade, setValue, watch]);
-
-  // Função para limpar todos os campos do formulário
-  const clearForm = () => {
-    reset();
+  };
+  const removerSelecao = (index: number) => {
+    setSelecoes((prevSelecoes) =>
+      prevSelecoes.filter((_, idx) => idx !== index)
+    );
   };
 
-  // Função auxiliar para acessar de forma segura a mensagem de erro de campos aninhados
-  function getErrorMessage<FormValues extends FieldValues>(
-    errors: FieldErrors<FormValues>,
-    path: string
-  ): string | undefined {
-    const paths = path.split(".");
-    let current: any = errors;
+  const key = uuidv4();
+  // Função para gerar os seletores de modalidade, núcleo e turma
+  const renderizarSeletores = () => {
+    console.log(selecoes.length);
+    return selecoes.map((selecao, index) => (
+      <React.Fragment key={index}>
+        <Grid container spacing={2} key={index}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              sx={{ marginTop: "12px" }}
+              select
+              label="Modalidade"
+              fullWidth
+              variant="outlined"
+              value={selecao.modalidade}
+              onChange={(e) => {
+                const modalidadeSelecionada = modalidades.find(
+                  (m) => m.nome === e.target.value
+                );
+                if (modalidadeSelecionada) {
+                  atualizarSelecao(index, "modalidade", e.target.value);
+                  const turmasFiltradas = atualizarTurmasDisponiveis(
+                    modalidadeSelecionada.nome,
+                    selecao.nucleo,
+                    index
+                  );
+                  // Aqui você ajusta para apenas atualizar a lista de turmas disponíveis baseada na seleção de modalidade e núcleo
+                  atualizarSelecao(index, "turmasDisponiveis", turmasFiltradas);
+                }
+              }}
+            >
+              {modalidades
+                .filter(
+                  (modalidade) =>
+                    modalidade.nome !== "temporarios" &&
+                    modalidade.nome !== "arquivados" &&
+                    modalidade.nome !== "excluidos"
+                )
+                .map((modalidade) => (
+                  <MenuItem key={modalidade.nome} value={modalidade.nome}>
+                    {modalidade.nome}
+                  </MenuItem>
+                ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              sx={{ marginTop: "12px" }}
+              select
+              label="Local de treinamento"
+              fullWidth
+              variant="outlined"
+              value={selecao.nucleo}
+              onChange={(e) =>
+                atualizarSelecao(index, "nucleo", e.target.value)
+              }
+              required
+            >
+              {selecao.modalidade &&
+                modalidades
+                  .find((m) => m.nome === selecao.modalidade)
+                  ?.turmas.map((turma) => turma.nucleo)
+                  .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicatas
+                  .map((nucleo) => (
+                    <MenuItem key={nucleo} value={nucleo}>
+                      {nucleo}
+                    </MenuItem>
+                  ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              sx={{ marginTop: "12px" }}
+              select
+              label="Turma"
+              fullWidth
+              variant="outlined"
+              value={selecao.turma}
+              onChange={(e) => atualizarSelecao(index, "turma", e.target.value)}
+              required
+            >
+              {selecao.turmasDisponiveis!.map((turma) => (
+                <MenuItem key={key} value={turma.nome_da_turma}>
+                  {" "}
+                  {/* Certifique-se de que turma.id está acessível */}
+                  {turma.nome_da_turma}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={2} sm={1}>
+            <Button
+              variant="contained"
+              color="error"
+              sx={{ mb: "5px" }}
+              onClick={() => removerSelecao(index)}
+              disabled={selecoes.length === 1}
+            >
+              Remover
+            </Button>
+          </Grid>
+        </Grid>
+        {index < selecoes.length - 1 && (
+          <Divider sx={{ width: "100%", my: 2 }} />
+        )}
+      </React.Fragment>
+    ));
+  };
 
-    for (const segment of paths) {
-      if (current[segment] === undefined) {
-        return undefined;
+  const onSubmit: SubmitHandler<FormValuesStudent> = async (formData) => {
+    if (selecoes.some((selecao) => selecao.turma)) {
+      //console.log("Submit iniciado", formData);
+      // Checando se existem erros
+
+      setIsUploading(true);
+      if (file) {
+        const fileName = uuidv4() + file.name;
+        const fileRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(fileRef, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+          },
+          (error) => {
+            console.log(error);
+            setIsUploading(false);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(fileRef);
+              setAvatarUrl(downloadURL);
+
+              const mydate = new Date(Date.now())
+                .toLocaleString()
+                .split(",")[0];
+              formData.aluno.dataMatricula = mydate;
+              const dataParaProcessar = selecoes.map((selecao) => ({
+                ...formData, // Espalha os dados do formulário
+                modalidade: selecao.modalidade,
+                turmaSelecionada: selecao.turma,
+                aluno: {
+                  ...formData.aluno,
+                  foto: downloadURL, // Usa a URL da foto carregada ou a existente
+                },
+              }));
+
+              //console.log("Enviando dados para a API", dataParaProcessar);
+              await sendDataToApi(dataParaProcessar);
+              console.log("Dados enviados com sucesso");
+              //console.log(updatedData)
+              setIsUploading(false);
+
+              reset(); // Resetar o formulário aqui, se necessário
+              alert("O atleta foi cadastrado com sucesso!");
+            } catch (error) {
+              console.error("Erro ao enviar os dados do formulário", error);
+              alert("Erro ao enviar, verifique sua conexão com a internet!")
+              setIsUploading(false);
+            }
+          }
+        );
+      } else {
+        // Se não houver arquivo para upload, apenas envia os dados sem a foto
+        try {
+          await sendDataToApi([formData]);
+          console.log(formData); // Envia os dados sem a foto
+          alert("O atleta foi cadastrado com sucesso!");
+          reset(); // Resetar o formulário aqui, se necessário
+        } catch (error) {
+          alert("Erro ao enviar, verifique sua conexão com a internet!")
+          console.error("Erro ao enviar os dados do formulário", error);
+        } finally {
+          setIsUploading(false);
+        }
       }
-      current = current[segment];
+    } else {
+      // Lógica para lidar com o erro de não seleção de turma
+      alert(
+        "Por favor, selecione pelo menos uma turma antes de enviar o formulário."
+      );
+      return; // Interrompe a execução adicional do método onSubmit
     }
+  };
 
-    // Se chegamos a um objeto que contém a propriedade 'message', retornamos essa mensagem
-    if (typeof current === "object" && "message" in current) {
-      return current.message;
-    }
-
-    return undefined;
-  }
-
+  const maxSelecoes = 3;
+  const minSelecoes = 1;
   return (
     <>
       <Layout>
@@ -510,84 +634,23 @@ console.log("Dados enviados com sucesso");
                 <Typography sx={TituloSecaoStyle}>
                   Seção 8 - Escolha de Modalidades e Turmas
                 </Typography>
-                <Grid container spacing={2}>
-                  {/* Campo para selecionar a modalidade */}
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      select
-                      required
-                      defaultValue={""}
-                      label="Modalidade"
-                      {...register("modalidade")}
-                      fullWidth
-                      variant="outlined"
-                      sx={{ marginBottom: 2 }}
-                    >
-                      {modalidades
-                        .filter(
-                          (modalidade) =>
-                            modalidade.nome !== "temporarios" &&
-                            modalidade.nome !== "arquivados" &&
-                            modalidade.nome !== "excluidos"
-                        )
-                        .map((modalidade) => (
-                          <MenuItem
-                            key={modalidade.nome}
-                            value={modalidade.nome ? modalidade.nome:"-"}
-                          >
-                            {modalidade.nome}
-                          </MenuItem>
-                        ))}
-                       
-                    </TextField>
+                {renderizarSeletores()}
+                {selecoes.length <= maxSelecoes && (
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={adicionarSelecao}
+                        disabled={selecoes.length >= maxSelecoes}
+                      >
+                        {selecoes.length >= maxSelecoes
+                          ? "Para mais de 3 horários, entre em contato conosco"
+                          : "Adicionar Turma"}
+                      </Button>
+                    </Grid>
                   </Grid>
-
-                  {/* Campo para selecionar o núcleo */}
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      select
-                      label="Local de treinamento"
-                      defaultValue={""}
-                      value={selectedNucleo ? selectedNucleo : ""}
-                      onChange={(event) =>
-                        setSelectedNucleo(event.target.value as string)
-                      }
-                      fullWidth
-                      required
-                      variant="outlined"
-                      sx={{ marginBottom: 2 }}
-                    >
-                      {nucleosDisponiveis.map((nucleo) => (
-                        <MenuItem key={nucleo} value={nucleo}>
-                          {nucleo}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-
-                  {/* Campo para selecionar a turma */}
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      select
-                      defaultValue={""}
-                      label="Turma"
-                      {...register("turmaSelecionada")}
-                      fullWidth
-                      required
-                      variant="outlined"
-                      sx={{ marginBottom: 2 }}
-                    >
-                      {turmasDisponiveis.map((turma) => (
-                        <MenuItem
-                          key={turma.nome_da_turma}
-                          value={turma.nome_da_turma}
-                        >
-                          {turma.nome_da_turma}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
+                )}
               </List>
 
               <List sx={ListStyle}>
@@ -650,15 +713,6 @@ console.log("Dados enviados com sucesso");
                 {isSubmitting || isUploading
                   ? "Enviando dados, aguarde..."
                   : "Cadastrar Atleta"}
-              </Button>
-
-              <Button
-                variant="contained"
-                color="error"
-                sx={{ mt: "5px" }}
-                onClick={clearForm}
-              >
-                Limpar os campos do formulário
               </Button>
             </Box>
           </form>
