@@ -16,7 +16,7 @@ const pagadorMensalidadesSchema = z.object({
   nomeCompleto: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }).transform((str) => str.trim()),
   cpf: z.union([z.string().min(11, { message: "O CPF deve ter conter 11 dígitos." }).transform((str) => str.trim()), z.number().min(11, { message: "O CPF deve ter conter 11 dígitos." })]),
   email: z.string().email( { message: "E-mail invalido" }).transform((str) => str.trim()),
-  celularWhatsapp: z.union([z.string().min(12, { message: "O telefone deve conter 12 dígitos." }), z.number().min(12, { message: "O telefone deve conter 12 dígitos." })]),
+  celularWhatsapp: z.union([z.string().min(11, { message: "O telefone deve conter 11 dígitos." }), z.number().min(11, { message: "O telefone deve conter 11 dígitos." })]),
 });
 
 // Esquema para Informações Adicionais, completo com todos os campos
@@ -45,7 +45,7 @@ const alunoSchema = z.object({
   informacoesAdicionais: informacoesAdicionaisSchema, // Assumindo que este esquema já foi definido
   nome: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }).transform((str) => str.trim()), // Transformação aplicada aqui
   anoNascimento: anoNascimentoSchema,
-  telefoneComWhatsapp: z.union([z.string().min(12, { message: "O telefone deve conter 12 dígitos." }), z.number().min(12, { message: "O telefone deve conter 12 dígitos." })]),
+  telefoneComWhatsapp: z.union([z.string().min(11, { message: "O telefone deve conter 11 dígitos." }), z.number().min(11, { message: "O telefone deve conter 11 dígitos." })]),
  
 });
 
