@@ -12,6 +12,11 @@ async function atualizarTurma(modalidade: string, nomeTurma: string, aluno: any,
     const turmaKey = Object.keys(turmaData)[0];
     const turma = turmaData[turmaKey];
 
+
+     
+
+
+
     // Se o aluno está sendo adicionado, atualize o contador e adicione o aluno
     if (incremento > 0) {
       const novoIdAluno = turma.contadorAlunos ? turma.contadorAlunos + 1 : 1;
@@ -44,6 +49,17 @@ export default async function moveStudent(req: NextApiRequest, res: NextApiRespo
 
       // Encontrar o aluno na turma de origem e obtém os dados do aluno
       const alunoDados = await encontrarEremoverAluno(modalidadeOrigem, nomeDaTurmaOrigem, alunoNome);
+
+      // Se o aluno está sendo movido para "excluidos", remova o aluno sem adicioná-lo a uma nova turma
+     if (modalidadeDestino === "excluidos") {
+      const alunoRemovido = await encontrarEremoverAluno(modalidadeOrigem, nomeDaTurmaOrigem, alunoNome);
+      if (alunoRemovido) {
+        await atualizarTurma(modalidadeOrigem, nomeDaTurmaOrigem, null, -1);
+        return res.status(200).json({ message: 'Aluno removido com sucesso' });
+      } else {
+        return res.status(404).json({ error: 'Aluno não encontrado na turma de origem' });
+      }
+    }
 
       // Se o aluno foi encontrado e removido, adicione à nova turma e atualize o contador
       if (alunoDados) {
@@ -83,6 +99,7 @@ async function encontrarEremoverAluno(modalidade: string, nomeDaTurma: string, a
         break;
       }
     }
+    
     
 
     if (alunoIdToRemove) {
