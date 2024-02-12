@@ -279,43 +279,44 @@ export default function StudentRegistration() {
       alert("Por favor, adicione pelo menos uma modalidade e turma.");
       return;
     }
-
-    let fotoUrl = avatarUrl;
-    // Upload da foto somente se necessário e ainda não feito
-    if (file && !avatarUrl) {
-      console.log("Upload de imagem - Início");
+    let fotoUrl =""
+    if (file) {
       setIsUploading(true);
-      console.log("Upload de imagem - Concluído", fotoUrl);
       try {
         const fileName = uuidv4() + file.name;
         const fileRef = ref(storage, fileName);
         const uploadTask = uploadBytesResumable(fileRef, file);
-
-        const uploadPromise = new Promise((resolve, reject) => {
+  
+        await new Promise((resolve, reject) => {
           uploadTask.on(
-            "state_changed",
+            'state_changed',
             (snapshot) => {
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setUploadProgress(progress);
+              // opcional: atualizar o progresso do upload aqui
             },
-            (error) => reject(error),
+            (error) => {
+              console.error("Erro no upload:", error);
+              reject(error);
+            },
             async () => {
-              const downloadURL = await getDownloadURL(fileRef);
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              setIsUploading(false);
+              // Use a URL obtida aqui como valor para o campo 'foto'
+              fotoUrl = downloadURL; // Atualize a lógica conforme necessário
               resolve(downloadURL);
             }
           );
         });
-
-        fotoUrl = (await uploadPromise) as string;
-        setIsUploading(false);
-        setAvatarUrl(fotoUrl); // Atualiza o estado com a nova URL da foto
+  
       } catch (error) {
-        alert("Erro ao fazer upload da foto");
+        console.error("Falha no upload:", error);
         setIsUploading(false);
+        // Gerenciar erro de upload aqui
         return;
       }
     }
+  
+    // Preparar dados para enviar, incluindo a URL da imagem carregada
+  
     const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
     formData.aluno.dataMatricula = mydate;
     const dataParaProcessar = selecoes.map((selecao) => ({
@@ -324,7 +325,7 @@ export default function StudentRegistration() {
       turmaSelecionada: selecao.turma,
       aluno: {
         ...formData.aluno,
-        foto: fotoUrl, // Usa a URL da foto carregada ou a existente
+        foto: fotoUrl, // Assegure-se de que esta é a URL do Firebase
       },
     }));
 
