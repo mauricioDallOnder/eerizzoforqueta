@@ -68,7 +68,7 @@ export default function TemporaryStudentRegistration({
         turmaEscolhida.capacidade_maxima_da_turma
     ) {
       try {
-        await sendDataToApi(data);
+        await sendDataToApi([data]);
         alert("Cadastro efetuado com sucesso");
         reset(); // Resetando o formulário após o envio
       } catch (error) {
