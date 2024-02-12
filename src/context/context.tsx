@@ -23,7 +23,7 @@ interface ChildrenProps {
 
 interface DataContextType {
   ContextData: FormValuesStudent[];
-  sendDataToApi: (data: FormValuesStudent[]) => Promise<void>; // Atualizado para aceitar um array
+  sendDataToApi: (data: FormValuesStudent[]) => Promise<{ resultados: any[]; }>;
   updateDataInApi: (data: IIAlunoUpdate) => Promise<void>;
   modalidades: Modalidade[]; // Adicione esta linha
   fetchModalidades: (filtro?: string) => Promise<Modalidade[]>; // Atualizado para re
@@ -34,7 +34,11 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType>({
   ContextData: [],
-  sendDataToApi: async () => {},
+  sendDataToApi: async (data: FormValuesStudent[]) => {
+    // Como esta é uma implementação padrão (mock), simplesmente retorne um objeto vazio
+    // ou dados mock, conforme sua necessidade
+    return { resultados: [] };
+  },
   updateDataInApi: async () => {},
   modalidades: [],
   // Atualizar a implementação padrão para corresponder à nova assinatura
@@ -86,20 +90,25 @@ const fetchModalidades = useCallback(async (filtro?: string): Promise<Modalidade
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // cadastrar novo estudante
 // Atualizar a assinatura do método para aceitar um array de FormValuesStudent
-const sendDataToApi = async (data: FormValuesStudent[]) => {
+const sendDataToApi = async (data: FormValuesStudent[]): Promise<{ resultados: any[] }> => {
   try {
-    await Promise.all(data.map(aluno => 
-      axios.post("/api/SubmitFormRegistration", aluno)
-    ));
-    // Processamento adicional, se necessário
+    const responses = await Promise.all(data.map(aluno => axios.post("/api/SubmitFormRegistration", aluno)));
+
+    // Ajuste na extração dos resultados de cada resposta
+    // Assume que cada .data já é um objeto que contém a chave 'resultados'
+    const combinedResults = responses.flatMap(response => response.data.resultados);
+
+    return { resultados: combinedResults };
   } catch (error) {
     console.error("Ocorreu um erro ao enviar dados para a API:", error);
+    throw new Error("Falha ao enviar dados para a API.");
   }
 };
 
+
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // atualizar informações pessoais do estudante
-
 const updateDataInApi = async (data: IIAlunoUpdate) => {
   const payload = {
     modalidade: data.modalidade,
@@ -131,6 +140,7 @@ const updateDataInApi = async (data: IIAlunoUpdate) => {
     console.error("Erro ao atualizar informações do aluno:", error);
   }
 };
+
 
 
 
