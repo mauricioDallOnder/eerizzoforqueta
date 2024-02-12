@@ -39,7 +39,7 @@ export default async function submitForm(req: NextApiRequest, res: NextApiRespon
       const turma = turmaData[turmaKey];
 
       if (turma.capacidade_atual_da_turma >= turma.capacidade_maxima_da_turma) {
-        resultados.push({ sucesso: false, erro: 'Não há vagas disponíveis nesta turma.', aluno });
+        resultados.push({ sucesso: false, erro: `Não há vagas disponíveis na turma ${turma.nome_da_turma}, escolha outra turma`, aluno });
         continue;
       }
 
