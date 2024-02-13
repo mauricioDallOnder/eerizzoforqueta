@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   TableContainer,
   Paper,
@@ -7,34 +6,34 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  TextField,
-  Container,
   Button,
   Box,
   Typography,
-} from "@mui/material";
-import { AdminTableProps, Aluno } from "@/interface/interfaces";
-import Modal from "@mui/material/Modal";
-import { modalStyleTemporaly } from "@/utils/Styles";
+  useTheme,
+  useMediaQuery,
+} from '@mui/material'
+import { AdminTableProps, Aluno } from '@/interface/interfaces'
+import Modal from '@mui/material/Modal'
+
 // Props adicionais para o modal
 interface ControleFrequenciaTableProps extends AdminTableProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
+
 const months = [
-  "janeiro",
-  "fevereiro",
-  "março",
-  "abril",
-  "maio",
-  "junho",
-  "julho",
-  "agosto",
-  "setembro",
-  "outubro",
-  "novembro",
-  "dezembro",
-];
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
+]
 
 export default function ControleFrequenciaTable({
   alunosDaTurma,
@@ -42,44 +41,54 @@ export default function ControleFrequenciaTable({
   isOpen,
   onClose,
 }: ControleFrequenciaTableProps) {
+  const theme = useTheme()
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
+
   // Função para contar as faltas mensais
   const countMonthlyAbsence = (
     presencas: Record<string, Record<string, boolean>>,
-    month: string
+    month: string,
   ): number => {
-    const monthPresences = presencas[month];
+    const monthPresences = presencas[month]
     return monthPresences
       ? Object.values(monthPresences).filter((presence) => !presence).length
-      : 0;
-  };
+      : 0
+  }
 
   // Filtrar para garantir que não há alunos nulos no array antes de mapeá-los
-  const validAlunosDaTurma = alunosDaTurma.filter(Boolean);
+  const validAlunosDaTurma = alunosDaTurma.filter(Boolean)
 
   return (
     <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
-      <Box sx={{
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: '80%', md: '70%', lg: '60%' }, // Responsivo
-    maxHeight: '90vh',
-    overflowY: 'auto', // Para tabelas grandes
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  }}>
-        <Typography variant="h6" component="h2">
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: fullScreen ? '90%' : '60%', // Ajusta a largura baseado na condição de tela cheia
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          overflowY: 'auto', // Scroll vertical se necessário
+          maxHeight: '90vh',
+        }}
+      >
+        <Typography
+          variant="h6"
+          component="h2"
+          gutterBottom
+          sx={{ color: 'black' }}
+        >
           Turma: {nomeDaTurma} - Total de Faltas Mês a Mês
         </Typography>
         <TableContainer component={Paper}>
-          <Table aria-label="collapsible table">
+          <Table stickyHeader aria-label="tabela de frequência">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ border: "1px solid black" }}>Nome</TableCell>
+                <TableCell>Nome</TableCell>
                 {months.map((month) => (
-                  <TableCell key={month} sx={{ border: "1px solid black" }} align="right">
+                  <TableCell key={month} align="center">
                     {month.charAt(0).toUpperCase() + month.slice(1)}
                   </TableCell>
                 ))}
@@ -89,11 +98,9 @@ export default function ControleFrequenciaTable({
               {validAlunosDaTurma.length > 0 ? (
                 validAlunosDaTurma.map((aluno: Aluno) => (
                   <TableRow key={aluno.id}>
-                    <TableCell sx={{ border: "1px solid black" }} component="th" scope="row">
-                      {aluno.nome}
-                    </TableCell>
+                    <TableCell>{aluno.nome}</TableCell>
                     {months.map((month) => (
-                      <TableCell key={month} sx={{ border: "1px solid black" }} align="center">
+                      <TableCell key={month} align="center">
                         {countMonthlyAbsence(aluno.presencas, month)}
                       </TableCell>
                     ))}
@@ -101,16 +108,20 @@ export default function ControleFrequenciaTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={13} align="center">Nenhum aluno encontrado nesta turma.</TableCell>
+                  <TableCell colSpan={13} align="center">
+                    Nenhum aluno encontrado nesta turma.
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        <Button onClick={onClose} variant="contained" color="error" sx={{ mt: 2 }}>
-          Fechar
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Button onClick={onClose} variant="contained" color="primary">
+            Fechar
+          </Button>
+        </Box>
       </Box>
     </Modal>
-  );
+  )
 }
