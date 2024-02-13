@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Autocomplete,
   TextField,
@@ -8,72 +10,70 @@ import {
   Grid,
   List,
   Typography,
-} from "@mui/material";
-import { v4 as uuidv4 } from "uuid";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { DataContext } from "@/context/context";
-import { IIAlunoUpdate } from "@/interface/interfaces";
-import { HeaderForm } from "@/components/HeaderDefaultForm";
-import Layout from "@/components/TopBarComponents/Layout";
-import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
-import { storage } from "../config/firestoreConfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+} from '@mui/material'
+import { v4 as uuidv4 } from 'uuid'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { DataContext } from '@/context/context'
+import { IIAlunoUpdate } from '@/interface/interfaces'
+import { HeaderForm } from '@/components/HeaderDefaultForm'
+import Layout from '@/components/TopBarComponents/Layout'
+import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from '@/utils/Styles'
+
+import { GetServerSideProps } from 'next'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './api/auth/[...nextauth]'
+import { storage } from '../config/firestoreConfig'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 
 export default function StudentUpdatePersonalInformation() {
   const { updateDataInApi, modalidades, fetchModalidades } =
-    useContext(DataContext);
-  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(
-    null
-  );
-  const [alunosOptions, setAlunosOptions] = useState<IIAlunoUpdate[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [photoURL, setPhotoURL] = useState<string | null>(null);
+    useContext(DataContext)
+  const [selectedAluno, setSelectedAluno] = useState<IIAlunoUpdate | null>(null)
+  const [alunosOptions, setAlunosOptions] = useState<IIAlunoUpdate[]>([])
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [photoURL, setPhotoURL] = useState<string | null>(null)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    setSelectedFile(file);
+    const file = event.target.files ? event.target.files[0] : null
+    setSelectedFile(file)
     if (file) {
-      const photoPreviewUrl = URL.createObjectURL(file);
-      setPhotoURL(photoPreviewUrl); // Atualiza a visualização da foto na interface do usuário
+      const photoPreviewUrl = URL.createObjectURL(file)
+      setPhotoURL(photoPreviewUrl) // Atualiza a visualização da foto na interface do usuário
     }
-  };
+  }
 
   const uploadPhoto = async (): Promise<string | null> => {
-    if (!selectedFile) return null; // Retorna null explicitamente se não houver arquivo selecionado
-  
-    const storageRef = ref(storage, `${selectedFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, selectedFile);
-  
+    if (!selectedFile) return null // Retorna null explicitamente se não houver arquivo selecionado
+
+    const storageRef = ref(storage, `${selectedFile.name}`)
+    const uploadTask = uploadBytesResumable(storageRef, selectedFile)
+
     return new Promise<string | null>((resolve, reject) => {
       uploadTask.on(
-        "state_changed",
+        'state_changed',
         (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setUploadProgress(progress)
         },
         (error) => {
-          console.error("Erro no upload da foto:", error);
-          reject(error); // Rejeita a Promise no caso de erro
+          console.error('Erro no upload da foto:', error)
+          reject(error) // Rejeita a Promise no caso de erro
         },
         async () => {
           try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL); // Resolve com a URL em caso de sucesso
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            resolve(downloadURL) // Resolve com a URL em caso de sucesso
             setPhotoURL(downloadURL)
           } catch (error) {
-            console.error("Erro ao obter a URL da foto:", error);
-            resolve(null); // Resolve com null em caso de erro ao obter a URL
+            console.error('Erro ao obter a URL da foto:', error)
+            resolve(null) // Resolve com null em caso de erro ao obter a URL
           }
-        }
-      );
-    });
-  };
-  
+        },
+      )
+    })
+  }
 
   const {
     register,
@@ -81,168 +81,178 @@ export default function StudentUpdatePersonalInformation() {
     setValue,
     reset,
     formState: { isSubmitting },
-  } = useForm<IIAlunoUpdate>();
+  } = useForm<IIAlunoUpdate>()
 
   useEffect(() => {
     // Carregar todas as modalidades ao montar o componente
-    fetchModalidades().catch(console.error);
-  }, [fetchModalidades]);
+    fetchModalidades().catch(console.error)
+  }, [fetchModalidades])
 
   useEffect(() => {
-    const newAlunosOptions = modalidades.flatMap((modalidade) => {
-      return modalidade.turmas.flatMap((turma) => {
-        // Primeiro, certifique-se de que turma.alunos é um array e filtre elementos nulos
-        const alunosFiltrados = (
-          Array.isArray(turma.alunos) ? turma.alunos : []
-        ).filter((aluno) => aluno && aluno.nome); // Isso também verifica se o aluno não é nulo
-        // Agora você pode mapear os alunos filtrados com segurança
-        return alunosFiltrados.map((aluno) => ({
-          ...aluno,
-          nomeDaTurma: turma.nome_da_turma,
-          modalidade: modalidade.nome,
-        }));
-      });
-    });
-    setAlunosOptions(newAlunosOptions);
-  }, [modalidades]);
+    const alunoIdMap = new Map() // Usar Map para rastrear alunos únicos pelo ID
+
+    modalidades.forEach((modalidade) => {
+      modalidade.turmas.forEach((turma) => {
+        ;(Array.isArray(turma.alunos)
+          ? turma.alunos.filter(Boolean)
+          : []
+        ).forEach((aluno) => {
+          // Verifica se o aluno já foi adicionado, baseando-se no ID
+          // A verificação aluno != null foi substituída por .filter(Boolean) acima para filtrar valores null ou undefined
+          if (!alunoIdMap.has(aluno.id)) {
+            alunoIdMap.set(aluno.id, {
+              ...aluno,
+              nomeDaTurma: turma.nome_da_turma, // Você pode ajustar essa parte conforme a necessidade
+              modalidade: modalidade.nome,
+            })
+          }
+        })
+      })
+    })
+
+    // Convertendo o Map de volta para um array de alunos
+    const alunosUnicos = Array.from(alunoIdMap.values())
+
+    setAlunosOptions(alunosUnicos)
+  }, [modalidades])
 
   const onSubmit: SubmitHandler<IIAlunoUpdate> = async (data) => {
-    console.log("Dados do formulário antes do upload:", data);
+    console.log('Dados do formulário antes do upload:', data)
 
     try {
-        let finalPhotoUrl = photoURL; // Use a URL atual do estado
+      let finalPhotoUrl = photoURL // Use a URL atual do estado
 
-        if (selectedFile) {
-            console.log("Iniciando upload da foto...");
-            finalPhotoUrl = await uploadPhoto(); // Aguarda o upload e atualiza a URL
-            console.log("Foto carregada com sucesso, URL:", finalPhotoUrl);
-        }
+      if (selectedFile) {
+        console.log('Iniciando upload da foto...')
+        finalPhotoUrl = await uploadPhoto() // Aguarda o upload e atualiza a URL
+        console.log('Foto carregada com sucesso, URL:', finalPhotoUrl)
+      }
 
-        const updatedData = {
-            ...data,
-            foto: finalPhotoUrl || data.foto, // Garante que a foto seja atualizada corretamente
-        };
+      const updatedData = {
+        ...data,
+        foto: finalPhotoUrl || data.foto, // Garante que a foto seja atualizada corretamente
+      }
 
-        console.log("Atualizando dados do aluno com a nova URL da foto:", finalPhotoUrl);
-        await updateDataInApi({
-            ...updatedData,
-            alunoId: selectedAluno?.id,
-        });
+      console.log(
+        'Atualizando dados do aluno com a nova URL da foto:',
+        finalPhotoUrl,
+      )
+      await updateDataInApi({
+        ...updatedData,
+        alunoId: selectedAluno?.alunoId,
+      })
 
-        console.log("Cadastro atualizado com sucesso");
-        alert("Cadastro atualizado com sucesso");
+      console.log('Cadastro atualizado com sucesso')
+      alert('Cadastro atualizado com sucesso')
     } catch (error) {
-        console.error("Erro ao enviar os dados do formulário", error);
+      console.error('Erro ao enviar os dados do formulário', error)
     } finally {
-        reset();
-        setSelectedFile(null);
-        setPhotoURL(null); // Limpa o estado após o envio
+      reset()
+      setSelectedFile(null)
+      setPhotoURL(null) // Limpa o estado após o envio
     }
-};
-
-
-  
+  }
 
   const handleAlunoChange = (_event: any, value: IIAlunoUpdate | null) => {
-    setSelectedAluno(value);
+    setSelectedAluno(value)
     if (value) {
       // Atualiza todos os campos do formulário com as informações do aluno
-      setValue("nome", value.nome);
-      setValue("foto", value.foto);
-      setValue("anoNascimento", value.anoNascimento);
-      setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
-      setValue("telefoneComWhatsapp", value.telefoneComWhatsapp);
+      setValue('nome', value.nome)
+      setValue('foto', value.foto)
+      setValue('anoNascimento', value.anoNascimento)
+      setValue('telefoneComWhatsapp', value.telefoneComWhatsapp)
+      setValue('telefoneComWhatsapp', value.telefoneComWhatsapp)
       if (value.informacoesAdicionais) {
-        setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
+        setValue('informacoesAdicionais.rg', value.informacoesAdicionais.rg)
         setValue(
-          "informacoesAdicionais.filhofuncionarioJBS",
-          value.informacoesAdicionais.filhofuncionarioJBS
-        );
+          'informacoesAdicionais.filhofuncionarioJBS',
+          value.informacoesAdicionais.filhofuncionarioJBS,
+        )
         setValue(
-          "informacoesAdicionais.socioJBS",
-          value.informacoesAdicionais.socioJBS
-        );
+          'informacoesAdicionais.socioJBS',
+          value.informacoesAdicionais.socioJBS,
+        )
         setValue(
-          "informacoesAdicionais.nomefuncionarioJBS",
-          value.informacoesAdicionais.nomefuncionarioJBS
-        );
+          'informacoesAdicionais.nomefuncionarioJBS',
+          value.informacoesAdicionais.nomefuncionarioJBS,
+        )
         setValue(
-          "informacoesAdicionais.filhofuncionariomarcopolo",
-          value.informacoesAdicionais.filhofuncionariomarcopolo
-        );
+          'informacoesAdicionais.filhofuncionariomarcopolo',
+          value.informacoesAdicionais.filhofuncionariomarcopolo,
+        )
         setValue(
-          "informacoesAdicionais.nomefuncionariomarcopolo",
-          value.informacoesAdicionais.nomefuncionariomarcopolo
-        );
+          'informacoesAdicionais.nomefuncionariomarcopolo',
+          value.informacoesAdicionais.nomefuncionariomarcopolo,
+        )
         setValue(
-          "informacoesAdicionais.uniforme",
-          value.informacoesAdicionais.uniforme
-        );
+          'informacoesAdicionais.uniforme',
+          value.informacoesAdicionais.uniforme,
+        )
 
         setValue(
-          "informacoesAdicionais.escolaEstuda",
-          value.informacoesAdicionais.escolaEstuda
-        );
+          'informacoesAdicionais.escolaEstuda',
+          value.informacoesAdicionais.escolaEstuda,
+        )
         setValue(
-          "informacoesAdicionais.irmaos",
-          value.informacoesAdicionais.irmaos
-        );
+          'informacoesAdicionais.irmaos',
+          value.informacoesAdicionais.irmaos,
+        )
         setValue(
-          "informacoesAdicionais.saude",
-          value.informacoesAdicionais.saude
-        );
+          'informacoesAdicionais.saude',
+          value.informacoesAdicionais.saude,
+        )
         setValue(
-          "informacoesAdicionais.problemasaude",
-          value.informacoesAdicionais.problemasaude
-        );
+          'informacoesAdicionais.problemasaude',
+          value.informacoesAdicionais.problemasaude,
+        )
         setValue(
-          "informacoesAdicionais.medicacao",
-          value.informacoesAdicionais.medicacao
-        );
+          'informacoesAdicionais.medicacao',
+          value.informacoesAdicionais.medicacao,
+        )
         setValue(
-          "informacoesAdicionais.tipomedicacao",
-          value.informacoesAdicionais.tipomedicacao
-        );
+          'informacoesAdicionais.tipomedicacao',
+          value.informacoesAdicionais.tipomedicacao,
+        )
         setValue(
-          "informacoesAdicionais.convenio",
-          value.informacoesAdicionais.convenio
-        );
+          'informacoesAdicionais.convenio',
+          value.informacoesAdicionais.convenio,
+        )
         setValue(
-          "informacoesAdicionais.imagem",
-          value.informacoesAdicionais.imagem
-        );
+          'informacoesAdicionais.imagem',
+          value.informacoesAdicionais.imagem,
+        )
         setValue(
-          "informacoesAdicionais.endereco",
-          value.informacoesAdicionais.endereco
-        );
+          'informacoesAdicionais.endereco',
+          value.informacoesAdicionais.endereco,
+        )
         setValue(
-          "informacoesAdicionais.pagadorMensalidades",
-          value.informacoesAdicionais.pagadorMensalidades
-        );
+          'informacoesAdicionais.pagadorMensalidades',
+          value.informacoesAdicionais.pagadorMensalidades,
+        )
       } else {
-        setValue("informacoesAdicionais.rg", "");
-        setValue("informacoesAdicionais.pagadorMensalidades.nomeCompleto", "");
-        setValue("informacoesAdicionais.pagadorMensalidades.email", "");
-        setValue("informacoesAdicionais.pagadorMensalidades.cpf", "");
-        setValue("informacoesAdicionais.endereco.ruaAvenida", "");
+        setValue('informacoesAdicionais.rg', '')
+        setValue('informacoesAdicionais.pagadorMensalidades.nomeCompleto', '')
+        setValue('informacoesAdicionais.pagadorMensalidades.email', '')
+        setValue('informacoesAdicionais.pagadorMensalidades.cpf', '')
+        setValue('informacoesAdicionais.endereco.ruaAvenida', '')
       }
-      setValue("nomeDaTurma", value.nomeDaTurma);
-      setValue("modalidade", value.modalidade);
+      setValue('nomeDaTurma', value.nomeDaTurma)
+      setValue('modalidade', value.modalidade)
     } else {
-      reset(); // Limpa o formulário se nenhum aluno for selecionado
+      reset() // Limpa o formulário se nenhum aluno for selecionado
     }
-  };
+  }
 
   return (
     <Layout>
       <Container>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={BoxStyleCadastro}>
-            <Box sx={{ display: "table", width: "100%" }}>
-              <HeaderForm titulo={"Atualização de dados dos Atletas"} />
+            <Box sx={{ display: 'table', width: '100%' }}>
+              <HeaderForm titulo={'Atualização de dados dos Atletas'} />
               <Autocomplete
                 options={alunosOptions}
-                getOptionLabel={(option) => option.nome || ""}
+                getOptionLabel={(option) => option.nome || ''}
                 onChange={handleAlunoChange}
                 renderInput={(params) => (
                   <TextField
@@ -255,18 +265,18 @@ export default function StudentUpdatePersonalInformation() {
                 )}
                 renderOption={(props, option) => {
                   // Use uma chave única concatenando o ID do aluno com o nome. Se o ID estiver faltando, você pode usar um fallback como um UUID ou índice.
-                  const key = uuidv4() + option.id;
+                  const key = uuidv4() + option.alunoId
                   return (
                     <li {...props} key={key}>
                       {option.nome}
                     </li>
-                  );
+                  )
                 }}
               />
             </Box>
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
 
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
                 Seção 1 - Identificação do Aluno
@@ -275,7 +285,18 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("anoNascimento", { required: true })}
+                    {...register('nome', { required: true })}
+                    label="Nome"
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    InputLabelProps={{ shrink: true }}
+                    {...register('anoNascimento', { required: true })}
                     label="Nascimento"
                     fullWidth
                     margin="normal"
@@ -286,7 +307,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("telefoneComWhatsapp", { required: true })}
+                    {...register('telefoneComWhatsapp', { required: true })}
                     label="Telefone"
                     fullWidth
                     margin="normal"
@@ -297,7 +318,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.rg", {})}
+                    {...register('informacoesAdicionais.rg', {})}
                     label="RG"
                     fullWidth
                     margin="normal"
@@ -311,12 +332,12 @@ export default function StudentUpdatePersonalInformation() {
                   </Typography>
                   <Box
                     sx={{
-                      border: "1px dashed grey",
+                      border: '1px dashed grey',
                       padding: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       height: 200,
                       marginBottom: 2,
                     }}
@@ -326,9 +347,9 @@ export default function StudentUpdatePersonalInformation() {
                         src={photoURL || selectedAluno?.foto}
                         alt="Foto do Aluno"
                         style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
                         }}
                       />
                     ) : (
@@ -342,18 +363,19 @@ export default function StudentUpdatePersonalInformation() {
                       sx={{ mt: 2 }}
                     >
                       {selectedAluno?.foto || photoURL
-                        ? "Alterar Foto"
-                        : "Carregar Foto"}
+                        ? 'Alterar Foto'
+                        : 'Carregar Foto'}
                       <input type="file" hidden onChange={handleFileChange} />
-                     
                     </Button>
-                    <a href={photoURL || selectedAluno?.foto} download>Donwload</a>
+                    <a href={photoURL || selectedAluno?.foto} download>
+                      Donwload
+                    </a>
                   </Box>
                 </Grid>
               </Grid>
             </List>
 
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
                 Seção 2 - Endereço Residencial do Aluno
@@ -362,7 +384,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.endereco.ruaAvenida", {
+                    {...register('informacoesAdicionais.endereco.ruaAvenida', {
                       required: true,
                     })}
                     label="Rua/Avenida"
@@ -371,7 +393,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais?.endereco
-                        ?.ruaAvenida || ""
+                        ?.ruaAvenida || ''
                     }
                     onChange={(e) => {
                       if (
@@ -388,11 +410,11 @@ export default function StudentUpdatePersonalInformation() {
                               ruaAvenida: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.endereco.ruaAvenida",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.endereco.ruaAvenida',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -401,10 +423,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.endereco.numeroResidencia",
+                      'informacoesAdicionais.endereco.numeroResidencia',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="nº"
                     fullWidth
@@ -412,7 +434,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais?.endereco
-                        ?.numeroResidencia || ""
+                        ?.numeroResidencia || ''
                     }
                     onChange={(e) => {
                       if (
@@ -430,11 +452,11 @@ export default function StudentUpdatePersonalInformation() {
                               numeroResidencia: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.endereco.numeroResidencia",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.endereco.numeroResidencia',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -442,7 +464,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.endereco.cep", {
+                    {...register('informacoesAdicionais.endereco.cep', {
                       required: true,
                     })}
                     label="CEP"
@@ -450,7 +472,7 @@ export default function StudentUpdatePersonalInformation() {
                     margin="normal"
                     variant="standard"
                     value={
-                      selectedAluno?.informacoesAdicionais?.endereco?.cep || ""
+                      selectedAluno?.informacoesAdicionais?.endereco?.cep || ''
                     }
                     onChange={(e) => {
                       if (
@@ -467,11 +489,11 @@ export default function StudentUpdatePersonalInformation() {
                               cep: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.endereco.cep",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.endereco.cep',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -479,7 +501,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.endereco.bairro", {
+                    {...register('informacoesAdicionais.endereco.bairro', {
                       required: true,
                     })}
                     label="Bairro"
@@ -488,7 +510,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais?.endereco?.bairro ||
-                      ""
+                      ''
                     }
                     onChange={(e) => {
                       if (
@@ -505,11 +527,11 @@ export default function StudentUpdatePersonalInformation() {
                               bairro: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.endereco.bairro",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.endereco.bairro',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -518,8 +540,8 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.endereco.complemento",
-                      {}
+                      'informacoesAdicionais.endereco.complemento',
+                      {},
                     )}
                     label="Complemento"
                     fullWidth
@@ -527,7 +549,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais?.endereco
-                        ?.complemento || ""
+                        ?.complemento || ''
                     }
                     onChange={(e) => {
                       if (
@@ -544,18 +566,18 @@ export default function StudentUpdatePersonalInformation() {
                               complemento: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.endereco.complemento",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.endereco.complemento',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
                 </Grid>
               </Grid>
             </List>
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
                 Seção 3 - Informações do Responsável Financeiro
@@ -565,10 +587,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
+                      'informacoesAdicionais.pagadorMensalidades.nomeCompleto',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="Nome do Responsável"
                     fullWidth
@@ -576,7 +598,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
-                        .nomeCompleto || ""
+                        .nomeCompleto || ''
                     }
                     onChange={(e) => {
                       if (
@@ -594,11 +616,11 @@ export default function StudentUpdatePersonalInformation() {
                               nomeCompleto: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.pagadorMensalidades.nomeCompleto',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -607,10 +629,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.pagadorMensalidades.cpf",
+                      'informacoesAdicionais.pagadorMensalidades.cpf',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="CPF do Responsável"
                     fullWidth
@@ -618,7 +640,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
-                        .cpf || ""
+                        .cpf || ''
                     }
                     onChange={(e) => {
                       if (
@@ -636,11 +658,11 @@ export default function StudentUpdatePersonalInformation() {
                               cpf: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.pagadorMensalidades.cpf",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.pagadorMensalidades.cpf',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -649,10 +671,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
+                      'informacoesAdicionais.pagadorMensalidades.celularWhatsapp',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="Telefone do Responsável"
                     fullWidth
@@ -660,7 +682,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
-                        .celularWhatsapp || ""
+                        .celularWhatsapp || ''
                     }
                     onChange={(e) => {
                       if (
@@ -678,11 +700,11 @@ export default function StudentUpdatePersonalInformation() {
                               celularWhatsapp: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.pagadorMensalidades.celularWhatsapp',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -691,10 +713,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.pagadorMensalidades.email",
+                      'informacoesAdicionais.pagadorMensalidades.email',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="Email do Responsável"
                     fullWidth
@@ -702,7 +724,7 @@ export default function StudentUpdatePersonalInformation() {
                     variant="standard"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
-                        .email || ""
+                        .email || ''
                     }
                     onChange={(e) => {
                       if (
@@ -720,11 +742,11 @@ export default function StudentUpdatePersonalInformation() {
                               email: e.target.value,
                             },
                           },
-                        });
+                        })
                         setValue(
-                          "informacoesAdicionais.pagadorMensalidades.email",
-                          e.target.value
-                        );
+                          'informacoesAdicionais.pagadorMensalidades.email',
+                          e.target.value,
+                        )
                       }
                     }}
                   />
@@ -732,7 +754,7 @@ export default function StudentUpdatePersonalInformation() {
               </Grid>
             </List>
 
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
                 Seção 4 - informações Gerais do Atleta
@@ -741,7 +763,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.escolaEstuda", {
+                    {...register('informacoesAdicionais.escolaEstuda', {
                       required: true,
                     })}
                     fullWidth
@@ -753,7 +775,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.irmaos", {
+                    {...register('informacoesAdicionais.irmaos', {
                       required: true,
                     })}
                     fullWidth
@@ -765,7 +787,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.saude", {
+                    {...register('informacoesAdicionais.saude', {
                       required: true,
                     })}
                     fullWidth
@@ -777,7 +799,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.problemasaude", {
+                    {...register('informacoesAdicionais.problemasaude', {
                       required: true,
                     })}
                     label="Quais problemas de saúde possui? "
@@ -789,7 +811,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.medicacao", {
+                    {...register('informacoesAdicionais.medicacao', {
                       required: true,
                     })}
                     label="Faz uso de medicação? "
@@ -801,7 +823,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.tipomedicacao", {
+                    {...register('informacoesAdicionais.tipomedicacao', {
                       required: true,
                     })}
                     label="Qual o nome da(s) medicação(es) que faz uso? "
@@ -813,7 +835,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.convenio", {
+                    {...register('informacoesAdicionais.convenio', {
                       required: true,
                     })}
                     label="Qual convenio Possui? "
@@ -825,7 +847,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.imagem", {
+                    {...register('informacoesAdicionais.imagem', {
                       required: true,
                     })}
                     label="Autoriza o uso de imagem? "
@@ -837,7 +859,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.filhofuncionarioJBS", {
+                    {...register('informacoesAdicionais.filhofuncionarioJBS', {
                       required: true,
                     })}
                     label="É filho(a) de funcionário(a) da JBS? "
@@ -849,7 +871,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.socioJBS", {
+                    {...register('informacoesAdicionais.socioJBS', {
                       required: true,
                     })}
                     label="É sócio da sede da JBS?"
@@ -861,7 +883,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.nomefuncionarioJBS", {
+                    {...register('informacoesAdicionais.nomefuncionarioJBS', {
                       required: true,
                     })}
                     label="Nome do Funcionário(a) da JBS"
@@ -874,10 +896,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.filhofuncionariomarcopolo",
+                      'informacoesAdicionais.filhofuncionariomarcopolo',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="É filho(a) de funcionário(a) da Marcopolo?"
                     fullWidth
@@ -889,10 +911,10 @@ export default function StudentUpdatePersonalInformation() {
                   <TextField
                     InputLabelProps={{ shrink: true }}
                     {...register(
-                      "informacoesAdicionais.nomefuncionariomarcopolo",
+                      'informacoesAdicionais.nomefuncionariomarcopolo',
                       {
                         required: true,
-                      }
+                      },
                     )}
                     label="Nome do Funcionário(a) da Marcopolo"
                     fullWidth
@@ -903,7 +925,7 @@ export default function StudentUpdatePersonalInformation() {
                 <Grid item xs={12} sm={4}>
                   <TextField
                     InputLabelProps={{ shrink: true }}
-                    {...register("informacoesAdicionais.uniforme", {
+                    {...register('informacoesAdicionais.uniforme', {
                       required: true,
                     })}
                     label="Tamanho Escolhido para o uniforme"
@@ -915,55 +937,31 @@ export default function StudentUpdatePersonalInformation() {
               </Grid>
             </List>
 
-            {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
-            <List sx={ListStyle}>
-              <Typography sx={TituloSecaoStyle}>
-                Seção 5 - Modalidade e Turma
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    {...register("nomeDaTurma", { required: true })}
-                    fullWidth
-                    margin="normal"
-                    variant="standard"
-                    disabled
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    {...register("modalidade", { required: true })}
-                    fullWidth
-                    margin="normal"
-                    variant="standard"
-                    disabled
-                  />
-                </Grid>
-              </Grid>
-            </List>
+            {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */}
+
             <Button type="submit" variant="contained" disabled={isSubmitting}>
               {isSubmitting
-                ? "Enviando dados,aguarde..."
-                : "Atualizar dados do Atleta"}
+                ? 'Enviando dados,aguarde...'
+                : 'Atualizar dados do Atleta'}
             </Button>
           </Box>
         </form>
       </Container>
     </Layout>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session = await getServerSession(context.req, context.res, authOptions)
 
   // Se não tiver sessão ou não for admin, redirecione para a página de login
-  if (!session || session.user.role !== "admin") {
+  if (!session || session.user.role !== 'admin') {
     return {
       redirect: {
-        destination: "/NotAllowPage",
+        destination: '/NotAllowPage',
         permanent: false,
       },
-    };
+    }
   }
 
   // Retornar props aqui se a permissão for válida
@@ -971,6 +969,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       /* props adicionais aqui */
     },
-  };
-};
-//update
+  }
+}
+// update
