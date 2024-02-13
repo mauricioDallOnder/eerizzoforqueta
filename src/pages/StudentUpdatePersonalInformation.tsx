@@ -99,8 +99,8 @@ export default function StudentUpdatePersonalInformation() {
         ).forEach((aluno) => {
           // Verifica se o aluno já foi adicionado, baseando-se no ID
           // A verificação aluno != null foi substituída por .filter(Boolean) acima para filtrar valores null ou undefined
-          if (!alunoIdMap.has(aluno.id)) {
-            alunoIdMap.set(aluno.id, {
+          if (!alunoIdMap.has(aluno.nome)) {
+            alunoIdMap.set(aluno.nome, {
               ...aluno,
               nomeDaTurma: turma.nome_da_turma, // Você pode ajustar essa parte conforme a necessidade
               modalidade: modalidade.nome,
