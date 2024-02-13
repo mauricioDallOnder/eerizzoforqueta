@@ -1,6 +1,8 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { useData } from "@/context/context";
-import { Aluno } from "@/interface/interfaces";
+import { Aluno, InformacoesAdicionais } from "@/interface/interfaces";
 import {
   Box,
   Typography,
@@ -13,17 +15,15 @@ import {
   TextField,
   TablePagination,
   LinearProgress,
-  AlertProps,
-  Snackbar,
   tableCellClasses,
-  Container,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useCopyToClipboard } from "@/hooks/CopyToClipboardHook";
 import { v4 as uuidv4 } from "uuid";
 import { normalizeText } from "@/utils/Constants";
-import ResponsiveAppBar from "@/components/TopBarComponents/TopBar";
+
 import Layout from "@/components/TopBarComponents/Layout";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
@@ -34,6 +34,11 @@ interface AlunoComTurma {
   uniqueId: string; // Adicionando um campo para o ID único
 }
 
+// Tipagem opcional para props customizadas (se necessário)
+interface StyledTableCellProps {
+  minWidth?: number;
+}
+
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   background: "rgba(255, 255, 255, 0.9)",
   backdropFilter: "blur(8px)",
@@ -42,20 +47,22 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: "8px",
 }));
 
-export const StyledTableCell = styled(TableCell)(({ theme }) => ({
+// Ajustes nos estilos StyledTableCell e StyledTableRow para acomodar melhor o conteúdo
+const StyledTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "minWidth",
+})<StyledTableCellProps>(({ theme, minWidth }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
     fontSize: 16,
-    minWidth: 100, // Set a minimum width for the header cells
+    minWidth: minWidth || 100, // Valor padrão ou o fornecido via props
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 13,
-    minWidth: 100, // Set a minimum width for the body cells
+    fontSize: 14,
+    minWidth: minWidth || 100, // Valor padrão ou o fornecido via props
   },
   "&:hover": {
-    background: "#22c55e",
-    fontWeight: "bold",
+    backgroundColor: "#22c55e",
   },
 }));
 
@@ -107,10 +114,6 @@ export default function TurmasTemporariosTable() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(false);
 
-  const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
-    return <Alert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
-
   const handleCopy = (text: string) => () => {
     copy(text)
       .then(() => {
@@ -152,8 +155,6 @@ export default function TurmasTemporariosTable() {
                 });
               }
             });
-          } else {
-            return;
           }
         }
       });
@@ -234,6 +235,14 @@ export default function TurmasTemporariosTable() {
       );
     }
   );
+
+  // Função para formatar o endereço em uma linha
+  const formatAddress = (
+    endereco: Aluno["informacoesAdicionais"]["endereco"]
+  ): string => {
+    if (!endereco) return "N/A";
+    return `${endereco.ruaAvenida}, ${endereco.numeroResidencia}, ${endereco.bairro}, ${endereco.complemento || ""}`.trim();
+  };
 
   return (
     <Layout>
@@ -528,11 +537,12 @@ export default function TurmasTemporariosTable() {
                           {aluno.telefoneComWhatsapp}
                         </StyledTableCell>
                         <StyledTableCell
+                          align="center"
+                          minWidth={200}
                           sx={{
                             borderBottom: "1px solid black",
                             cursor: "pointer",
                           }}
-                          align="center"
                           onClick={handleCopy(
                             aluno.informacoesAdicionais &&
                               aluno.informacoesAdicionais.endereco
@@ -544,25 +554,28 @@ export default function TurmasTemporariosTable() {
                                     .numeroResidencia
                                 }, 
                               ${aluno.informacoesAdicionais.endereco.bairro}, ${
-                                  aluno.informacoesAdicionais.endereco
-                                    .complemento || "N/A"
-                                } `
-                              : "N/A"
-                          )}
-                        >
-                          {aluno.informacoesAdicionais &&
-                          aluno.informacoesAdicionais.endereco
-                            ? `${
-                                aluno.informacoesAdicionais.endereco.ruaAvenida
-                              }, ${
-                                aluno.informacoesAdicionais.endereco
-                                  .numeroResidencia
-                              }, 
-                              ${aluno.informacoesAdicionais.endereco.bairro}, ${
                                 aluno.informacoesAdicionais.endereco
                                   .complemento || "N/A"
                               } `
-                            : "N/A"}
+                              : "N/A"
+                          )}
+                        >
+                          <Tooltip
+                            title={formatAddress(
+                              aluno.informacoesAdicionais?.endereco
+                            )}
+                          >
+                            <span>
+                              {formatAddress(
+                                aluno.informacoesAdicionais?.endereco
+                              ).substring(0, 50)}
+                              {formatAddress(
+                                aluno.informacoesAdicionais?.endereco
+                              ).length > 50
+                                ? "..."
+                                : ""}
+                            </span>
+                          </Tooltip>
                         </StyledTableCell>
 
                         <StyledTableCell
