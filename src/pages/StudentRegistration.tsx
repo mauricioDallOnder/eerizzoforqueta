@@ -1,18 +1,13 @@
-import {
-  useForm,
-  SubmitHandler,
-  FieldErrors,
-  FieldValues,
-} from "react-hook-form";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useForm, SubmitHandler } from 'react-hook-form'
 import {
   FormValuesStudent,
   SelecaoModalidadeTurma,
   Turma,
   formValuesStudentSchema,
-} from "@/interface/interfaces";
-import { useEffect, useState } from "react";
+} from '@/interface/interfaces'
+import React, { useEffect, useState } from 'react'
 import {
-  extrairDiaDaSemana,
   fieldsDadosGeraisAtleta,
   fieldsEndereco,
   fieldsIdentificacao,
@@ -21,10 +16,8 @@ import {
   getErrorMessage,
   opcoesTermosAvisos,
   vinculosempresasparceiras,
-} from "@/utils/Constants";
+} from '@/utils/Constants'
 import {
-  Alert,
-  Avatar,
   Box,
   Button,
   Container,
@@ -37,18 +30,17 @@ import {
   RadioGroup,
   TextField,
   Typography,
-} from "@mui/material";
-import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
-import { useData } from "@/context/context";
-import { HeaderForm } from "@/components/HeaderDefaultForm";
-import Layout from "@/components/TopBarComponents/Layout";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import "react-image-crop/dist/ReactCrop.css";
-import { storage } from "../config/firestoreConfig";
-import resizeImage from "../utils/Constants";
-import { v4 as uuidv4 } from "uuid";
-import React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from '@mui/material'
+import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from '@/utils/Styles'
+import { useData } from '@/context/context'
+import { HeaderForm } from '@/components/HeaderDefaultForm'
+import Layout from '@/components/TopBarComponents/Layout'
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
+import 'react-image-crop/dist/ReactCrop.css'
+import { storage } from '../config/firestoreConfig'
+import resizeImage from '../utils/Constants'
+import { v4 as uuidv4 } from 'uuid'
+import { zodResolver } from '@hookform/resolvers/zod'
 export default function StudentRegistration() {
   const {
     register,
@@ -58,151 +50,150 @@ export default function StudentRegistration() {
   } = useForm<FormValuesStudent>({
     resolver: zodResolver(formValuesStudentSchema),
     defaultValues: {
-      modalidade: "", // Um valor inicial válido ou a primeira opção das suas modalidades
-      turmaSelecionada: "", // Valor inicial para turmaSelecionada
+      modalidade: '', // Um valor inicial válido ou a primeira opção das suas modalidades
+      turmaSelecionada: '', // Valor inicial para turmaSelecionada
       aluno: {
         informacoesAdicionais: {
-          uniforme: "", // Aqui você pode colocar um valor padrão válido ou uma string vazia
+          uniforme: '', // Aqui você pode colocar um valor padrão válido ou uma string vazia
         },
         // Outros campos dentro de aluno...
       },
       // Outros campos necessários...
     },
-  });
-  const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
+  })
+  const { modalidades, fetchModalidades, sendDataToApi } = useData() // Usando o hook useData
 
-  //upload de imagem----------------------------
-  const [isUploading, setIsUploading] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  // upload de imagem----------------------------
+  const [isUploading, setIsUploading] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("onFileChange - Início");
-    const file = event.target.files![0];
+    console.log('onFileChange - Início')
+    const file = event.target.files![0]
     try {
-      const resizedImageUrl = await resizeImage(file);
+      const resizedImageUrl = await resizeImage(file)
       setFile(
-        new File([await (await fetch(resizedImageUrl)).blob()], file.name)
-      );
-      setAvatarUrl(resizedImageUrl);
-      console.log("onFileChange - Imagem processada");
+        new File([await (await fetch(resizedImageUrl)).blob()], file.name),
+      )
+      setAvatarUrl(resizedImageUrl)
+      console.log('onFileChange - Imagem processada')
     } catch (error) {
-      console.error(error);
-      console.error("onFileChange - Erro", error);
+      console.error(error)
+      console.error('onFileChange - Erro', error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchModalidades();
-  }, [fetchModalidades]);
-  //----------------------------------------------------------------------------
+    fetchModalidades()
+  }, [fetchModalidades])
+  // ----------------------------------------------------------------------------
   // seleção de modalidades
 
   const [selecoes, setSelecoes] = useState<SelecaoModalidadeTurma[]>([
     {
-      modalidade: "",
-      nucleo: "",
-      turma: "",
+      modalidade: '',
+      nucleo: '',
+      turma: '',
       turmasDisponiveis: [],
     },
-  ]);
+  ])
 
   // Função para adicionar nova seleção de modalidade e turma
   const adicionarSelecao = () => {
     setSelecoes((prevSelecoes) => [
       ...prevSelecoes,
       {
-        modalidade: "",
-        nucleo: "",
-        turma: "",
+        modalidade: '',
+        nucleo: '',
+        turma: '',
         turmasDisponiveis: [],
       },
-    ]);
-  };
+    ])
+  }
 
   // Função para atualizar seleções de modalidade, núcleo e turma
   const atualizarSelecao = (
     index: number,
     campo: keyof SelecaoModalidadeTurma,
-    valor: string | Turma[]
+    valor: string | Turma[],
   ) => {
     setSelecoes((prevSelecoes) => {
       return prevSelecoes.map((selecao, idx) => {
         if (idx === index) {
-          if (campo === "turmasDisponiveis" && Array.isArray(valor)) {
+          if (campo === 'turmasDisponiveis' && Array.isArray(valor)) {
             // Garantindo que valor é um array de Turma para o campo 'turmasDisponiveis'
-            return { ...selecao, [campo]: valor };
-          } else if (typeof valor === "string") {
+            return { ...selecao, [campo]: valor }
+          } else if (typeof valor === 'string') {
             // Para campos 'modalidade', 'nucleo' e 'turma', o valor é uma string
-            const novaSelecao = { ...selecao, [campo]: valor };
+            const novaSelecao = { ...selecao, [campo]: valor }
 
             // Se o campo for 'nucleo', atualiza as turmas disponíveis
-            if (campo === "nucleo") {
-              const modalidadeSelecionada = novaSelecao.modalidade;
+            if (campo === 'nucleo') {
+              const modalidadeSelecionada = novaSelecao.modalidade
               const turmasFiltradas = atualizarTurmasDisponiveis(
                 modalidadeSelecionada,
                 valor,
-                index
-              );
-              novaSelecao.turmasDisponiveis! = turmasFiltradas;
+                index,
+              )
+              novaSelecao.turmasDisponiveis! = turmasFiltradas
             }
 
             // Se o campo for 'modalidade', reset 'nucleo' e 'turma'
-            if (campo === "modalidade") {
-              novaSelecao.nucleo = "";
-              novaSelecao.turma = "";
-              novaSelecao.turmasDisponiveis = [];
+            if (campo === 'modalidade') {
+              novaSelecao.nucleo = ''
+              novaSelecao.turma = ''
+              novaSelecao.turmasDisponiveis = []
             }
 
-            return novaSelecao;
+            return novaSelecao
           }
         }
-        return selecao;
-      });
-    });
-  };
+        return selecao
+      })
+    })
+  }
 
   const atualizarTurmasDisponiveis = (
     modalidade: string,
     nucleo: string,
-    index: number
+    index: number,
   ): Turma[] => {
     // Suponha que essa função retorne as turmas filtradas baseadas na modalidade e no núcleo
-    const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas ?? [];
-    return turmas.filter((turma) => turma.nucleo === nucleo);
-  };
+    const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas ?? []
+    return turmas.filter((turma) => turma.nucleo === nucleo)
+  }
 
   const removerSelecao = (index: number) => {
     setSelecoes((prevSelecoes) =>
-      prevSelecoes.filter((_, idx) => idx !== index)
-    );
-  };
-  const key = uuidv4();
+      prevSelecoes.filter((_, idx) => idx !== index),
+    )
+  }
+  const key = uuidv4()
   // Função para gerar os seletores de modalidade, núcleo e turma
   const renderizarSeletores = () => {
     return selecoes.map((selecao, index) => (
       <Grid container spacing={2} key={index}>
         <Grid item xs={12} sm={4}>
           <TextField
-            sx={{ marginTop: "12px" }}
+            sx={{ marginTop: '12px' }}
             select
             label="Modalidade"
             fullWidth
             variant="outlined"
             value={selecao.modalidade}
             onChange={(e) =>
-              atualizarSelecao(index, "modalidade", e.target.value)
+              atualizarSelecao(index, 'modalidade', e.target.value)
             }
             required
           >
             {modalidades
               .filter(
                 (modalidade) =>
-                  modalidade.nome !== "temporarios" &&
-                  modalidade.nome !== "arquivados" &&
-                  modalidade.nome !== "excluidos"
+                  modalidade.nome !== 'temporarios' &&
+                  modalidade.nome !== 'arquivados' &&
+                  modalidade.nome !== 'excluidos',
               )
               .map((modalidade) => (
                 <MenuItem key={modalidade.nome} value={modalidade.nome}>
@@ -213,13 +204,13 @@ export default function StudentRegistration() {
         </Grid>
         <Grid item xs={12} sm={4}>
           <TextField
-            sx={{ marginTop: "12px" }}
+            sx={{ marginTop: '12px' }}
             select
             label="Local de treinamento"
             fullWidth
             variant="outlined"
             value={selecao.nucleo}
-            onChange={(e) => atualizarSelecao(index, "nucleo", e.target.value)}
+            onChange={(e) => atualizarSelecao(index, 'nucleo', e.target.value)}
             required
           >
             {selecao.modalidade &&
@@ -236,18 +227,18 @@ export default function StudentRegistration() {
         </Grid>
         <Grid item xs={12} sm={4}>
           <TextField
-            sx={{ marginTop: "12px" }}
+            sx={{ marginTop: '12px' }}
             select
             label="Turma"
             fullWidth
             variant="outlined"
             value={selecao.turma}
-            onChange={(e) => atualizarSelecao(index, "turma", e.target.value)}
+            onChange={(e) => atualizarSelecao(index, 'turma', e.target.value)}
             required
           >
             {selecao.turmasDisponiveis!.map((turma) => (
               <MenuItem key={key} value={turma.nome_da_turma}>
-                {" "}
+                {' '}
                 {/* Certifique-se de que turma.id está acessível */}
                 {turma.nome_da_turma}
               </MenuItem>
@@ -258,7 +249,7 @@ export default function StudentRegistration() {
           <Button
             variant="contained"
             color="error"
-            sx={{ mb: "5px" }}
+            sx={{ mb: '5px' }}
             onClick={() => removerSelecao(index)}
             disabled={selecoes.length === 1}
           >
@@ -266,27 +257,27 @@ export default function StudentRegistration() {
           </Button>
         </Grid>
         {index < selecoes.length - 1 && (
-          <Divider sx={{ width: "100%", my: 2 }} />
+          <Divider sx={{ width: '100%', my: 2 }} />
         )}
       </Grid>
-    ));
-  };
+    ))
+  }
 
   const onSubmit: SubmitHandler<FormValuesStudent> = async (formData) => {
-    console.log("onSubmit - Início");
+    console.log('onSubmit - Início')
 
     if (selecoes.length === 0) {
-      alert("Por favor, adicione pelo menos uma modalidade e turma.");
-      return;
+      alert('Por favor, adicione pelo menos uma modalidade e turma.')
+      return
     }
-    let fotoUrl =""
+    let fotoUrl = ''
     if (file) {
-      setIsUploading(true);
+      setIsUploading(true)
       try {
-        const fileName = uuidv4() + file.name;
-        const fileRef = ref(storage, fileName);
-        const uploadTask = uploadBytesResumable(fileRef, file);
-  
+        const fileName = uuidv4() + file.name
+        const fileRef = ref(storage, fileName)
+        const uploadTask = uploadBytesResumable(fileRef, file)
+
         await new Promise((resolve, reject) => {
           uploadTask.on(
             'state_changed',
@@ -294,31 +285,30 @@ export default function StudentRegistration() {
               // opcional: atualizar o progresso do upload aqui
             },
             (error) => {
-              console.error("Erro no upload:", error);
-              reject(error);
+              console.error('Erro no upload:', error)
+              reject(error)
             },
             async () => {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              setIsUploading(false);
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+              setIsUploading(false)
               // Use a URL obtida aqui como valor para o campo 'foto'
-              fotoUrl = downloadURL; // Atualize a lógica conforme necessário
-              resolve(downloadURL);
-            }
-          );
-        });
-  
+              fotoUrl = downloadURL // Atualize a lógica conforme necessário
+              resolve(downloadURL)
+            },
+          )
+        })
       } catch (error) {
-        console.error("Falha no upload:", error);
-        setIsUploading(false);
+        console.error('Falha no upload:', error)
+        setIsUploading(false)
         // Gerenciar erro de upload aqui
-        return;
+        return
       }
     }
-  
+
     // Preparar dados para enviar, incluindo a URL da imagem carregada
-  
-    const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
-    formData.aluno.dataMatricula = mydate;
+
+    const mydate = new Date(Date.now()).toLocaleString().split(',')[0]
+    formData.aluno.dataMatricula = mydate
     const dataParaProcessar = selecoes.map((selecao) => ({
       ...formData, // Espalha os dados do formulário
       modalidade: selecao.modalidade,
@@ -327,49 +317,50 @@ export default function StudentRegistration() {
         ...formData.aluno,
         foto: fotoUrl, // Assegure-se de que esta é a URL do Firebase
       },
-    }));
+    }))
 
     try {
-      const { resultados } = await sendDataToApi(dataParaProcessar);
+      const { resultados } = await sendDataToApi(dataParaProcessar)
       // Verificar se todos os cadastros foram bem-sucedidos
-    const todosSucessos = resultados.every(resultado => resultado.sucesso);
-    if (todosSucessos) {
-      alert("Todos os cadastros foram efetuados com sucesso!");
-      resetFormulario()
-    } else {
-      // Processar e exibir mensagens de erro específicas
-      const mensagensErro = resultados
-        .filter(resultado => !resultado.sucesso)
-        .map(resultado => resultado.erro)
-        .join("\n");
-      alert(`O cadastro falhou, motivo:\n${mensagensErro}`);
-    }
-    
+      const todosSucessos = resultados.every((resultado) => resultado.sucesso)
+      if (todosSucessos) {
+        alert('Todos os cadastros foram efetuados com sucesso!')
+        resetFormulario()
+      } else {
+        // Processar e exibir mensagens de erro específicas
+        const mensagensErro = resultados
+          .filter((resultado) => !resultado.sucesso)
+          .map((resultado) => resultado.erro)
+          .join('\n')
+        alert(`O cadastro falhou, motivo:\n${mensagensErro}`)
+      }
     } catch (error) {
-      console.error("Erro ao enviar dados dos alunos: ", error);
-      alert("Ocorreu um erro ao tentar realizar o cadastro. Por favor, tente novamente.");
+      console.error('Erro ao enviar dados dos alunos: ', error)
+      alert(
+        'Ocorreu um erro ao tentar realizar o cadastro. Por favor, tente novamente.',
+      )
     }
-  };
+  }
 
   // Função para resetar o formulário e estados relacionados
   const resetFormulario = () => {
-    reset(); // Reseta o formulário usando react-hook-form
+    reset() // Reseta o formulário usando react-hook-form
     setSelecoes([
-      { modalidade: "", nucleo: "", turma: "", turmasDisponiveis: [] },
-    ]); // Reseta as seleções
-    setFile(null);
-    setAvatarUrl("");
-    setIsUploading(false);
-    setUploadProgress(0);
-  };
+      { modalidade: '', nucleo: '', turma: '', turmasDisponiveis: [] },
+    ]) // Reseta as seleções
+    setFile(null)
+    setAvatarUrl('')
+    setIsUploading(false)
+    setUploadProgress(0)
+  }
 
   return (
     <Layout>
       <Container>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={BoxStyleCadastro}>
-            <Box sx={{ display: "table", width: "100%" }}>
-              <HeaderForm titulo={"Cadastro de Atletas"} />
+            <Box sx={{ display: 'table', width: '100%' }}>
+              <HeaderForm titulo={'Cadastro de Atletas'} />
             </Box>
             <List sx={ListStyle}>
               <Typography sx={TituloSecaoStyle}>
@@ -392,19 +383,19 @@ export default function StudentRegistration() {
                 <Grid item xs={12} sm={6}>
                   <Box
                     sx={{
-                      border: "1px dashed grey",
-                      borderRadius: "4px", // Se você quiser cantos arredondados, senão remova esta linha
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%", // Largura total do contêiner
-                      height: "200px", // Ajuste conforme necessário para altura
-                      overflow: "hidden", // Isso garantirá que a imagem não ultrapasse a caixa
-                      position: "relative", // Posicionamento relativo para elementos internos absolutos
-                      "&:hover": {
-                        backgroundColor: "#f0f0f0",
-                        cursor: "pointer",
+                      border: '1px dashed grey',
+                      borderRadius: '4px', // Se você quiser cantos arredondados, senão remova esta linha
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%', // Largura total do contêiner
+                      height: '200px', // Ajuste conforme necessário para altura
+                      overflow: 'hidden', // Isso garantirá que a imagem não ultrapasse a caixa
+                      position: 'relative', // Posicionamento relativo para elementos internos absolutos
+                      '&:hover': {
+                        backgroundColor: '#f0f0f0',
+                        cursor: 'pointer',
                       },
                     }}
                   >
@@ -414,21 +405,21 @@ export default function StudentRegistration() {
                           src={avatarUrl}
                           alt="Avatar"
                           style={{
-                            width: "100%", // Isso fará com que a imagem preencha a largura da caixa
-                            height: "100%", // Isso fará com que a imagem preencha a altura da caixa
-                            objectFit: "cover", // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
+                            width: '100%', // Isso fará com que a imagem preencha a largura da caixa
+                            height: '100%', // Isso fará com que a imagem preencha a altura da caixa
+                            objectFit: 'cover', // Isso fará com que a imagem cubra todo o espaço disponível, cortando o excesso
                           }}
                         />
                         <Box
                           sx={{
-                            position: "absolute", // Posicionamento absoluto para sobrepor a imagem
+                            position: 'absolute', // Posicionamento absoluto para sobrepor a imagem
                             bottom: 0,
                             left: 0,
-                            width: "100%",
-                            backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo translúcido para o texto ser legível
-                            color: "white",
-                            textAlign: "center",
-                            p: "8px",
+                            width: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo translúcido para o texto ser legível
+                            color: 'white',
+                            textAlign: 'center',
+                            p: '8px',
                           }}
                         >
                           <Button
@@ -481,7 +472,7 @@ export default function StudentRegistration() {
                       label={label}
                       variant="standard"
                       sx={{
-                        borderRadius: "4px",
+                        borderRadius: '4px',
                       }}
                       error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
                       helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
@@ -505,7 +496,7 @@ export default function StudentRegistration() {
                       label={label}
                       variant="standard"
                       sx={{
-                        borderRadius: "4px",
+                        borderRadius: '4px',
                       }}
                       required
                       error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
@@ -520,14 +511,13 @@ export default function StudentRegistration() {
                     label="Complemento"
                     variant="standard"
                     sx={{
-                      borderRadius: "4px",
+                      borderRadius: '4px',
                     }}
                     {...register(
-                      "aluno.informacoesAdicionais.endereco.complemento"
+                      'aluno.informacoesAdicionais.endereco.complemento',
                     )} // asserção de tipo aqui
                   />
                 </Grid>
-                //
               </Grid>
             </List>
 
@@ -544,7 +534,7 @@ export default function StudentRegistration() {
                       label={label}
                       variant="standard"
                       sx={{
-                        borderRadius: "4px",
+                        borderRadius: '4px',
                       }}
                       error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
                       helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
@@ -569,7 +559,7 @@ export default function StudentRegistration() {
                       label={label}
                       variant="standard"
                       sx={{
-                        borderRadius: "4px",
+                        borderRadius: '4px',
                       }}
                       error={Boolean(getErrorMessage(errors, id))} // Verifica se existe erro
                       helperText={getErrorMessage(errors, id)} // Mostra a mensagem de erro
@@ -589,28 +579,28 @@ export default function StudentRegistration() {
                 <Grid item xs={12}>
                   <TextField
                     select
-                    defaultValue={""}
+                    defaultValue={''}
                     label="Tamanho do Uniforme"
                     variant="outlined"
                     fullWidth
                     required
-                    {...register("aluno.informacoesAdicionais.uniforme")} // asserção de tipo aqui
+                    {...register('aluno.informacoesAdicionais.uniforme')} // asserção de tipo aqui
                     helperText="Selecione o tamanho do uniforme"
                     error={!!errors.aluno?.informacoesAdicionais?.uniforme}
                   >
                     {[
-                      { value: "Pi - 6", label: "Pi - 6" },
-                      { value: "Mi - 8", label: "Mi - 8" },
-                      { value: "Gi - 10", label: "Gi - 10" },
-                      { value: "GGi - 12", label: "GGi - 12" },
-                      { value: "PP - 14", label: "PP - 14" },
-                      { value: "P adulto", label: "P adulto" },
-                      { value: "M adulto", label: "M adulto" },
-                      { value: "G adulto", label: "G adulto" },
-                      { value: "GG adulto", label: "GG adulto" },
+                      { value: 'Pi - 6', label: 'Pi - 6' },
+                      { value: 'Mi - 8', label: 'Mi - 8' },
+                      { value: 'Gi - 10', label: 'Gi - 10' },
+                      { value: 'GGi - 12', label: 'GGi - 12' },
+                      { value: 'PP - 14', label: 'PP - 14' },
+                      { value: 'P adulto', label: 'P adulto' },
+                      { value: 'M adulto', label: 'M adulto' },
+                      { value: 'G adulto', label: 'G adulto' },
+                      { value: 'GG adulto', label: 'GG adulto' },
                       {
-                        value: "Outro",
-                        label: "Outro (informar pelo Whatsapp)",
+                        value: 'Outro',
+                        label: 'Outro (informar pelo Whatsapp)',
                       },
                     ].map((option) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -628,7 +618,7 @@ export default function StudentRegistration() {
               </Typography>
               <Grid container spacing={2}>
                 {renderizarSeletores()}
-                <Divider sx={{ width: "100%", my: 2 }} />
+                <Divider sx={{ width: '100%', my: 2 }} />
                 <Grid item xs={12}>
                   <Button
                     variant="contained"
@@ -658,17 +648,17 @@ export default function StudentRegistration() {
                     key={id}
                     sx={{
                       padding: 2,
-                      border: "1px solid #e0e0e0",
-                      borderRadius: "4px",
-                      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.05)",
+                      border: '1px solid #e0e0e0',
+                      borderRadius: '4px',
+                      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
                     }}
                   >
                     <Typography
                       sx={{
-                        fontWeight: "bold",
-                        color: "#333",
+                        fontWeight: 'bold',
+                        color: '#333',
                         marginBottom: 1,
-                        textAlign: "center",
+                        textAlign: 'center',
                       }}
                     >
                       {label}
@@ -678,7 +668,7 @@ export default function StudentRegistration() {
                       aria-labelledby={id}
                       {...register(id as keyof FormValuesStudent)}
                     >
-                      {opcoesTermosAvisos[id.split(".")[2]].map(
+                      {opcoesTermosAvisos[id.split('.')[2]].map(
                         (opcao, index) => (
                           <FormControlLabel
                             key={index}
@@ -686,30 +676,37 @@ export default function StudentRegistration() {
                             control={<Radio required />}
                             label={opcao}
                             sx={{
-                              color: "#333",
+                              color: '#333',
                               marginRight: 2,
-                              textAlign: "center",
+                              textAlign: 'center',
                             }}
                           />
-                        )
+                        ),
                       )}
                     </RadioGroup>
                   </Grid>
                 ))}
               </Grid>
             </List>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isSubmitting || isUploading}
-            >
-              {isSubmitting || isUploading
-                ? "Enviando dados, aguarde..."
-                : "Cadastrar Atleta"}
-            </Button>
+            {avatarUrl === '' ? (
+              <Button variant="contained" color="error" disabled>
+                É necessário adicionar uma foto do atleta para concluir o
+                cadastro!
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting || isUploading || avatarUrl === ''}
+              >
+                {isSubmitting || isUploading
+                  ? 'Enviando dados, aguarde...'
+                  : 'Cadastrar Atleta'}
+              </Button>
+            )}
           </Box>
         </form>
       </Container>
     </Layout>
-  );
+  )
 }
