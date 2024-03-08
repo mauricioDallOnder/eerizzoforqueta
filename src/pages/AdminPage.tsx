@@ -1,58 +1,51 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from '@mui/icons-material/Home';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import UpdateIcon from '@mui/icons-material/Update';
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Image from "next/image";
-import { Avatar, Button, Grid } from "@mui/material";
-import { useData } from "@/context/context";
-import { TurmasInfoTableNoSSR } from "@/components/AdminPageTable/DynamicComponents";
-const drawerWidth = 240;
-import Link from "next/link";
-import { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+import * as React from 'react'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import CssBaseline from '@mui/material/CssBaseline'
+import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import MenuIcon from '@mui/icons-material/Menu'
+import HomeIcon from '@mui/icons-material/Home'
+import GroupAddIcon from '@mui/icons-material/GroupAdd'
+import SettingsIcon from '@mui/icons-material/Settings'
+import ListAltIcon from '@mui/icons-material/ListAlt'
+import UpdateIcon from '@mui/icons-material/Update'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import Image from 'next/image'
+import { Avatar, Grid } from '@mui/material'
+import { TurmasInfoTableNoSSR } from '@/components/AdminPageTable/DynamicComponents'
+import Link from 'next/link'
+import { GetServerSideProps } from 'next'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './api/auth/[...nextauth]'
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+const drawerWidth = 240
 export default function AdminPage() {
-  const { fetchModalidades } = useData();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isClosing, setIsClosing] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [isClosing, setIsClosing] = React.useState(false)
 
   const handleDrawerClose = () => {
-    setIsClosing(true);
-    setMobileOpen(false);
-  };
+    setIsClosing(true)
+    setMobileOpen(false)
+  }
 
   const handleDrawerTransitionEnd = () => {
-    setIsClosing(false);
-  };
+    setIsClosing(false)
+  }
 
   const handleDrawerToggle = () => {
     if (!isClosing) {
-      setMobileOpen(!mobileOpen);
+      setMobileOpen(!mobileOpen)
     }
-  };
-
-  const AtualizarPagina=()=>{
-    fetchModalidades().catch(console.error);
-    window.location.reload();
-    alert("Página Atualizada com sucesso")
   }
 
   const drawer = (
@@ -62,10 +55,10 @@ export default function AdminPage() {
         sx={{
           width: 80,
           height: 80,
-          backgroundColor: "white",
-          position: "absolute",
-          top: "10px",
-          left: "80px",
+          backgroundColor: 'white',
+          position: 'absolute',
+          top: '10px',
+          left: '80px',
         }}
       >
         <Image
@@ -82,7 +75,16 @@ export default function AdminPage() {
             <ListItemIcon>
               <HomeIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/">Página Inicial</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/"
+                >
+                  Página Inicial
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -90,7 +92,16 @@ export default function AdminPage() {
             <ListItemIcon>
               <GroupAddIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/StudentRegistration">Cadastro de alunos</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/StudentRegistration"
+                >
+                  Cadastro de alunos
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -98,7 +109,16 @@ export default function AdminPage() {
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/StudentUpdateTurmas">Trocar turma de aluno</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/StudentUpdateTurmas"
+                >
+                  Trocar turma de aluno
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
       </List>
@@ -109,7 +129,16 @@ export default function AdminPage() {
             <ListItemIcon>
               <ListAltIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/StudentPresenceTable">Lista de Chamada</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/StudentPresenceTable"
+                >
+                  Lista de Chamada
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -117,32 +146,76 @@ export default function AdminPage() {
             <ListItemIcon>
               <UpdateIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/StudentUpdatePersonalInformation">Atualização de dados cadastrais</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/StudentUpdatePersonalInformation"
+                >
+                  Atualização de dados cadastrais
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-        <ListItemButton>
+          <ListItemButton>
             <ListItemIcon>
               <AssignmentLateIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfTemporaryStudants">Lista de alunos temporários</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/ListOfTemporaryStudants"
+                >
+                  Lista de alunos temporários
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-        <ListItemButton>
+          <ListItemButton>
             <ListItemIcon>
               <AssignmentIndIcon />
             </ListItemIcon>
-            <ListItemText primary={<Link style={{ textDecoration: 'none', color: 'inherit' }} href="/ListOfAllStudents">Lista Geral com todos os alunos</Link>} />
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/ListOfAllStudents"
+                >
+                  Lista Geral com todos os alunos
+                </Link>
+              }
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <FileDownloadIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/ExportStudentDataToExcel"
+                >
+                  Exportar dados
+                </Link>
+              }
+            />
           </ListItemButton>
         </ListItem>
       </List>
     </Box>
-  );
+  )
   // Remove this const when copying and pasting into your project.
-//StudentTemporary
+  // StudentTemporary
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -157,7 +230,7 @@ export default function AdminPage() {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -181,9 +254,9 @@ export default function AdminPage() {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
@@ -193,9 +266,9 @@ export default function AdminPage() {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
@@ -209,7 +282,7 @@ export default function AdminPage() {
         sx={{
           flexGrow: 1,
           p: 3,
-          marginTop: "65px",
+          marginTop: '65px',
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
@@ -224,22 +297,26 @@ export default function AdminPage() {
         <Toolbar />
       </Box>
     </Box>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session = await getServerSession(context.req, context.res, authOptions)
 
   // Se não tiver sessão ou não for admin, redirecione para a página de login
-  if (!session || session.user.role !== "admin") {
+  if (!session || session.user.role !== 'admin') {
     return {
       redirect: {
-        destination: "/NotAllowPage",
+        destination: '/NotAllowPage',
         permanent: false,
       },
-    };
+    }
   }
 
   // Retornar props aqui se a permissão for válida
-  return { props: { /* props adicionais aqui */ } };
-};
+  return {
+    props: {
+      /* props adicionais aqui */
+    },
+  }
+}
