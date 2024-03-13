@@ -243,3 +243,21 @@ export interface SelecaoModalidadeTurma {
   turma: string
   turmasDisponiveis?: Turma[] // Adicionando a propriedade turmasDisponiveis como opcional
 }
+
+export interface IIUpdateStudantModal {
+  isOpen: boolean
+  onClose: () => void
+  alunosDaTurma: string
+}
+
+export interface Semana {
+  start: number
+  end: number
+}
+
+export interface TurmaPresencaSemanalProps {
+  isOpen: boolean
+  onClose: () => void
+  alunosDaTurma: Aluno[]
+  nomeDaTurma: string
+}
