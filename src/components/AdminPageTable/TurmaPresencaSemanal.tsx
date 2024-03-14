@@ -25,7 +25,7 @@ export const TurmaPresencaSemanal: React.FC<TurmaPresencaSemanalProps> = ({
   onClose,
 }) => {
   const [selectedMonth, setSelectedMonth] = useState<string>('')
-  const months = ['janeiro','fevereiro', 'março', 'abril', 'maio', 'junho']
+  const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho']
 
   // Função para contar presenças diárias no mês selecionado
   const calculateDailyPresences = () => {
@@ -51,12 +51,20 @@ export const TurmaPresencaSemanal: React.FC<TurmaPresencaSemanalProps> = ({
       })
     })
 
+    // Transformar a lista de presenças diárias em uma lista de objetos com dia e total
     return dailyPresences
+      .map((total, day) => ({
+        day: day + 1, // dia do mês
+        total, // total de presenças nesse dia
+      }))
+      .filter((dayObj) => dayObj.total > 0)
   }
 
   const handleChangeMonth = (event: SelectChangeEvent) => {
     setSelectedMonth(event.target.value)
   }
+
+  const monthIndex = parseInt(selectedMonth, 10) + 1
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -113,33 +121,20 @@ export const TurmaPresencaSemanal: React.FC<TurmaPresencaSemanalProps> = ({
             >
               <TableHead>
                 <TableRow>
-                  {/* Cabeçalho da tabela com os dias do mês */}
-                  {Array.from(
-                    {
-                      length: new Date(
-                        2024,
-                        parseInt(selectedMonth, 10) + 1,
-                        0,
-                      ).getDate(),
-                    },
-                    (_, index) => (
-                      <TableCell key={index} align="center">
-                        {index + 1}/{parseInt(selectedMonth, 10) + 1}
-                      </TableCell>
-                    ),
-                  )}
+                  {/* Cabeçalho da tabela com os dias do mês com presenças */}
+                  {calculateDailyPresences().map(({ day }) => (
+                    <TableCell key={day} align="center">
+                      {`${String(day).padStart(2, '0')}/${String(monthIndex).padStart(2, '0')}`}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow>
-                  {/* Células com o total de presenças */}
-                  {calculateDailyPresences().map((presence, index) => (
-                    <TableCell
-                      key={index}
-                      align="center"
-                      style={{ minWidth: '50px', fontSize: '0.875rem' }}
-                    >
-                      {presence}
+                  {/* Células com o total de presenças nos dias com presenças */}
+                  {calculateDailyPresences().map(({ day, total }) => (
+                    <TableCell key={day} align="center">
+                      {total} alunos
                     </TableCell>
                   ))}
                 </TableRow>
