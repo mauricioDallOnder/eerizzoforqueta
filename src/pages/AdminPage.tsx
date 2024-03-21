@@ -28,6 +28,7 @@ import { authOptions } from './api/auth/[...nextauth]'
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 const drawerWidth = 240
 export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
@@ -204,6 +205,23 @@ export default function AdminPage() {
                   href="/ExportStudentDataToExcel"
                 >
                   Exportar dados
+                </Link>
+              }
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <ErrorOutlineIcon  />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <Link
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  href="/AjusteDadosTurmas"
+                >
+                  Verificar e Corrigir 
                 </Link>
               }
             />
