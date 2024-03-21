@@ -70,7 +70,7 @@ export default function TemporaryStudentRegistration({
         await sendDataToApi([data]);
         alert("Cadastro efetuado com sucesso");
         reset(); // Resetando o formulário após o envio
-        corrigirDados()
+        
       } catch (error) {
         console.error("Erro ao enviar os dados do formulário", error);
       }
@@ -99,14 +99,7 @@ export default function TemporaryStudentRegistration({
     setTurmasDisponiveis(turmasFiltradas || []);
   }, [selectedNucleo, modalidades, selectedModalidade]);
 
-  async function corrigirDados() {
-    try {
-      const response = await axios.post('/api/AjustarDadosTurma');
-      console.log('Dados da turma corrigidos com sucesso.');
-    } catch (error) {
-      console.error('Erro ao corrigir dados da turma.');
-    }
-  }
+ 
 
   return (
     <Container>
