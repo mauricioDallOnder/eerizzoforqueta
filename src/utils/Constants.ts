@@ -297,3 +297,9 @@ export const anoNascimentoSchema = z.string()
 
     return undefined;
   }
+
+
+  export function normalizeName(name:string) {
+    return name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+  
