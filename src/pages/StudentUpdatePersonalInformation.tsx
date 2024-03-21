@@ -18,7 +18,7 @@ import { IIAlunoUpdate } from '@/interface/interfaces'
 import { HeaderForm } from '@/components/HeaderDefaultForm'
 import Layout from '@/components/TopBarComponents/Layout'
 import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from '@/utils/Styles'
-
+import axios from 'axios'
 import { GetServerSideProps } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]'
@@ -143,6 +143,7 @@ export default function StudentUpdatePersonalInformation() {
       })
 
       console.log('Cadastro atualizado com sucesso')
+      corrigirDados() 
       alert('Cadastro atualizado com sucesso')
     } catch (error) {
       console.error('Erro ao enviar os dados do formulário', error)
@@ -240,6 +241,15 @@ export default function StudentUpdatePersonalInformation() {
       setValue('modalidade', value.modalidade)
     } else {
       reset() // Limpa o formulário se nenhum aluno for selecionado
+    }
+  }
+
+  async function corrigirDados() {
+    try {
+      const response = await axios.post('/api/AjustarDadosTurma');
+      console.log('Dados da turma corrigidos com sucesso.');
+    } catch (error) {
+      console.error('Erro ao corrigir dados da turma.');
     }
   }
 
