@@ -92,7 +92,7 @@ export default function MoveStudentForm() {
   const onSubmit: SubmitHandler<MoveStudentFormData> = useCallback(async (data) => {
     try {
       await moveStudentInApi(data);
-      corrigirDados()
+     
       alert("Aluno movido com sucesso.");
       reset();
     } catch (error) {
@@ -100,14 +100,7 @@ export default function MoveStudentForm() {
     }
   }, [moveStudentInApi, reset]);
 
-  async function corrigirDados() {
-    try {
-      const response = await axios.post('/api/AjustarDadosTurma');
-      console.log('Dados da turma corrigidos com sucesso.');
-    } catch (error) {
-      console.error('Erro ao corrigir dados da turma.');
-    }
-  }
+ 
 
   return (
     <Layout>
