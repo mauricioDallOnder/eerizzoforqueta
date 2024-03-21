@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
-
+import axios from "axios";
 interface MoveStudentFormData {
   alunoNome: string;
   modalidadeOrigem: string;
@@ -92,12 +92,22 @@ export default function MoveStudentForm() {
   const onSubmit: SubmitHandler<MoveStudentFormData> = useCallback(async (data) => {
     try {
       await moveStudentInApi(data);
+      corrigirDados()
       alert("Aluno movido com sucesso.");
       reset();
     } catch (error) {
       console.error("Erro ao mover aluno", error);
     }
   }, [moveStudentInApi, reset]);
+
+  async function corrigirDados() {
+    try {
+      const response = await axios.post('/api/AjustarDadosTurma');
+      console.log('Dados da turma corrigidos com sucesso.');
+    } catch (error) {
+      console.error('Erro ao corrigir dados da turma.');
+    }
+  }
 
   return (
     <Layout>
