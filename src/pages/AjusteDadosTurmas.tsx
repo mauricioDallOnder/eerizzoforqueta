@@ -11,7 +11,7 @@ export default function CorrigirDadosTurma() {
     try {
       const response = await axios.post('/api/AjustarDadosTurma');
       if (response.data.corrigidos || response.data.duplicados) {
-        const corrigidosStr = response.data.corrigidos && response.data.corrigidos.length > 0 ? `Corrigidos: ${response.data.corrigidos.join(', ')}` : 'Nenhum aluno corrigido.';
+        const corrigidosStr = response.data.corrigidos && response.data.corrigidos.length > 0 ? `Corrigidos: ${response.data.corrigidos.join(', ')}` : 'Todos os indices foram atualizados e nenhum erro foi encontrado!';
         const duplicadosStr = response.data.duplicados && response.data.duplicados.length > 0 ? `\nDuplicados: ${response.data.duplicados.join(', ')}` : '\nNenhum duplicado encontrado.';
         setResultado(`${corrigidosStr}${duplicadosStr}`);
       } else {
