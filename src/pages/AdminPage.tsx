@@ -204,7 +204,7 @@ export default function AdminPage() {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                   href="/ExportStudentDataToExcel"
                 >
-                  Exportar dados
+                  Controle de uniforme/exportação de dados
                 </Link>
               }
             />
