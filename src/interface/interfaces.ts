@@ -135,7 +135,6 @@ export interface InformacoesAdicionais {
   tipomedicacao: string
   convenio: string
   nucleoTreinamento: string
-  modalidadesPraticadas: string[]
   competicao: string
   comprometimentoMensalidade: string
   copiaDocumento: string
@@ -149,6 +148,8 @@ export interface InformacoesAdicionais {
   filhofuncionariomarcopolo: string
   nomefuncionariomarcopolo: string
   uniforme: string
+  hasUniforme?:boolean
+  IdentificadorUnico?:string
 }
 
 export interface Aluno {
@@ -170,6 +171,21 @@ export interface Turma {
   capacidade_maxima_da_turma: number
   capacidade_atual_da_turma: number
   alunos: Aluno[]
+}
+
+export interface AlunoComTurma {
+  aluno: Aluno; 
+  nomeDaTurma: string;
+  categoria: string;
+  modalidade: string;
+  uniforme: boolean;
+}
+
+export interface IUpdateUniformeApiData {
+  modalidade: string;
+  nomeDaTurma: string;
+  alunoNome: string;
+  hasUniforme: boolean;
 }
 
 export interface Modalidade {
@@ -234,7 +250,8 @@ export interface IIAlunoUpdate extends Omit<Aluno, 'id' | 'presencas'> {
   anoNascimento: string // A data de nascimento a serem atualizada
   telefoneComWhatsapp: string | number
   nome: string
-  informacoesAdicionais: InformacoesAdicionais
+  informacoesAdicionais: InformacoesAdicionais;
+  dataMatricula?:string
 }
 
 export interface SelecaoModalidadeTurma {
