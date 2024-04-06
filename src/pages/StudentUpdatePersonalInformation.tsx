@@ -312,10 +312,7 @@ export default function StudentUpdatePersonalInformation() {
         "informacoesAdicionais.nucleoTreinamento",
         value.informacoesAdicionais.nucleoTreinamento
       );
-      setValue(
-        "informacoesAdicionais.modalidadesPraticadas",
-        value.informacoesAdicionais.modalidadesPraticadas
-      );
+     
       setValue(
         "informacoesAdicionais.competicao",
         value.informacoesAdicionais.competicao
