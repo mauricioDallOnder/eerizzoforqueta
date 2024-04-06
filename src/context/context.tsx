@@ -30,6 +30,7 @@ interface DataContextType {
   fetchModalidades: (filtro?: string) => Promise<Modalidade[]> // Atualizado para re
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>
   moveStudentInApi: (payload: MoveStudentPayload) => Promise<void>
+  updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType>({
@@ -51,6 +52,9 @@ const DataContext = createContext<DataContextType>({
   moveStudentInApi: async (payload: MoveStudentPayload) => {
     console.warn('moveStudentInApi not implemented', payload)
   },
+  updateUniformeInApi: async (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => {
+    console.warn('updateUniformeInApi not implemented', data);
+  }
 })
 
 const useData = () => {
@@ -118,7 +122,6 @@ const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
   }
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  // Atualizar informações do estudante
   // Atualizar informações do estudante em todas as turmas em que ele está inscrito
   const updateDataInApi = async (data: IIAlunoUpdate) => {
     // Estruture o payload conforme a nova API espera
@@ -249,6 +252,37 @@ const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
       console.error('Erro ao mover aluno:', error)
     }
   }
+  //Atulizar Campo de uniforme
+  const updateUniformeInApi = async (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => {
+    try {
+      // Constrói o corpo da requisição com os dados recebidos
+      const payload = {
+        modalidade: data.modalidade,
+        nomeDaTurma: data.nomeDaTurma,
+        alunoNome: data.alunoNome,
+        hasUniforme: data.hasUniforme,
+      };
+  
+      // Faz a chamada para a API
+      const response = await fetch('/api/updateUniforme', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao atualizar o status do uniforme');
+      }
+  
+     
+      console.log('Status do uniforme atualizado com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar o status do uniforme:', error);
+    }
+  };
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   return (
     <DataContext.Provider
@@ -260,6 +294,7 @@ const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
         fetchModalidades,
         updateAttendanceInApi,
         moveStudentInApi,
+        updateUniformeInApi,
       }}
     >
       {children}
