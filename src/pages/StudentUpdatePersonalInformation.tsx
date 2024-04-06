@@ -194,7 +194,7 @@ export default function StudentUpdatePersonalInformation() {
           uniforme: "",
           cobramensalidade: "",
           nucleoTreinamento: "",
-          modalidadesPraticadas: [],
+         
           competicao: "",
           comprometimentoMensalidade: "",
           copiaDocumento: "",
