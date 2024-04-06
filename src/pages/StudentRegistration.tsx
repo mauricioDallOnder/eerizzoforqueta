@@ -310,7 +310,10 @@ export default function StudentRegistration() {
     // Preparar dados para enviar, incluindo a URL da imagem carregada
 
     const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
+    const uniforme = false
     formData.aluno.dataMatricula = mydate;
+    formData.aluno.informacoesAdicionais.hasUniforme = uniforme;
+    formData.aluno.informacoesAdicionais.IdentificadorUnico = uuidv4()
     const dataParaProcessar = selecoes.map((selecao) => ({
       ...formData, // Espalha os dados do formulário
       modalidade: selecao.modalidade,
