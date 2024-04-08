@@ -231,7 +231,16 @@ export default function StudentUpdatePersonalInformation() {
         "informacoesAdicionais.endereco.complemento",
         value.informacoesAdicionais.endereco.complemento?  value.informacoesAdicionais.endereco.complemento: "-"
       );
-      setValue(
+      // Garantindo que `pagadorMensalidades` esteja definido
+if (!value.informacoesAdicionais.pagadorMensalidades) {
+  value.informacoesAdicionais.pagadorMensalidades = {
+    nomeCompleto: "",
+    cpf: "",
+    email: "",
+    celularWhatsapp: "",
+  };
+} else{
+    setValue(
         "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
         value.informacoesAdicionais.pagadorMensalidades.nomeCompleto ?  value.informacoesAdicionais.pagadorMensalidades.nomeCompleto : "-"
       );
@@ -247,6 +256,8 @@ export default function StudentUpdatePersonalInformation() {
         "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
         value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp ? value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp: "-"
       );
+}
+    
       setValue(
         "informacoesAdicionais.convenio",
         value.informacoesAdicionais.convenio ? value.informacoesAdicionais.convenio: "-"
