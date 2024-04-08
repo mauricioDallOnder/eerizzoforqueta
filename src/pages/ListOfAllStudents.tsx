@@ -546,16 +546,10 @@ export default function TurmasTemporariosTable() {
                           onClick={handleCopy(
                             aluno.informacoesAdicionais &&
                               aluno.informacoesAdicionais.endereco
-                              ? `${
-                                  aluno.informacoesAdicionais.endereco
-                                    .ruaAvenida
-                                }, ${
-                                  aluno.informacoesAdicionais.endereco
-                                    .numeroResidencia
-                                }, 
-                              ${aluno.informacoesAdicionais.endereco.bairro}, ${
-                                aluno.informacoesAdicionais.endereco
-                                  .complemento || "N/A"
+                              ? `${aluno.informacoesAdicionais?.endereco.ruaAvenida|| "N/A"}, ${
+                                  aluno.informacoesAdicionais?.endereco.numeroResidencia|| "N/A"}, 
+                              ${aluno.informacoesAdicionais?.endereco?.bairro || "N/A"}, ${
+                                aluno.informacoesAdicionais?.endereco?.complemento || "N/A"
                               } `
                               : "N/A"
                           )}
