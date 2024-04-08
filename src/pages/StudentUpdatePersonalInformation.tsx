@@ -14,7 +14,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { DataContext } from "@/context/context";
-import { IIAlunoUpdate} from "@/interface/interfaces";
+import { IIAlunoUpdate } from "@/interface/interfaces";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
 import { BoxStyleCadastro, ListStyle, TituloSecaoStyle } from "@/utils/Styles";
@@ -194,7 +194,7 @@ export default function StudentUpdatePersonalInformation() {
           uniforme: "",
           cobramensalidade: "",
           nucleoTreinamento: "",
-         
+
           competicao: "",
           comprometimentoMensalidade: "",
           copiaDocumento: "",
@@ -211,68 +211,106 @@ export default function StudentUpdatePersonalInformation() {
         "telefoneComWhatsapp",
         value.telefoneComWhatsapp ? value.telefoneComWhatsapp.toString() : "-"
       );
-      setValue(
-        "informacoesAdicionais.endereco.ruaAvenida",
-        value.informacoesAdicionais.endereco.ruaAvenida ? value.informacoesAdicionais.endereco.ruaAvenida : "-"
-      );
-      setValue(
-        "informacoesAdicionais.endereco.numeroResidencia",
-        value.informacoesAdicionais.endereco.numeroResidencia.toString() ? value.informacoesAdicionais.endereco.numeroResidencia.toString():"-"
-      );
-      setValue(
-        "informacoesAdicionais.endereco.bairro",
-        value.informacoesAdicionais.endereco.bairro ?  value.informacoesAdicionais.endereco.bairro: "-"
-      );
-      setValue(
-        "informacoesAdicionais.endereco.cep",
-        value.informacoesAdicionais.endereco.cep ? value.informacoesAdicionais.endereco.cep :"-"
-      );
-      setValue(
-        "informacoesAdicionais.endereco.complemento",
-        value.informacoesAdicionais.endereco.complemento?  value.informacoesAdicionais.endereco.complemento: "-"
-      );
+      if (!value.informacoesAdicionais.endereco) {
+        value.informacoesAdicionais.endereco = {
+          ruaAvenida: "",
+          numeroResidencia: "",
+          bairro: "",
+          cep: "",
+          complemento: "",
+          // ... inicialize outras propriedades conforme necessário
+        };
+      } else {
+        setValue(
+          "informacoesAdicionais.endereco.ruaAvenida",
+          value.informacoesAdicionais.endereco.ruaAvenida
+            ? value.informacoesAdicionais.endereco.ruaAvenida
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.endereco.numeroResidencia",
+          value.informacoesAdicionais.endereco.numeroResidencia.toString()
+            ? value.informacoesAdicionais.endereco.numeroResidencia.toString()
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.endereco.bairro",
+          value.informacoesAdicionais.endereco.bairro
+            ? value.informacoesAdicionais.endereco.bairro
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.endereco.cep",
+          value.informacoesAdicionais.endereco.cep
+            ? value.informacoesAdicionais.endereco.cep
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.endereco.complemento",
+          value.informacoesAdicionais.endereco.complemento
+            ? value.informacoesAdicionais.endereco.complemento
+            : "-"
+        );
+      }
+
       // Garantindo que `pagadorMensalidades` esteja definido
-if (!value.informacoesAdicionais.pagadorMensalidades) {
-  value.informacoesAdicionais.pagadorMensalidades = {
-    nomeCompleto: "",
-    cpf: "",
-    email: "",
-    celularWhatsapp: "",
-  };
-} else{
-    setValue(
-        "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
-        value.informacoesAdicionais.pagadorMensalidades.nomeCompleto ?  value.informacoesAdicionais.pagadorMensalidades.nomeCompleto : "-"
-      );
-      setValue(
-        "informacoesAdicionais.pagadorMensalidades.cpf",
-        value.informacoesAdicionais.pagadorMensalidades.cpf ? value.informacoesAdicionais.pagadorMensalidades.cpf : "-"
-      );
-      setValue(
-        "informacoesAdicionais.pagadorMensalidades.email",
-        value.informacoesAdicionais.pagadorMensalidades.email ? value.informacoesAdicionais.pagadorMensalidades.email: "-"
-      );
-      setValue(
-        "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
-        value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp ? value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp: "-"
-      );
-}
-    
+      if (!value.informacoesAdicionais.pagadorMensalidades) {
+        value.informacoesAdicionais.pagadorMensalidades = {
+          nomeCompleto: "",
+          cpf: "",
+          email: "",
+          celularWhatsapp: "",
+        };
+      } else {
+        setValue(
+          "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
+          value.informacoesAdicionais.pagadorMensalidades.nomeCompleto
+            ? value.informacoesAdicionais.pagadorMensalidades.nomeCompleto
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.pagadorMensalidades.cpf",
+          value.informacoesAdicionais.pagadorMensalidades.cpf
+            ? value.informacoesAdicionais.pagadorMensalidades.cpf
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.pagadorMensalidades.email",
+          value.informacoesAdicionais.pagadorMensalidades.email
+            ? value.informacoesAdicionais.pagadorMensalidades.email
+            : "-"
+        );
+        setValue(
+          "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
+          value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp
+            ? value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp
+            : "-"
+        );
+      }
+
       setValue(
         "informacoesAdicionais.convenio",
-        value.informacoesAdicionais.convenio ? value.informacoesAdicionais.convenio: "-"
+        value.informacoesAdicionais.convenio
+          ? value.informacoesAdicionais.convenio
+          : "-"
       );
       setValue(
         "informacoesAdicionais.escolaEstuda",
-        value.informacoesAdicionais.escolaEstuda ? value.informacoesAdicionais.escolaEstuda:"-"
+        value.informacoesAdicionais.escolaEstuda
+          ? value.informacoesAdicionais.escolaEstuda
+          : "-"
       );
       setValue(
         "informacoesAdicionais.filhofuncionarioJBS",
-        value.informacoesAdicionais.filhofuncionarioJBS ?  value.informacoesAdicionais.filhofuncionarioJBS: "-"
+        value.informacoesAdicionais.filhofuncionarioJBS
+          ? value.informacoesAdicionais.filhofuncionarioJBS
+          : "-"
       );
       setValue(
         "informacoesAdicionais.filhofuncionariomarcopolo",
-        value.informacoesAdicionais.filhofuncionariomarcopolo ? value.informacoesAdicionais.filhofuncionariomarcopolo: "-"
+        value.informacoesAdicionais.filhofuncionariomarcopolo
+          ? value.informacoesAdicionais.filhofuncionariomarcopolo
+          : "-"
       );
       setValue(
         "informacoesAdicionais.imagem",
@@ -280,69 +318,104 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
       );
       setValue(
         "informacoesAdicionais.irmaos",
-        value.informacoesAdicionais.irmaos ?  value.informacoesAdicionais.irmaos: "-"
+        value.informacoesAdicionais.irmaos
+          ? value.informacoesAdicionais.irmaos
+          : "-"
       );
       setValue(
         "informacoesAdicionais.medicacao",
-        value.informacoesAdicionais.medicacao ? value.informacoesAdicionais.medicacao: "-"
+        value.informacoesAdicionais.medicacao
+          ? value.informacoesAdicionais.medicacao
+          : "-"
       );
       setValue(
         "informacoesAdicionais.nomefuncionarioJBS",
-        value.informacoesAdicionais.nomefuncionarioJBS ?  value.informacoesAdicionais.nomefuncionarioJBS: "-"
+        value.informacoesAdicionais.nomefuncionarioJBS
+          ? value.informacoesAdicionais.nomefuncionarioJBS
+          : "-"
       );
       setValue(
         "informacoesAdicionais.nomefuncionariomarcopolo",
-        value.informacoesAdicionais.nomefuncionariomarcopolo ? value.informacoesAdicionais.nomefuncionariomarcopolo: "-"
+        value.informacoesAdicionais.nomefuncionariomarcopolo
+          ? value.informacoesAdicionais.nomefuncionariomarcopolo
+          : "-"
       );
       setValue(
         "informacoesAdicionais.problemasaude",
-        value.informacoesAdicionais.problemasaude  ? value.informacoesAdicionais.problemasaude: "-"
+        value.informacoesAdicionais.problemasaude
+          ? value.informacoesAdicionais.problemasaude
+          : "-"
       );
-      setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg? value.informacoesAdicionais.rg: "-");
+      setValue(
+        "informacoesAdicionais.rg",
+        value.informacoesAdicionais.rg ? value.informacoesAdicionais.rg : "-"
+      );
       setValue(
         "informacoesAdicionais.saude",
-        value.informacoesAdicionais.saude ?  value.informacoesAdicionais.saude: "-"
+        value.informacoesAdicionais.saude
+          ? value.informacoesAdicionais.saude
+          : "-"
       );
       setValue(
         "informacoesAdicionais.socioJBS",
-        value.informacoesAdicionais.socioJBS ?  value.informacoesAdicionais.socioJBS: "-"
+        value.informacoesAdicionais.socioJBS
+          ? value.informacoesAdicionais.socioJBS
+          : "-"
       );
       setValue(
         "informacoesAdicionais.tipomedicacao",
-        value.informacoesAdicionais.tipomedicacao ?  value.informacoesAdicionais.tipomedicacao: "-"
+        value.informacoesAdicionais.tipomedicacao
+          ? value.informacoesAdicionais.tipomedicacao
+          : "-"
       );
       setValue(
         "informacoesAdicionais.uniforme",
-        value.informacoesAdicionais.uniforme ?  value.informacoesAdicionais.uniforme : "-"
+        value.informacoesAdicionais.uniforme
+          ? value.informacoesAdicionais.uniforme
+          : "-"
       );
       setValue(
         "informacoesAdicionais.cobramensalidade",
-        value.informacoesAdicionais.cobramensalidade ? value.informacoesAdicionais.cobramensalidade: "-"
+        value.informacoesAdicionais.cobramensalidade
+          ? value.informacoesAdicionais.cobramensalidade
+          : "-"
       );
       setValue(
         "informacoesAdicionais.nucleoTreinamento",
-        value.informacoesAdicionais.nucleoTreinamento ?  value.informacoesAdicionais.nucleoTreinamento: "-"
+        value.informacoesAdicionais.nucleoTreinamento
+          ? value.informacoesAdicionais.nucleoTreinamento
+          : "-"
       );
-     
+
       setValue(
         "informacoesAdicionais.competicao",
-        value.informacoesAdicionais.competicao ?  value.informacoesAdicionais.competicao: "-"
+        value.informacoesAdicionais.competicao
+          ? value.informacoesAdicionais.competicao
+          : "-"
       );
       setValue(
         "informacoesAdicionais.comprometimentoMensalidade",
-        value.informacoesAdicionais.comprometimentoMensalidade ?  value.informacoesAdicionais.comprometimentoMensalidade: "-"
+        value.informacoesAdicionais.comprometimentoMensalidade
+          ? value.informacoesAdicionais.comprometimentoMensalidade
+          : "-"
       );
       setValue(
         "informacoesAdicionais.copiaDocumento",
-        value.informacoesAdicionais.copiaDocumento ? value.informacoesAdicionais.copiaDocumento: "-"
+        value.informacoesAdicionais.copiaDocumento
+          ? value.informacoesAdicionais.copiaDocumento
+          : "-"
       );
       setValue(
         "informacoesAdicionais.avisaAusencia",
-        value.informacoesAdicionais.avisaAusencia ? value.informacoesAdicionais.avisaAusencia: "-"
+        value.informacoesAdicionais.avisaAusencia
+          ? value.informacoesAdicionais.avisaAusencia
+          : "-"
       );
       setValue(
         "informacoesAdicionais.desconto",
-        value.informacoesAdicionais.desconto ? value.informacoesAdicionais.desconto: "-"
+        value.informacoesAdicionais.desconto
+          ? value.informacoesAdicionais.desconto
+          : "-"
       );
     } else {
       reset(); // Limpa o formulário se nenhum aluno for selecionado
@@ -404,7 +477,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Nome"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                     disabled
                   />
                 </Grid>
@@ -415,7 +488,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Nascimento"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
 
@@ -426,7 +499,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Telefone"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
 
@@ -437,7 +510,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="RG"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
 
@@ -621,7 +694,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Nome do Responsável"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                     value={
                       selectedAluno?.informacoesAdicionais?.pagadorMensalidades
                         ?.nomeCompleto || ""
@@ -663,7 +736,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="CPF do Responsável"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
                         .cpf || ""
@@ -705,7 +778,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Telefone do Responsável"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
                         .celularWhatsapp || ""
@@ -747,7 +820,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Email do Responsável"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                     value={
                       selectedAluno?.informacoesAdicionais.pagadorMensalidades
                         .email || ""
@@ -795,7 +868,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     fullWidth
                     label="Escola que estuda"
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -807,7 +880,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     fullWidth
                     label="Possui irmãos?"
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -819,7 +892,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     fullWidth
                     label="Possui problemas de saúde? "
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -831,7 +904,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Quais problemas de saúde possui? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -843,7 +916,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Faz uso de medicação? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -855,7 +928,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Qual o nome da(s) medicação(es) que faz uso? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -867,7 +940,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Qual convenio Possui? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -879,7 +952,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Autoriza o uso de imagem? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -891,7 +964,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="É filho(a) de funcionário(a) da JBS? "
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -903,7 +976,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="É sócio da sede da JBS?"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -915,7 +988,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Nome do Funcionário(a) da JBS"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -930,7 +1003,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="É filho(a) de funcionário(a) da Marcopolo?"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -945,7 +1018,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Nome do Funcionário(a) da Marcopolo"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -957,7 +1030,7 @@ if (!value.informacoesAdicionais.pagadorMensalidades) {
                     label="Tamanho Escolhido para o uniforme"
                     fullWidth
                     margin="normal"
-                   variant="filled"
+                    variant="filled"
                   />
                 </Grid>
               </Grid>
