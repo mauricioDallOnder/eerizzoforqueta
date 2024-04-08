@@ -241,27 +241,27 @@ export default function StudentUpdatePersonalInformation() {
       );
       setValue(
         "informacoesAdicionais.pagadorMensalidades.email",
-        value.informacoesAdicionais.pagadorMensalidades.email
+        value.informacoesAdicionais.pagadorMensalidades.email ? value.informacoesAdicionais.pagadorMensalidades.email: "-"
       );
       setValue(
         "informacoesAdicionais.pagadorMensalidades.celularWhatsapp",
-        value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp
+        value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp ? value.informacoesAdicionais.pagadorMensalidades.celularWhatsapp: "-"
       );
       setValue(
         "informacoesAdicionais.convenio",
-        value.informacoesAdicionais.convenio
+        value.informacoesAdicionais.convenio ? value.informacoesAdicionais.convenio: "-"
       );
       setValue(
         "informacoesAdicionais.escolaEstuda",
-        value.informacoesAdicionais.escolaEstuda
+        value.informacoesAdicionais.escolaEstuda ? value.informacoesAdicionais.escolaEstuda:"-"
       );
       setValue(
         "informacoesAdicionais.filhofuncionarioJBS",
-        value.informacoesAdicionais.filhofuncionarioJBS
+        value.informacoesAdicionais.filhofuncionarioJBS ?  value.informacoesAdicionais.filhofuncionarioJBS: "-"
       );
       setValue(
         "informacoesAdicionais.filhofuncionariomarcopolo",
-        value.informacoesAdicionais.filhofuncionariomarcopolo
+        value.informacoesAdicionais.filhofuncionariomarcopolo ? value.informacoesAdicionais.filhofuncionariomarcopolo: "-"
       );
       setValue(
         "informacoesAdicionais.imagem",
@@ -269,69 +269,69 @@ export default function StudentUpdatePersonalInformation() {
       );
       setValue(
         "informacoesAdicionais.irmaos",
-        value.informacoesAdicionais.irmaos
+        value.informacoesAdicionais.irmaos ?  value.informacoesAdicionais.irmaos: "-"
       );
       setValue(
         "informacoesAdicionais.medicacao",
-        value.informacoesAdicionais.medicacao
+        value.informacoesAdicionais.medicacao ? value.informacoesAdicionais.medicacao: "-"
       );
       setValue(
         "informacoesAdicionais.nomefuncionarioJBS",
-        value.informacoesAdicionais.nomefuncionarioJBS
+        value.informacoesAdicionais.nomefuncionarioJBS ?  value.informacoesAdicionais.nomefuncionarioJBS: "-"
       );
       setValue(
         "informacoesAdicionais.nomefuncionariomarcopolo",
-        value.informacoesAdicionais.nomefuncionariomarcopolo
+        value.informacoesAdicionais.nomefuncionariomarcopolo ? value.informacoesAdicionais.nomefuncionariomarcopolo: "-"
       );
       setValue(
         "informacoesAdicionais.problemasaude",
-        value.informacoesAdicionais.problemasaude
+        value.informacoesAdicionais.problemasaude  ? value.informacoesAdicionais.problemasaude: "-"
       );
-      setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg);
+      setValue("informacoesAdicionais.rg", value.informacoesAdicionais.rg? value.informacoesAdicionais.rg: "-");
       setValue(
         "informacoesAdicionais.saude",
-        value.informacoesAdicionais.saude
+        value.informacoesAdicionais.saude ?  value.informacoesAdicionais.saude: "-"
       );
       setValue(
         "informacoesAdicionais.socioJBS",
-        value.informacoesAdicionais.socioJBS
+        value.informacoesAdicionais.socioJBS ?  value.informacoesAdicionais.socioJBS: "-"
       );
       setValue(
         "informacoesAdicionais.tipomedicacao",
-        value.informacoesAdicionais.tipomedicacao
+        value.informacoesAdicionais.tipomedicacao ?  value.informacoesAdicionais.tipomedicacao: "-"
       );
       setValue(
         "informacoesAdicionais.uniforme",
-        value.informacoesAdicionais.uniforme
+        value.informacoesAdicionais.uniforme ?  value.informacoesAdicionais.uniforme : "-"
       );
       setValue(
         "informacoesAdicionais.cobramensalidade",
-        value.informacoesAdicionais.cobramensalidade
+        value.informacoesAdicionais.cobramensalidade ? value.informacoesAdicionais.cobramensalidade: "-"
       );
       setValue(
         "informacoesAdicionais.nucleoTreinamento",
-        value.informacoesAdicionais.nucleoTreinamento
+        value.informacoesAdicionais.nucleoTreinamento ?  value.informacoesAdicionais.nucleoTreinamento: "-"
       );
      
       setValue(
         "informacoesAdicionais.competicao",
-        value.informacoesAdicionais.competicao
+        value.informacoesAdicionais.competicao ?  value.informacoesAdicionais.competicao: "-"
       );
       setValue(
         "informacoesAdicionais.comprometimentoMensalidade",
-        value.informacoesAdicionais.comprometimentoMensalidade
+        value.informacoesAdicionais.comprometimentoMensalidade ?  value.informacoesAdicionais.comprometimentoMensalidade: "-"
       );
       setValue(
         "informacoesAdicionais.copiaDocumento",
-        value.informacoesAdicionais.copiaDocumento
+        value.informacoesAdicionais.copiaDocumento ? value.informacoesAdicionais.copiaDocumento: "-"
       );
       setValue(
         "informacoesAdicionais.avisaAusencia",
-        value.informacoesAdicionais.avisaAusencia
+        value.informacoesAdicionais.avisaAusencia ? value.informacoesAdicionais.avisaAusencia: "-"
       );
       setValue(
         "informacoesAdicionais.desconto",
-        value.informacoesAdicionais.desconto
+        value.informacoesAdicionais.desconto ? value.informacoesAdicionais.desconto: "-"
       );
     } else {
       reset(); // Limpa o formulário se nenhum aluno for selecionado
