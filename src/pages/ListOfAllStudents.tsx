@@ -585,10 +585,10 @@ export default function TurmasTemporariosTable() {
                           }}
                           align="center"
                           onClick={handleCopy(
-                            String(aluno.informacoesAdicionais?.endereco.cep)
+                            String(aluno.informacoesAdicionais?.endereco?.cep || "N/A")
                           )}
                         >
-                          {aluno.informacoesAdicionais?.endereco.cep || "N/A"}
+                          {aluno.informacoesAdicionais?.endereco?.cep || "N/A"}
                         </StyledTableCell>
 
                         <StyledTableCell
