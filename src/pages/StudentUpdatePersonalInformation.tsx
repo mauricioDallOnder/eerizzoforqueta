@@ -209,35 +209,35 @@ export default function StudentUpdatePersonalInformation() {
       setValue("anoNascimento", value.anoNascimento);
       setValue(
         "telefoneComWhatsapp",
-        value.telefoneComWhatsapp ? value.telefoneComWhatsapp.toString() : ""
+        value.telefoneComWhatsapp ? value.telefoneComWhatsapp.toString() : "-"
       );
       setValue(
         "informacoesAdicionais.endereco.ruaAvenida",
-        value.informacoesAdicionais.endereco.ruaAvenida
+        value.informacoesAdicionais.endereco.ruaAvenida ? value.informacoesAdicionais.endereco.ruaAvenida : "-"
       );
       setValue(
         "informacoesAdicionais.endereco.numeroResidencia",
-        value.informacoesAdicionais.endereco.numeroResidencia.toString()
+        value.informacoesAdicionais.endereco.numeroResidencia.toString() ? value.informacoesAdicionais.endereco.numeroResidencia.toString():"-"
       );
       setValue(
         "informacoesAdicionais.endereco.bairro",
-        value.informacoesAdicionais.endereco.bairro
+        value.informacoesAdicionais.endereco.bairro ?  value.informacoesAdicionais.endereco.bairro: "-"
       );
       setValue(
         "informacoesAdicionais.endereco.cep",
-        value.informacoesAdicionais.endereco.cep
+        value.informacoesAdicionais.endereco.cep ? value.informacoesAdicionais.endereco.cep :"-"
       );
       setValue(
         "informacoesAdicionais.endereco.complemento",
-        value.informacoesAdicionais.endereco.complemento
+        value.informacoesAdicionais.endereco.complemento?  value.informacoesAdicionais.endereco.complemento: "-"
       );
       setValue(
         "informacoesAdicionais.pagadorMensalidades.nomeCompleto",
-        value.informacoesAdicionais.pagadorMensalidades.nomeCompleto
+        value.informacoesAdicionais.pagadorMensalidades.nomeCompleto ?  value.informacoesAdicionais.pagadorMensalidades.nomeCompleto : "-"
       );
       setValue(
         "informacoesAdicionais.pagadorMensalidades.cpf",
-        value.informacoesAdicionais.pagadorMensalidades.cpf
+        value.informacoesAdicionais.pagadorMensalidades.cpf ? value.informacoesAdicionais.pagadorMensalidades.cpf : "-"
       );
       setValue(
         "informacoesAdicionais.pagadorMensalidades.email",
