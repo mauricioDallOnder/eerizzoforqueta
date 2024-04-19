@@ -2,29 +2,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from "react";
 import {
-  DataGrid,
   GridColDef,
   GridCsvExportOptions,
   GridCsvGetRowsToExportParams,
-  
   GridRowId,
- 
   GridRowsProp,
   GridToolbar,
-  
   gridExpandedSortedRowIdsSelector,
   gridPageCountSelector,
   gridPageSelector,
   useGridApiContext,
   useGridSelector,
 } from "@mui/x-data-grid";
-import { styled } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
 import { useData } from "@/context/context";
 import { useEffect, useState } from "react";
 import {
-  Aluno,
   AlunoComTurma,
   IUpdateUniformeApiData,
 } from "@/interface/interfaces";
@@ -33,46 +27,10 @@ import { Button, Container} from "@mui/material";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import Layout from "@/components/TopBarComponents/Layout";
 import { CustomCheckboxEdit } from "@/components/CustomEditableCheckbox";
+import { StyledDataGrid } from "@/utils/Styles";
 
 
-const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-  border: 0,
-  color: theme.palette.text.primary, // Texto com cor primária do tema
-  fontFamily: theme.typography.fontFamily, // Fonte do tema
-  WebkitFontSmoothing: "auto",
-  letterSpacing: "normal",
-  backgroundColor: theme.palette.text.secondary,
-  
-  "& .MuiDataGrid-columnsContainer": {
-    backgroundColor: "#4a4a4a", // Cor mais escura para o cabeçalho
-    color: "#ffffff", // Texto do cabeçalho em branco para contraste
-  },
-  "& .MuiDataGrid-iconSeparator": {
-    display: "none",
-  },
-  // As bordas das células agora são mais visíveis
-  "& .MuiDataGrid-columnHeader, .MuiDataGrid-cell": {
-    borderRight: `1px solid ${theme.palette.divider}`, // Borda à direita das células
-    backgroundColor: "white", // Efeito ao passar o mouse
-  },
-  "& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell": {
-    borderBottom: `1px solid ${theme.palette.divider}`, // Borda inferior das células
-  },
-  // Cor de fundo das células para diferenciar do fundo do site
-  "& .MuiDataGrid-cell": {
-    color: theme.palette.text.secondary, // Cor do texto das células do tema
-    backgroundColor: "#e0e0e0", // Cor de fundo clara para as células
-  },
-  // Ajuste nos botões de paginação
-  "& .MuiPaginationItem-root": {
-    borderRadius: 0, // Botões de paginação sem bordas arredondadas
-  },
-  "& .MuiInputBase-input": {
-    color: "white",
-  },
 
-  
-}));
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -163,9 +121,10 @@ export default function ExportStudentDataToExcel() {
       return {
         id: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(), // Usar IdentificadorUnico como id se disponível
         col1: aluno.nome,
-        col2: nomeDaTurma,
-        col3: categoria,
-        col4: modalidade,
+        col2:aluno.anoNascimento,
+        col3: nomeDaTurma,
+        col4: categoria,
+        col5: modalidade,
         uniforme: aluno.informacoesAdicionais.hasUniforme,
       };
     }
@@ -180,9 +139,10 @@ export default function ExportStudentDataToExcel() {
 
   const columns: GridColDef[] = [
     { field: "col1", headerName: "Nome", width: 250 },
-    { field: "col2", headerName: "Turma", width: 250 },
-    { field: "col3", headerName: "Núcleo", width: 150 },
-    { field: "col4", headerName: "Modalidade", width: 150 },
+    { field: "col2", headerName: "Nascimento", width: 250 },
+    { field: "col3", headerName: "Turma", width: 250 },
+    { field: "col4", headerName: "Núcleo", width: 150 },
+    { field: "col5", headerName: "Modalidade", width: 150 },
     {
       field: "uniforme",
       headerName: "Uniforme",
