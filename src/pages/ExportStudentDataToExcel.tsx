@@ -139,7 +139,7 @@ export default function ExportStudentDataToExcel() {
 
   const columns: GridColDef[] = [
     { field: "col1", headerName: "Nome", width: 250 },
-    { field: "col2", headerName: "Nascimento", width: 250 },
+    { field: "col2", headerName: "Nascimento", width: 150 },
     { field: "col3", headerName: "Turma", width: 250 },
     { field: "col4", headerName: "Núcleo", width: 150 },
     { field: "col5", headerName: "Modalidade", width: 150 },
