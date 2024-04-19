@@ -1,3 +1,6 @@
+import { styled } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+
 export const BoxStyleCadastro = {
     backgroundColor: "#ffffff",
     border: "10px solid",
@@ -140,3 +143,44 @@ export const modalStyleTemporaly = {
   margin: "30px auto",
   padding: "2.5em",
 };
+
+
+
+export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  border: 0,
+  color: theme.palette.text.primary, // Texto com cor primária do tema
+  fontFamily: theme.typography.fontFamily, // Fonte do tema
+  WebkitFontSmoothing: "auto",
+  letterSpacing: "normal",
+  backgroundColor: theme.palette.text.secondary,
+  
+  "& .MuiDataGrid-columnsContainer": {
+    backgroundColor: "#4a4a4a", // Cor mais escura para o cabeçalho
+    color: "#ffffff", // Texto do cabeçalho em branco para contraste
+  },
+  "& .MuiDataGrid-iconSeparator": {
+    display: "none",
+  },
+  // As bordas das células agora são mais visíveis
+  "& .MuiDataGrid-columnHeader, .MuiDataGrid-cell": {
+    borderRight: `1px solid ${theme.palette.divider}`, // Borda à direita das células
+    backgroundColor: "white", // Efeito ao passar o mouse
+  },
+  "& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell": {
+    borderBottom: `1px solid ${theme.palette.divider}`, // Borda inferior das células
+  },
+  // Cor de fundo das células para diferenciar do fundo do site
+  "& .MuiDataGrid-cell": {
+    color: theme.palette.text.secondary, // Cor do texto das células do tema
+    backgroundColor: "#e0e0e0", // Cor de fundo clara para as células
+  },
+  // Ajuste nos botões de paginação
+  "& .MuiPaginationItem-root": {
+    borderRadius: 0, // Botões de paginação sem bordas arredondadas
+  },
+  "& .MuiInputBase-input": {
+    color: "white",
+  },
+
+  
+}));
