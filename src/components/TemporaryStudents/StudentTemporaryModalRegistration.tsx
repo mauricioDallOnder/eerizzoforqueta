@@ -54,9 +54,11 @@ export default function TemporaryStudentRegistration({
   }, [fetchModalidades]);
 
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
+    const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
     const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
     data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
     data.aluno.nome = studentName
+    data.aluno.dataMatricula = mydate;
     const turmaEscolhida = modalidades
       .find((m) => m.nome === data.modalidade)
       ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
