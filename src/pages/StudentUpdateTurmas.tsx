@@ -1,45 +1,24 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextField, Button, Box, Autocomplete, Container, Typography } from "@mui/material";
-
 import { DataContext } from "@/context/context";
-import { Modalidade, Turma } from "@/interface/interfaces";
+import { Modalidade, Turma, AlunoAutocompleteOption, MoveStudentsPayload } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import Layout from "@/components/TopBarComponents/Layout";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-interface MoveStudentFormData {
-  alunoNome: string;
-  modalidadeOrigem: string;
-  nomeDaTurmaOrigem: string;
-  modalidadeDestino: string;
-  nomeDaTurmaDestino: string;
-}
-
-interface AlunoAutocompleteOption {
-  id: string | number;
-  nome: string;
-  modalidade: string;
-  turma: string;
-  nucleo: string;
-}
-
 export default function MoveStudentForm() {
   const { moveStudentInApi, modalidades, fetchModalidades } = useContext(DataContext);
-  const { register, handleSubmit, setValue, watch, reset, formState: { isSubmitting, errors } } = useForm<MoveStudentFormData>();
-
+  const { register, handleSubmit, setValue, watch, reset, control, formState: { isSubmitting, errors } } = useForm<MoveStudentsPayload>();
+  const [selectedAlunos, setSelectedAlunos] = useState<AlunoAutocompleteOption[]>([]);
   const [alunosOptions, setAlunosOptions] = useState<AlunoAutocompleteOption[]>([]);
   const [turmasDestinoOptions, setTurmasDestinoOptions] = useState<Turma[]>([]);
   const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
-  const turmaOrigem = alunosOptions.find(a => a.nome === watch("alunoNome"))?.turma;
-  // Encontre a turma correspondente para obter a quantidade de alunos
-  const quantidadeAlunosTurmaOrigem = modalidades.flatMap(m => m.turmas)
-    .find(t => t.nome_da_turma === turmaOrigem)?.capacidade_atual_da_turma
-
-   
+  const [isProcessing, setIsProcessing] = useState(false);
   useEffect(() => {
     fetchModalidades().catch(console.error);
   }, [fetchModalidades]);
@@ -48,59 +27,71 @@ export default function MoveStudentForm() {
     setModalidadesOptions(modalidades);
   }, [modalidades]);
 
-
-
   useEffect(() => {
-    const alunosExtraidos = modalidades
-      .filter(modalidade => Array.isArray(modalidade.turmas)) // Garante que só processa modalidades com turmas sendo array
-      .flatMap(modalidade =>
-        modalidade.turmas.flatMap(turma => {
-          // Garante que turma.alunos é um array antes de tentar filtrar
-          const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
-          return alunosArray.filter(Boolean).map(aluno => ({
-            id: aluno.id,
-            nome: aluno.nome,
-            modalidade: modalidade.nome,
-            turma: turma.nome_da_turma,
-            nucleo: turma.nucleo,
-          }));
-        })
-      );
+    const alunosExtraidos = modalidades.flatMap(modalidade =>
+      modalidade.turmas.flatMap(turma =>
+        (turma.alunos || []).filter(aluno => turma.nome_da_turma !== "excluidos").map(aluno => ({
+          id: aluno?.informacoesAdicionais?.IdentificadorUnico!,
+          nome: aluno?.nome ?? "",
+          modalidade: modalidade.nome,
+          turma: turma.nome_da_turma,
+          nucleo: turma.nucleo,
+          key: `${aluno?.informacoesAdicionais?.IdentificadorUnico}-${modalidade.nome}-${turma.nome_da_turma}` // chave composta
+        }))
+      )
+    );
     setAlunosOptions(alunosExtraidos);
   }, [modalidades]);
-  
+
+  async function corrigirDados() {
+    try {
+      const response = await axios.post('/api/AjustarDadosTurma');
+      console.log('Dados da turma corrigidos com sucesso.');
+    } catch (error) {
+      console.error('Erro ao corrigir dados da turma.');
+    }
+  }
 
 
   useEffect(() => {
-    const modalidadeSelecionada = modalidades.find(
-      mod => mod.nome === watch("modalidadeDestino")
-    );
+    const modalidadeSelecionada = modalidades.find(mod => mod.nome === watch("modalidadeDestino"));
     setTurmasDestinoOptions(modalidadeSelecionada?.turmas || []);
   }, [watch("modalidadeDestino"), modalidades]);
 
-  const handleAlunoChange = useCallback((_event: any, value: AlunoAutocompleteOption | null) => {
-    if (value) {
-      setValue("alunoNome", value.nome);
-      setValue("modalidadeOrigem", value.modalidade);
-      setValue("nomeDaTurmaOrigem", value.turma);
-      setValue("modalidadeDestino", "");
-      setValue("nomeDaTurmaDestino", "");
-    }
-    
-  }, [setValue]);
+  useEffect(() => {
+    const turmasOrigem = selectedAlunos.map(a => a.turma);
+    setValue("alunosTurmasOrigem", turmasOrigem); // Define o valor do campo com as turmas de origem como um array
+  }, [selectedAlunos, setValue]);
 
-  const onSubmit: SubmitHandler<MoveStudentFormData> = useCallback(async (data) => {
-    try {
-      await moveStudentInApi(data);
-     
-      alert("Aluno movido com sucesso.");
-      reset();
-    } catch (error) {
-      console.error("Erro ao mover aluno", error);
-    }
-  }, [moveStudentInApi, reset]);
+  const handleAlunoSelectionChange = (_event: React.ChangeEvent<{}>, value: AlunoAutocompleteOption[]) => {
+    setSelectedAlunos(value);
+    setValue("alunosNomes", value.map(v => v.nome));
+    setValue("alunosTurmasOrigem", value.map(v => v.turma)); // Atualizar o campo com as turmas de origem
+  };
 
- 
+
+  const onSubmit: SubmitHandler<MoveStudentsPayload> = useCallback(async () => {
+    setIsProcessing(true);
+    const payload: MoveStudentsPayload = {
+      alunosNomes: selectedAlunos.map(a => a.nome),
+      alunosModalidadesOrigem: selectedAlunos.map(a => a.modalidade),
+      alunosTurmasOrigem: selectedAlunos.map(a => a.turma),
+      modalidadeDestino: watch('modalidadeDestino'),
+      nomeDaTurmaDestino: watch('nomeDaTurmaDestino'),
+    };
+
+    console.log("Payload a ser enviado:", payload); // Verifique o que está sendo enviado
+    await moveStudentInApi(payload);
+    await corrigirDados()
+    alert("Alunos movidos com sucesso.");
+    reset();
+    setIsProcessing(false);
+  }, [moveStudentInApi, reset, selectedAlunos, watch]);
+
+
+
+
+
 
   return (
     <Layout>
@@ -111,59 +102,49 @@ export default function MoveStudentForm() {
           noValidate
           sx={BoxStyleCadastro}
         >
-          <HeaderForm titulo={"Mudança de Turma"} />
+          <HeaderForm titulo={"Mudança de Turma de Alunos"} />
           <Autocomplete
+            multiple
             options={alunosOptions}
-            getOptionLabel={(option) => option.nome}
-            onChange={handleAlunoChange}
+            getOptionLabel={(option) => option.nome} // Continua exibindo o nome
+            onChange={handleAlunoSelectionChange}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Nome do Aluno"
+                label="Selecione os Alunos"
                 margin="normal"
                 required
                 fullWidth
-                error={!!errors.alunoNome}
-                helperText={errors.alunoNome?.message}
+                error={!!errors.alunosNomes}
+                helperText={errors.alunosNomes?.message}
               />
             )}
-            renderOption={(props, option) => (
-              <li {...props} key={`${props.id}-${option}`}>
-                {option.nome}
-              </li>
-            )}
+            renderOption={(props, option) => {
+              // Use uma chave única concatenando o ID do aluno com o nome. Se o ID estiver faltando, você pode usar um fallback como um UUID ou índice.
+              const key = uuidv4() + option.alunoId;
+              return (
+                <li {...props} key={key}>
+                  {option.nome}
+                </li>
+              );
+            }}
+
           />
 
           <TextField
             margin="normal"
-            required
             fullWidth
-            label="Modalidade de Origem"
-            {...register("modalidadeOrigem", {
-              required: "Modalidade de origem é obrigatória",
-            })}
+            label="Turmas de Origem"
+            value={selectedAlunos.map(a => a.turma).join(", ")}  // Usar o valor diretamente para exibição
             InputLabelProps={{
               shrink: true,
             }}
-            error={!!errors.modalidadeOrigem}
-            helperText={errors.modalidadeOrigem?.message}
-            disabled
+            disabled={true}  // Campo apenas para leitura
+            helperText="Turmas de origem dos alunos selecionados"
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Nome da Turma de Origem"
-            {...register("nomeDaTurmaOrigem", {
-              required: "Turma de origem é obrigatória",
-            })}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            disabled
-            error={!!errors.nomeDaTurmaOrigem}
-            helperText={errors.nomeDaTurmaOrigem?.message}
-          />
+
+
+
           <Autocomplete
             options={modalidadesOptions}
             getOptionLabel={(option) => option.nome}
@@ -179,15 +160,11 @@ export default function MoveStudentForm() {
                 required
                 fullWidth
                 error={!!errors.modalidadeDestino}
-                helperText={
-                  errors.modalidadeDestino?.message ||
-                  "Selecione a modalidade de destino"
-                }
+                helperText={errors.modalidadeDestino?.message || "Selecione a modalidade de destino"}
               />
             )}
           />
 
-          {/* Campo Autocomplete para Nome da Turma de Destino */}
           <Autocomplete
             options={turmasDestinoOptions}
             getOptionLabel={(option) => option.nome_da_turma}
@@ -203,10 +180,7 @@ export default function MoveStudentForm() {
                 required
                 fullWidth
                 error={!!errors.nomeDaTurmaDestino}
-                helperText={
-                  errors.nomeDaTurmaDestino?.message ||
-                  "Selecione a turma de destino"
-                }
+                helperText={errors.nomeDaTurmaDestino?.message || "Selecione a turma de destino"}
               />
             )}
           />
@@ -214,22 +188,19 @@ export default function MoveStudentForm() {
           <Button
             type="submit"
             variant="contained"
-            disabled={isSubmitting || quantidadeAlunosTurmaOrigem! <= 1}
+            disabled={isSubmitting || isProcessing}
           >
-            {isSubmitting ? "Enviando dados, aguarde..." : quantidadeAlunosTurmaOrigem! <= 1 ? "A turma de origem deve ter mais de um aluno para permitir a movimentação" : "Mover Aluno"}
+            {isSubmitting || isProcessing ? "Movendo aluno e atualizando turmas... aguarde" : "Mover Alunos"}
           </Button>
-          <p style={{color:"black"}}>{quantidadeAlunosTurmaOrigem}</p>
         </Box>
       </Container>
     </Layout>
   );
 }
 
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
 
-  // Se não tiver sessão ou não for admin, redirecione para a página de login
   if (!session || session.user.role !== "admin") {
     return {
       redirect: {
@@ -239,6 +210,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Retornar props aqui se a permissão for válida
-  return { props: { /* props adicionais aqui */ } };
+  return { props: {} };
 };
