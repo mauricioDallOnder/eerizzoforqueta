@@ -1,9 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Autocomplete, Button, TextField, Typography, Box } from '@mui/material';
+import { Autocomplete, Button, TextField, Typography, Box, Container } from '@mui/material';
 import { DataContext } from "@/context/context";
 import { AlunoAutocompleteOption, Modalidade } from "@/interface/interfaces";
 import axios from 'axios';
+import Layout from '@/components/TopBarComponents/Layout';
+import { BoxStyleCadastro } from '@/utils/Styles';
+import { HeaderForm } from '@/components/HeaderDefaultForm';
 
 export default function DeleteStudentsComponent() {
   const { deleteStudentFromApi, modalidades, fetchModalidades } = useContext(DataContext);
@@ -19,7 +22,7 @@ export default function DeleteStudentsComponent() {
   useEffect(() => {
     const alunosExtraidos = modalidades.flatMap(modalidade =>
       modalidade.turmas.flatMap(turma =>
-        (turma.alunos || []).filter(aluno => turma.nome_da_turma === "excluidos").map(aluno => ({
+        (turma.alunos || []).filter(aluno => turma.nome_da_turma !== "excluidos").map(aluno => ({
           id: aluno?.informacoesAdicionais?.IdentificadorUnico!,
           nome: aluno?.nome ?? "",
           modalidade: modalidade.nome,
@@ -53,8 +56,10 @@ export default function DeleteStudentsComponent() {
   }, [deleteStudentFromApi, selectedAluno, reset]);
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
-      <Typography variant="h6">Deletar Aluno da Turma "Excluídos"</Typography>
+    <Layout>
+      <Container>
+    <Box component="form"  sx={BoxStyleCadastro} onSubmit={handleSubmit(onSubmit)} noValidate >
+    <HeaderForm titulo={"Deletar Alunos"} />
       <Controller
         name="alunoId"
         control={control}
@@ -74,5 +79,7 @@ export default function DeleteStudentsComponent() {
         {isDeleting ? "Deletando estudante e atualizando turmas.. aguarde.." : "Deletar Aluno"}
       </Button>
     </Box>
+    </Container>
+    </Layout>
   );
 }
