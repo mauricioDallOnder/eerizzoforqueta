@@ -30,7 +30,7 @@ import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
-const drawerWidth = 350
+const drawerWidth = 300
 export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [isClosing, setIsClosing] = React.useState(false)
@@ -79,12 +79,12 @@ const drawer = (
         { icon: <HomeIcon color="primary" />, text: "Página Inicial", href: "/" },
         { icon: <GroupAddIcon color="secondary" />, text: "Cadastrar alunos", href: "/StudentRegistration" },
         { icon: <SettingsIcon color="error" />, text: "Trocar aluno de turma", href: "/StudentUpdateTurmas" },
-        { icon: <ListAltIcon color="action" />, text: "Lista de chamada", href: "/StudentPresenceTable" },
+        { icon: <ListAltIcon color="action" />, text: "Listas de chamada", href: "/StudentPresenceTable" },
         { icon: <UpdateIcon color="disabled" />, text: "Atualização cadastral", href: "/StudentUpdatePersonalInformation" },
         { icon: <AssignmentLateIcon color="warning" />, text: "Lista de alunos temporários", href: "/ListOfTemporaryStudants" },
         { icon: <AssignmentIndIcon color="info" />, text: "Lista geral de alunos", href: "/ListOfAllStudents" },
         { icon: <FileDownloadIcon color="success" />, text: "Controle de uniforme e exportação", href: "/ExportStudentDataToExcel" },
-        { icon: <ErrorOutlineIcon color="warning" />, text: "Executar verificação e correção", href: "/AjusteDadosTurmas" },
+        { icon: <ErrorOutlineIcon color="warning" />, text: "Verificação e correção", href: "/AjusteDadosTurmas" },
         { icon: <AutoDeleteIcon color="error" />, text: "Deletar alunos", href: "/DeleteStudants" }
       ].map((item, index) => (
         <React.Fragment key={index}>
