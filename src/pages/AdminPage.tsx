@@ -29,7 +29,8 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-const drawerWidth = 240
+import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
+const drawerWidth = 350
 export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [isClosing, setIsClosing] = React.useState(false)
@@ -43,281 +44,154 @@ export default function AdminPage() {
     setIsClosing(false)
   }
 
+  
   const handleDrawerToggle = () => {
     if (!isClosing) {
       setMobileOpen(!mobileOpen)
     }
   }
-
-  const drawer = (
-    <Box>
-      <Toolbar />
-      <Avatar
-        sx={{
-          width: 80,
+//
+const drawer = (
+  <Box sx={{ width: drawerWidth, flexShrink: 0, bgcolor: '#f4f4f4' }}>
+    <Toolbar />
+    <Box sx={{pb:"2.3rem"}}>
+    <Avatar sx={{ 
           height: 80,
-          backgroundColor: 'white',
           position: 'absolute',
           top: '10px',
           left: '80px',
-        }}
-      >
-        <Image
-          src="https://firebasestorage.googleapis.com/v0/b/imagens-9116b.appspot.com/o/logoescolinha-removebg-preview(1).png?alt=media&token=c33b14a0-c768-45a1-926f-94b85770f27b"
-          alt=""
-          layout="fill"
-          objectFit="contain"
-        />
-      </Avatar>
-      <Divider sx={{ my: 3 }} />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/"
-                >
-                  Página Inicial
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <GroupAddIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/StudentRegistration"
-                >
-                  Cadastro de alunos
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/StudentUpdateTurmas"
-                >
-                  Trocar turma de aluno
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider sx={{ my: 2 }} />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <ListAltIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/StudentPresenceTable"
-                >
-                  Lista de Chamada
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <UpdateIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/StudentUpdatePersonalInformation"
-                >
-                  Atualização de dados cadastrais
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <AssignmentLateIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/ListOfTemporaryStudants"
-                >
-                  Lista de alunos temporários
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <AssignmentIndIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/ListOfAllStudents"
-                >
-                  Lista Geral com todos os alunos
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <FileDownloadIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/ExportStudentDataToExcel"
-                >
-                  Controle de Uniforme/Exportação de Dados
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <ErrorOutlineIcon  />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Link
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  href="/AjusteDadosTurmas"
-                >
-                  Verificar e Corrigir 
-                </Link>
-              }
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
+          width: '50%',
+          backgroundColor:'#f4f4f4',
+         
+          }}>
+      <Image
+                 src="https://firebasestorage.googleapis.com/v0/b/imagens-9116b.appspot.com/o/logoescolinha-removebg-preview(1).png?alt=media&token=c33b14a0-c768-45a1-926f-94b85770f27b"
+
+        alt="Logo"
+        layout="fill"
+        objectFit="contain"
+      />
+    </Avatar>
     </Box>
-  )
+    <Divider />
+    <List sx={{ padding: 0 }}>
+      {[
+        { icon: <HomeIcon color="primary" />, text: "Página Inicial", href: "/" },
+        { icon: <GroupAddIcon color="secondary" />, text: "Cadastro de alunos", href: "/StudentRegistration" },
+        { icon: <SettingsIcon color="error" />, text: "Trocar turma de aluno", href: "/StudentUpdateTurmas" },
+        { icon: <ListAltIcon color="action" />, text: "Lista de Chamada", href: "/StudentPresenceTable" },
+        { icon: <UpdateIcon color="disabled" />, text: "Atualização de dados cadastrais", href: "/StudentUpdatePersonalInformation" },
+        { icon: <AssignmentLateIcon color="warning" />, text: "Lista de alunos temporários", href: "/ListOfTemporaryStudants" },
+        { icon: <AssignmentIndIcon color="info" />, text: "Lista Geral com todos os alunos", href: "/ListOfAllStudents" },
+        { icon: <FileDownloadIcon color="success" />, text: "Controle de Uniforme/Exportação de Dados", href: "/ExportStudentDataToExcel" },
+        { icon: <ErrorOutlineIcon color="error" />, text: "Verificar e Corrigir", href: "/AjusteDadosTurmas" },
+        { icon: <AutoDeleteIcon color="warning" />, text: "Deletar Alunos!", href: "/DeleteStudants" }
+      ].map((item, index) => (
+        <React.Fragment key={index}>
+          <ListItem disablePadding sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
+            <ListItemButton>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={
+                <Link href={item.href} style={{ textDecoration: 'none', color: 'inherit', fontSize: '1.1rem' }}>
+                  <Typography>{item.text}</Typography>
+                </Link>
+              } />
+            </ListItemButton>
+          </ListItem>
+          {index < 9 && <Divider variant="inset" component="li" />}
+        </React.Fragment>
+      ))}
+    </List>
+  </Box>
+);
   // Remove this const when copying and pasting into your project.
   // StudentTemporary
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
+    <CssBaseline />
+    <AppBar
+      position="fixed"
+      sx={{
+        width: { sm: `calc(100% - ${drawerWidth}px)` },
+        ml: { sm: `${drawerWidth}px` },
+      }}
+    >
+      <Toolbar>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          sx={{ mr: 2, display: { sm: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" noWrap component="div">
+          Painel de Administrador
+        </Typography>
+      </Toolbar>
+    </AppBar>
+    <Box
+      component="nav"
+      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      aria-label="mailbox folders"
+    >
+      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onTransitionEnd={handleDrawerTransitionEnd}
+        onClose={handleDrawerClose}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+          },
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Painel de Administrador
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onTransitionEnd={handleDrawerTransitionEnd}
-          onClose={handleDrawerClose}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
+        {drawer}
+      </Drawer>
+      <Drawer
+        variant="permanent"
         sx={{
-          flexGrow: 1,
-          p: 3,
-          marginTop: '65px',
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          display: { xs: 'none', sm: 'block' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+          },
         }}
+        open
       >
-        {/* Utilize o componente Grid para organizar os cartões em linha */}
-        <Grid container spacing={2} justifyContent="center">
-          {/* Cada cartão em um item de Grid */}
-
-          <Box>
-            <TurmasInfoTableNoSSR />
-          </Box>
-        </Grid>
-        <Toolbar />
-      </Box>
+        {drawer}
+      </Drawer>
     </Box>
-  )
-}
+    <Box
+      component="main"
+      sx={{
+        flexGrow: 1,
+        p: 3,
+        marginTop: '65px',
+        width: { sm: `calc(100% - ${drawerWidth}px)` },
+      }}
+    >
+      {/* Utilize o componente Grid para organizar os cartões em linha */}
+      <Grid container spacing={2} justifyContent="center">
+        {/* Cada cartão em um item de Grid */}
 
+        <Box>
+          <TurmasInfoTableNoSSR />
+        </Box>
+      </Grid>
+      <Toolbar />
+    </Box>
+  </Box>
+  );
+}
+//  <TurmasInfoTableNoSSR />
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions)
 
