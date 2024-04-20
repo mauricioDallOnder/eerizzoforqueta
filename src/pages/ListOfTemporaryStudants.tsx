@@ -1,3 +1,4 @@
+import Layout from "@/components/TopBarComponents/Layout";
 import { useData } from "@/context/context";
 import { Aluno, Turma } from "@/interface/interfaces";
 import {
@@ -11,12 +12,13 @@ import {
   TableCell,
   TableBody,
   TextField,
+  Container,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 
 export default function TurmasTemporariosTable() {
   const { fetchModalidades } = useData();
-  const [alunosComTurma, setAlunosComTurma] = useState<{ aluno: Aluno; nomeDaTurma: string }[]>([]);
+  const [alunosComTurma, setAlunosComTurma] = useState<{ aluno: Aluno; nomeDaTurma: string;dataMatricula:string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -28,6 +30,7 @@ export default function TurmasTemporariosTable() {
           return alunosArray.filter(Boolean).map((aluno) => ({
             aluno,
             nomeDaTurma: turma.nome_da_turma,
+            dataMatricula: aluno.dataMatricula!
           }));
         });
         setAlunosComTurma(alunosComTurmaTemp);
@@ -40,7 +43,8 @@ export default function TurmasTemporariosTable() {
   );
 
   return (
-    <Box>
+    <Layout>
+    <Container>
       <Typography variant="h6" sx={{ margin: 2 }}>
         Alunos Temporários
       </Typography>
@@ -62,6 +66,7 @@ export default function TurmasTemporariosTable() {
             <TableRow>
               <TableCell>Nome do Aluno</TableCell>
               <TableCell>Nome da Turma</TableCell>
+              <TableCell>Data Matricula</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -69,11 +74,13 @@ export default function TurmasTemporariosTable() {
               <TableRow key={index}>
                 <TableCell>{aluno.nome}</TableCell>
                 <TableCell>{nomeDaTurma}</TableCell>
+                <TableCell>{aluno.dataMatricula}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </Box>
+    </Container>
+    </Layout>
   );
 }
