@@ -1,4 +1,5 @@
 import { anoNascimentoSchema } from '@/utils/Constants'
+import { Key } from 'react'
 import { z } from 'zod'
 // Definindo schema para os campos do formulario de registro
 
@@ -198,12 +199,12 @@ export interface AlunoPresencaUpdate extends Aluno {
   alunoId: string
 }
 
-export interface MoveStudentPayload {
-  alunoNome: string
-  modalidadeOrigem: string
-  nomeDaTurmaOrigem: string
-  modalidadeDestino: string
-  nomeDaTurmaDestino: string
+export interface MoveStudentsPayload {
+  alunosNomes: string[];
+  alunosModalidadesOrigem: string[];
+  alunosTurmasOrigem: string[];
+  modalidadeDestino: string;
+  nomeDaTurmaDestino: string;
 }
 
 export interface StudentPresenceTableProps {
@@ -277,4 +278,29 @@ export interface TurmaPresencaSemanalProps {
   onClose: () => void
   alunosDaTurma: Aluno[]
   nomeDaTurma: string
+}
+
+export interface AlunoAutocompleteOption {
+  [x: string]: Key | null | undefined
+  id: string | number
+  nome: string;
+  modalidade: string;
+  turma: string;
+  nucleo: string;
+}
+
+export interface DeleteStudants{
+  alunoId?: string | number
+  modalidade: string, 
+  nomeDaTurma: string
+  alunosNomes?:string
+ }
+
+
+export interface DeleteAlunoAutocompleteOption {
+  [x: string]: Key | null | undefined
+  alunoId: string | number
+  alunosNomes?:string;
+  modalidade: string;
+  nomeDaTurma: string;
 }
