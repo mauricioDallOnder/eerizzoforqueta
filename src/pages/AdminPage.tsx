@@ -30,7 +30,7 @@ import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
-const drawerWidth = 300
+const drawerWidth = 280
 export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [isClosing, setIsClosing] = React.useState(false)
