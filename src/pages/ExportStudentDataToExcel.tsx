@@ -161,8 +161,8 @@ export default function ExportStudentDataToExcel() {
   
         const onSave = async () => {
           const data: IUpdateUniformeApiData = {
-            modalidade: params.row.col4,
-            nomeDaTurma: params.row.col2,
+            modalidade: params.row.col5,
+            nomeDaTurma: params.row.col3,
             alunoNome: params.row.col1,
             hasUniforme: params.row.uniforme,
           };
