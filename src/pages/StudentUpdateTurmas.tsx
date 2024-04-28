@@ -1,214 +1,179 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { TextField, Button, Box, Autocomplete, Container, Typography } from "@mui/material";
-import { DataContext } from "@/context/context";
-import { Modalidade, Turma, AlunoAutocompleteOption, MoveStudentsPayload } from "@/interface/interfaces";
-import { BoxStyleCadastro } from "@/utils/Styles";
-import { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
-import { HeaderForm } from "@/components/HeaderDefaultForm";
-import Layout from "@/components/TopBarComponents/Layout";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import * as React from "react";
+import {
+  GridColDef,
+  GridRowId,
+  GridRowsProp,
+  GridToolbar,
+  gridPageCountSelector,
+  gridPageSelector,
+  useGridApiContext,
+  useGridSelector,
+} from "@mui/x-data-grid";
+import Pagination from "@mui/material/Pagination";
+import PaginationItem from "@mui/material/PaginationItem";
+import { useData } from "@/context/context";
+import { useEffect, useState } from "react";
+import {
+  AlunoComTurma,
+
+  TemporaryMoveStudentsPayload,
+} from "@/interface/interfaces";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
-export default function MoveStudentForm() {
-  const { moveStudentInApi, modalidades, fetchModalidades } = useContext(DataContext);
-  const { register, handleSubmit, setValue, watch, reset, control, formState: { isSubmitting, errors } } = useForm<MoveStudentsPayload>();
-  const [selectedAlunos, setSelectedAlunos] = useState<AlunoAutocompleteOption[]>([]);
-  const [alunosOptions, setAlunosOptions] = useState<AlunoAutocompleteOption[]>([]);
-  const [turmasDestinoOptions, setTurmasDestinoOptions] = useState<Turma[]>([]);
-  const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  useEffect(() => {
-    fetchModalidades().catch(console.error);
-  }, [fetchModalidades]);
+import { Button, Container } from "@mui/material";
 
-  useEffect(() => {
-    setModalidadesOptions(modalidades);
-  }, [modalidades]);
+import Layout from "@/components/TopBarComponents/Layout";
 
-  useEffect(() => {
-    const alunosExtraidos = modalidades.flatMap(modalidade =>
-      modalidade.turmas.flatMap(turma =>
-        (turma.alunos || []).filter(aluno => turma.nome_da_turma !== "excluidos").map(aluno => ({
-          id: aluno?.informacoesAdicionais?.IdentificadorUnico!,
-          nome: aluno?.nome ?? "",
-          modalidade: modalidade.nome,
-          turma: turma.nome_da_turma,
-          nucleo: turma.nucleo,
-          key: `${aluno?.informacoesAdicionais?.IdentificadorUnico}-${modalidade.nome}-${turma.nome_da_turma}` // chave composta
-        }))
-      )
-    );
-    setAlunosOptions(alunosExtraidos);
-  }, [modalidades]);
-
-  async function corrigirDados() {
-    try {
-      const response = await axios.post('/api/AjustarDadosTurma');
-      console.log('Dados da turma corrigidos com sucesso.');
-    } catch (error) {
-      console.error('Erro ao corrigir dados da turma.');
-    }
-  }
-
-
-  useEffect(() => {
-    const modalidadeSelecionada = modalidades.find(mod => mod.nome === watch("modalidadeDestino"));
-    setTurmasDestinoOptions(modalidadeSelecionada?.turmas || []);
-  }, [watch("modalidadeDestino"), modalidades]);
-
-  useEffect(() => {
-    const turmasOrigem = selectedAlunos.map(a => a.turma);
-    setValue("alunosTurmasOrigem", turmasOrigem); // Define o valor do campo com as turmas de origem como um array
-  }, [selectedAlunos, setValue]);
-
-  const handleAlunoSelectionChange = (_event: React.ChangeEvent<{}>, value: AlunoAutocompleteOption[]) => {
-    setSelectedAlunos(value);
-    setValue("alunosNomes", value.map(v => v.nome));
-    setValue("alunosTurmasOrigem", value.map(v => v.turma)); // Atualizar o campo com as turmas de origem
-  };
-
-
-  const onSubmit: SubmitHandler<MoveStudentsPayload> = useCallback(async () => {
-    setIsProcessing(true);
-    const payload: MoveStudentsPayload = {
-      alunosNomes: selectedAlunos.map(a => a.nome),
-      alunosModalidadesOrigem: selectedAlunos.map(a => a.modalidade),
-      alunosTurmasOrigem: selectedAlunos.map(a => a.turma),
-      modalidadeDestino: watch('modalidadeDestino'),
-      nomeDaTurmaDestino: watch('nomeDaTurmaDestino'),
-    };
-
-    console.log("Payload a ser enviado:", payload); // Verifique o que está sendo enviado
-    await moveStudentInApi(payload);
-    await corrigirDados()
-    alert("Alunos movidos com sucesso.");
-    reset();
-    setIsProcessing(false);
-  }, [moveStudentInApi, reset, selectedAlunos, watch]);
+import { StyledDataGrid } from "@/utils/Styles";
+import { MoveAllStudentsMemo } from "@/components/MoveStudants/MoveAllStudents";
 
 
 
 
-
-
+function CustomPagination() {
+  const apiRef = useGridApiContext();
+  const page = useGridSelector(apiRef, gridPageSelector);
+  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
   return (
-    <Layout>
-      <Container>
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-          sx={BoxStyleCadastro}
-        >
-          <HeaderForm titulo={"Mudança de Turma de Alunos"} />
-          <Autocomplete
-            multiple
-            options={alunosOptions}
-            getOptionLabel={(option) => option.nome} // Continua exibindo o nome
-            onChange={handleAlunoSelectionChange}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Selecione os Alunos"
-                margin="normal"
-                required
-                fullWidth
-                error={!!errors.alunosNomes}
-                helperText={errors.alunosNomes?.message}
-              />
-            )}
-            renderOption={(props, option) => {
-              // Use uma chave única concatenando o ID do aluno com o nome. Se o ID estiver faltando, você pode usar um fallback como um UUID ou índice.
-              const key = uuidv4() + option.alunoId;
-              return (
-                <li {...props} key={key}>
-                  {option.nome}
-                </li>
-              );
-            }}
-
-          />
-
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Turmas de Origem"
-            value={selectedAlunos.map(a => a.turma).join(", ")}  // Usar o valor diretamente para exibição
-            InputLabelProps={{
-              shrink: true,
-            }}
-            disabled={true}  // Campo apenas para leitura
-            helperText="Turmas de origem dos alunos selecionados"
-          />
-
-
-
-          <Autocomplete
-            options={modalidadesOptions}
-            getOptionLabel={(option) => option.nome}
-            onChange={(_, newValue) => {
-              setValue("modalidadeDestino", newValue?.nome ?? "");
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                {...register("modalidadeDestino")}
-                label="Modalidade de Destino"
-                margin="normal"
-                required
-                fullWidth
-                error={!!errors.modalidadeDestino}
-                helperText={errors.modalidadeDestino?.message || "Selecione a modalidade de destino"}
-              />
-            )}
-          />
-
-          <Autocomplete
-            options={turmasDestinoOptions}
-            getOptionLabel={(option) => option.nome_da_turma}
-            onChange={(_, newValue) => {
-              setValue("nomeDaTurmaDestino", newValue?.nome_da_turma ?? "");
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                {...register("nomeDaTurmaDestino")}
-                label="Nome da Turma de Destino"
-                margin="normal"
-                required
-                fullWidth
-                error={!!errors.nomeDaTurmaDestino}
-                helperText={errors.nomeDaTurmaDestino?.message || "Selecione a turma de destino"}
-              />
-            )}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={isSubmitting || isProcessing}
-          >
-            {isSubmitting || isProcessing ? "Movendo aluno e atualizando turmas... aguarde" : "Mover Alunos"}
-          </Button>
-        </Box>
-      </Container>
-    </Layout>
+    <>
+      <Pagination
+        color="primary"
+        variant="outlined"
+        shape="rounded"
+        page={page + 1}
+        count={pageCount}
+        // @ts-expect-error
+        renderItem={(props2) => <PaginationItem {...props2} disableRipple />}
+        onChange={(event: React.ChangeEvent<unknown>, value: number) =>
+          apiRef.current.setPage(value - 1)
+        }
+      />
+    </>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+const PAGE_SIZE = 15;
+export default function MoveStudantsTurma() {
+  const { fetchModalidades } = useData();
+  const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);
+  const [modifiedRows, setModifiedRows] = useState<
+    Record<GridRowId, AlunoComTurma>
+  >({});
+  useEffect(() => {
+    fetchModalidades().then((modalidadesFetched) => {
+      const modalidadesValidas = modalidadesFetched.filter(
+        (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
+      );
 
-  if (!session || session.user.role !== "admin") {
-    return {
-      redirect: {
-        destination: "/NotAllowPage",
-        permanent: false,
+      const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
+        modalidade.turmas.flatMap((turma) => {
+          const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+          return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
+            aluno: {
+              ...aluno,
+              informacoesAdicionais: {
+                ...aluno.informacoesAdicionais,
+                IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
+              },
+            },
+            nomeDaTurma: turma.nome_da_turma,
+            categoria: turma.categoria,
+            modalidade: turma.modalidade,
+            uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
+          }));
+        })
+      );
+
+      setAlunosComTurma(alunosComTurmaTemp);
+    });
+  }, [fetchModalidades]);
+
+
+
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: PAGE_SIZE,
+    page: 0,
+  });
+
+
+  const rows: GridRowsProp = alunosComTurma.map(
+    ({ aluno, nomeDaTurma, categoria, modalidade }) => {
+      return {
+        id: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(), // Usar IdentificadorUnico como id se disponível
+        col1: aluno.nome,
+        col2: aluno.anoNascimento,
+        col3: nomeDaTurma,
+        col4: categoria,
+        col5: modalidade,
+      };
+    }
+  );
+
+
+  const mergedRows = rows.map(row => ({
+    ...row,
+    ...(modifiedRows[row.id] ? { uniforme: modifiedRows[row.id].uniforme } : {})
+  }));
+
+
+  const columns: GridColDef[] = [
+    { field: "col1", headerName: "Nome", width: 250 },
+    { field: "col2", headerName: "Nascimento", width: 150 },
+    { field: "col3", headerName: "Turma", width: 250 },
+    { field: "col4", headerName: "Núcleo", width: 150 },
+    { field: "col5", headerName: "Modalidade", width: 150 },
+    {
+      field: "MudarTurma",
+      headerName: "Mudar Turma",
+      width: 150,
+      renderCell: (params) => {
+
+
+
+        const data: TemporaryMoveStudentsPayload = {
+          alunoNome: params.row.col1,
+          modalidadeOrigem: params.row.col5,
+          nomeDaTurmaOrigem: params.row.col3,
+          modalidadeDestino: "",
+          nomeDaTurmaDestino: ""
+        };
+
+
+        // Use a propriedade sx para estilizar condicionalmente o botão com base em isSaved
+        return (
+          <MoveAllStudentsMemo alunoNome={data.alunoNome} nomeDaTurmaOrigem={data.nomeDaTurmaOrigem} modalidadeOrigem={data.modalidadeOrigem} />
+        );
       },
-    };
-  }
+    }
 
-  return { props: {} };
-};
+  ];
+
+  return (
+    <>
+      <Layout>
+        <Container
+          style={{ marginTop: "10px", height: "auto", width: "fit-content" }}
+        >
+          <StyledDataGrid
+            checkboxSelection
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[PAGE_SIZE]}
+            slots={{
+              pagination: CustomPagination,
+              toolbar: GridToolbar,
+            }}
+            slotProps={{
+              toolbar: {
+                showQuickFilter: true,
+              },
+            }}
+            rows={mergedRows}
+            columns={columns}
+          />
+        </Container>
+      </Layout>
+    </>
+  );
+}
