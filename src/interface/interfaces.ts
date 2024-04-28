@@ -207,6 +207,14 @@ export interface MoveStudentsPayload {
   nomeDaTurmaDestino: string;
 }
 
+export interface TemporaryMoveStudentsPayload {
+  alunoNome: string;
+  modalidadeOrigem: string;
+  nomeDaTurmaOrigem: string;
+  modalidadeDestino: string;
+  nomeDaTurmaDestino: string;
+}
+
 export interface StudentPresenceTableProps {
   alunosDaTurma: Aluno[]
   setAlunosDaTurma: React.Dispatch<React.SetStateAction<Aluno[]>>
