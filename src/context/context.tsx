@@ -31,7 +31,6 @@ interface DataContextType {
   modalidades: Modalidade[] // Adicione esta linha
   fetchModalidades: (filtro?: string) => Promise<Modalidade[]> // Atualizado para re
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>
-  moveStudentInApi: (payload: MoveStudentsPayload) => Promise<void>
   moveStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
   updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
   deleteStudentFromApi:(payload: DeleteStudants) => Promise<void>
@@ -50,9 +49,7 @@ const DataContext = createContext<DataContextType>({
     return []
   },
   updateAttendanceInApi: async (data: AlunoPresencaUpdate) => {},
-  moveStudentInApi: async (payload: MoveStudentsPayload) => {
-    console.warn('moveStudentInApi not implemented', payload)
-  },
+  
   updateUniformeInApi: async (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => {
     console.warn('updateUniformeInApi not implemented', data);
   },
@@ -196,31 +193,8 @@ const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
     }
   }
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  const moveStudentInApi = async (payload: MoveStudentsPayload) => {
-    try {
-      console.log("Enviando payload:", payload);
-      const response = await fetch('/api/moveStudent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Falha ao mover alunos');
-      }
-  
-      const data = await response.json();
-      console.log('Resposta da API:', data);
-    } catch (error) {
-      console.error('Erro ao mover alunos:', error);
-    }
-  };
-  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//Mover aluno temporario:
+//Mover aluno de turma
 
 const moveStudentTemp = async (payload:TemporaryMoveStudentsPayload ) => {
   try {
@@ -324,7 +298,6 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
         modalidades,
         fetchModalidades,
         updateAttendanceInApi,
-        moveStudentInApi,
         updateUniformeInApi,
         deleteStudentFromApi, 
         moveStudentTemp 
