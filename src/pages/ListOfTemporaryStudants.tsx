@@ -1,3 +1,4 @@
+import MoveTemporaryStudentsModal from "@/components/TemporaryStudents/MoveTemporaryStudentsModal";
 import Layout from "@/components/TopBarComponents/Layout";
 import { useData } from "@/context/context";
 import { Aluno, Turma } from "@/interface/interfaces";
@@ -18,7 +19,7 @@ import React, { useState, useEffect } from "react";
 
 export default function TurmasTemporariosTable() {
   const { fetchModalidades } = useData();
-  const [alunosComTurma, setAlunosComTurma] = useState<{ aluno: Aluno; nomeDaTurma: string;dataMatricula:string }[]>([]);
+  const [alunosComTurma, setAlunosComTurma] = useState<{ aluno: Aluno; nomeDaTurma: string; dataMatricula: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -44,43 +45,53 @@ export default function TurmasTemporariosTable() {
 
   return (
     <Layout>
-    <Container>
-      <Typography variant="h6" sx={{ margin: 2 }}>
-        Alunos Temporários
-      </Typography>
-      <Paper sx={{backgroundColor:"white",color:"black",mb:"10px"}}>
-      <TextField
-        fullWidth
-        label="Pesquisar por nome do aluno ou turma"
-        variant="outlined"
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{width:"80%"}}
-      />
-      </Paper>
-    
-      <TableContainer component={Paper}>
-        <Table aria-label="alunos temporários" sx={{border:"1px solid black"}}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nome do Aluno</TableCell>
-              <TableCell>Nome da Turma</TableCell>
-              <TableCell>Data Matricula</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredAlunosComTurma.map(({ aluno, nomeDaTurma }, index) => (
-              <TableRow key={index}>
-                <TableCell>{aluno.nome}</TableCell>
-                <TableCell>{nomeDaTurma}</TableCell>
-                <TableCell>{aluno.dataMatricula}</TableCell>
+      <Container>
+        <Typography variant="h6" sx={{ margin: 2 }}>
+          Alunos Temporários
+        </Typography>
+        <Paper sx={{ backgroundColor: "white", color: "black", mb: "10px" }}>
+          <TextField
+            fullWidth
+            label="Pesquisar por nome do aluno ou turma"
+            variant="outlined"
+            margin="normal"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ width: "80%" }}
+          />
+        </Paper>
+
+        <TableContainer component={Paper}>
+          <Table aria-label="alunos temporários" sx={{ border: "1px solid black" }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nome do Aluno</TableCell>
+                <TableCell>Nome da Turma</TableCell>
+                <TableCell>Data Matricula</TableCell>
+                <TableCell>Mudar Turma</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
+            </TableHead>
+            <TableBody>
+              {filteredAlunosComTurma.map(({ aluno, nomeDaTurma }, index) => (
+                <TableRow key={index}>
+                  <TableCell>{aluno.nome}</TableCell>
+                  <TableCell>{nomeDaTurma || 'Nome da turma não disponível'}</TableCell>
+                  <TableCell>{aluno.dataMatricula}</TableCell>
+                  <TableCell>
+                    {aluno.nome && nomeDaTurma ? (
+                      <MoveTemporaryStudentsModal alunoNome={aluno.nome} nomeDaTurmaOrigem={nomeDaTurma} />
+                    ) : (
+                      <span>Informação Incompleta</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+
+
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Container>
     </Layout>
   );
 }
