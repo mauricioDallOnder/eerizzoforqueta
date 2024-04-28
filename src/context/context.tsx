@@ -9,7 +9,8 @@ import {
   AlunoPresencaUpdate,
   MoveStudentsPayload,
   IIAlunoUpdate,
-  DeleteStudants
+  DeleteStudants,
+  TemporaryMoveStudentsPayload
 } from '../interface/interfaces'
 import axios from 'axios'
 import React, {
@@ -31,6 +32,7 @@ interface DataContextType {
   fetchModalidades: (filtro?: string) => Promise<Modalidade[]> // Atualizado para re
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>
   moveStudentInApi: (payload: MoveStudentsPayload) => Promise<void>
+  moveStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
   updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
   deleteStudentFromApi:(payload: DeleteStudants) => Promise<void>
 }
@@ -55,6 +57,9 @@ const DataContext = createContext<DataContextType>({
     console.warn('updateUniformeInApi not implemented', data);
   },
   deleteStudentFromApi: async (payload: DeleteStudants) => {
+    console.warn('moveStudentInApi not implemented', payload)
+  },
+  moveStudentTemp: async (payload: TemporaryMoveStudentsPayload) => {
     console.warn('moveStudentInApi not implemented', payload)
   },
 })
@@ -214,6 +219,39 @@ const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
     }
   };
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Mover aluno temporario:
+
+const moveStudentTemp = async (payload:TemporaryMoveStudentsPayload ) => {
+  try {
+    const response = await fetch('/api/moveTempStudents', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Falha ao mover aluno');
+    }
+
+    // Assumindo que a API cuida de tudo e apenas retorna sucesso/falha
+    alert("Aluno movido com sucesso!");
+  } catch (error:any) {
+    console.error('Erro ao mover aluno:', error);
+    alert("Erro ao mover aluno: " + error.message);
+  }
+}
+
+
+
+
+
+//TemporaryMoveStudentsPayload
+//--------------------------------------------------------------------------
+
 // Função para excluir um estudante
 const deleteStudentFromApi = async (payload: DeleteStudants) => {
   try {
@@ -266,6 +304,7 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
   
       if (!response.ok) {
         const errorData = await response.json();
+        console.log( response)
         throw new Error(errorData.error || 'Falha ao atualizar o status do uniforme');
       }
   
@@ -287,7 +326,8 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
         updateAttendanceInApi,
         moveStudentInApi,
         updateUniformeInApi,
-        deleteStudentFromApi,  
+        deleteStudentFromApi, 
+        moveStudentTemp 
       }}
     >
       {children}
