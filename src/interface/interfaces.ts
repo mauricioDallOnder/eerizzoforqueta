@@ -263,6 +263,18 @@ export interface IIAlunoUpdate extends Omit<Aluno, 'id' | 'presencas'> {
   dataMatricula?:string
 }
 
+export interface ArchiveAluno extends Omit<Aluno, 'id' | 'presencas'> {
+  alunoId?: string | number
+  modalidade: string, 
+  nomeDaTurma: string
+  anoNascimento: string // A data de nascimento a serem atualizada
+  telefoneComWhatsapp: string | number
+  nome: string
+  informacoesAdicionais: InformacoesAdicionais;
+  dataMatricula?:string;
+  
+}
+
 export interface SelecaoModalidadeTurma {
   modalidade: string
   nucleo: string
