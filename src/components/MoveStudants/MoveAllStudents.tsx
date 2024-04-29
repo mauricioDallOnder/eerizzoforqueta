@@ -73,7 +73,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
             };
             await moveStudentTemp(payload);
             await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
-            alert("Aluno movido com sucesso.");
+            alert("Aluno movido com sucesso, aguarde o ajuste das turmas!");
             reset();
         } catch (error) {
             console.error("Erro ao mover aluno", error);
@@ -114,7 +114,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                         margin="normal"
                         fullWidth
                         {...register("modalidadeOrigem")}
-                        label="Turmas de Origem"
+                        label="Modalidade de Origem(não alterar!)"
                         value={modalidadeOrigem}  // Usar o valor diretamente para exibição
                         InputLabelProps={{
                             shrink: true,
@@ -127,7 +127,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                         margin="normal"
                         fullWidth
                         {...register("nomeDaTurmaOrigem")}
-                        label="Turmas de Origem"
+                        label="Turma de Origem(não alterar!)"
                         value={nomeDaTurmaOrigem}  // Usar o valor diretamente para exibição
                         InputLabelProps={{
                             shrink: true,
@@ -185,7 +185,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                         variant="contained"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? "Enviando dados, aguarde..." : " Mudar turma"}
+                        {isSubmitting ? "Enviando dados e atualizando turmas, aguarde..." : " Mudar turma"}
                     </Button>
 
                 </Box>
