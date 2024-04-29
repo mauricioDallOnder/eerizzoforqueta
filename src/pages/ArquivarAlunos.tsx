@@ -21,7 +21,7 @@ export default function ArquivarAlunos() {
     useEffect(() => {
         const alunosExtraidos = modalidades.flatMap(modalidade =>
           modalidade.turmas.flatMap(turma =>
-            (turma.alunos || []).filter(aluno => turma.nome_da_turma === "arquivados").map(aluno => ({
+            (turma.alunos || []).filter(aluno => turma.nome_da_turma !== "excluidos").map(aluno => ({
               alunoId: aluno?.id?.toString(),
               nome: aluno?.nome ?? "",
               anoNascimento: aluno?.anoNascimento?? "",
