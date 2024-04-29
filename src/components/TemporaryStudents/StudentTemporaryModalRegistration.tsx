@@ -1,25 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import {
-  Button,
-  Container,
-  Grid,
-  TextField,
-  Typography,
-  MenuItem,
-  Paper,
-} from "@mui/material";
+import { Button, Container, Grid, TextField, Typography, MenuItem, Paper } from "@mui/material";
+import { v4 as uuidv4 } from 'uuid';
 import {
   TituloSecaoStyle,
   modalStyleTemporaly,
 } from "@/utils/Styles";
 import { extrairDiaDaSemana, gerarPresencasParaAluno } from "@/utils/Constants";
 import { useData } from "@/context/context";
-import {
-  FormValuesStudent,
-  Turma,
-} from "@/interface/interfaces";
+import { FormValuesStudent, Turma } from "@/interface/interfaces";
 import axios from 'axios';
+
 interface TemporaryStudentRegistrationProps {
   handleCloseModal: () => void;
 }
@@ -34,52 +25,85 @@ export default function TemporaryStudentRegistration({
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormValuesStudent>();
-  const { modalidades, fetchModalidades, sendDataToApi } = useData(); // Usando o hook useData
+  const { modalidades, fetchModalidades, sendDataToApi } = useData();
   const [selectedNucleo, setSelectedNucleo] = useState<string>("");
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
   const [studentName, setStudentName] = useState("");
 
-  // Atualiza o nome do aluno sempre que o campo de texto muda
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = event.target.value // Adiciona " Temporário" ao nome
-    setStudentName(newName); // Atualiza o estado
-  };
-  const selectedModalidade = watch("modalidade");
-  
-
-
   useEffect(() => {
     fetchModalidades();
   }, [fetchModalidades]);
 
-  const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
-    const mydate = new Date(Date.now()).toLocaleString().split(",")[0];
-    const diaDaSemana = extrairDiaDaSemana(data.turmaSelecionada);
-    data.aluno.presencas = gerarPresencasParaAluno(diaDaSemana);
-    data.aluno.nome = studentName
-    data.aluno.dataMatricula = mydate;
-    const turmaEscolhida = modalidades
-      .find((m) => m.nome === data.modalidade)
-      ?.turmas.find((t) => t.nome_da_turma === data.turmaSelecionada);
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = event.target.value;
+    setStudentName(newName);
+  };
 
-    if (
-      turmaEscolhida &&
-      turmaEscolhida.capacidade_atual_da_turma <
-        turmaEscolhida.capacidade_maxima_da_turma
-    ) {
-      try {
-        await sendDataToApi([data]);
-        alert("Cadastro efetuado com sucesso");
-        reset(); // Resetando o formulário após o envio
-        
-      } catch (error) {
-        console.error("Erro ao enviar os dados do formulário", error);
-      }
-    } else {
-      alert("A turma selecionada não possui mais vagas disponíveis.");
+  const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
+    const currentDate = new Date().toLocaleDateString();
+    const presencas = gerarPresencasParaAluno(extrairDiaDaSemana(data.turmaSelecionada));
+   
+
+    // Construindo o objeto aluno com valores padrão e adicionando todos os campos necessários
+    data.aluno = {
+      ...data.aluno,
+      nome: studentName,
+      dataMatricula: currentDate,
+      anoNascimento: "01/01/1900",
+      telefoneComWhatsapp: "-",
+      informacoesAdicionais: {
+        IdentificadorUnico: uuidv4(),
+        cobramensalidade: "Ciente",
+        competicao: "Sim",
+        convenio: "Nenhum",
+        endereco: {
+          bairro: "-",
+          cep: "0000000",
+          complemento: "-",
+          numeroResidencia: "-",
+          ruaAvenida: "-"
+        },
+        escolaEstuda: "-",
+        filhofuncionarioJBS: "Não",
+        filhofuncionariomarcopolo: "Não",
+        hasUniforme: false,
+        imagem: "Ciente",
+        irmaos: "Não",
+        nomefuncionarioJBS: "Não",
+        nomefuncionariomarcopolo: "Não",
+        pagadorMensalidades: {
+          celularWhatsapp: "-",
+          cpf: "0000000000",
+          email: "temporario@gmail.com",
+          nomeCompleto: "-"
+        },
+        problemasaude: "Não",
+        rg: "-",
+        socioJBS: "Não",
+        tipomedicacao: "Nenhum",
+        uniforme: "G adulto",
+        nucleoTreinamento: selectedNucleo,
+        comprometimentoMensalidade: "Não",
+        copiaDocumento: "Não",
+        avisaAusencia: "Não",
+        desconto: "Não aplicável"
+      },
+      presencas: presencas,
+      foto: "-"
+    };
+
+    try {
+      console.log(data)
+      await sendDataToApi([data]); // Enviando os dados do aluno
+      alert("Cadastro efetuado com sucesso");
+      reset(); // Resetando o formulário após o envio
+    } catch (error) {
+      console.error("Erro ao enviar os dados do formulário", error);
     }
   };
+
+
 
   const getNucleosForModalidade = (modalidade: string) => {
     const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
@@ -89,17 +113,17 @@ export default function TemporaryStudentRegistration({
   };
 
   useEffect(() => {
-    const nucleos = getNucleosForModalidade(selectedModalidade);
+    const nucleos = getNucleosForModalidade(watch("modalidade"));
     setNucleosDisponiveis(nucleos);
     setSelectedNucleo("");
-  }, [selectedModalidade]);
+  }, [watch("modalidade"), modalidades]);
 
   useEffect(() => {
     const turmasFiltradas = modalidades
-      .find((m) => m.nome === selectedModalidade)
+      .find((m) => m.nome === watch("modalidade"))
       ?.turmas.filter((turma) => turma.nucleo === selectedNucleo);
     setTurmasDisponiveis(turmasFiltradas || []);
-  }, [selectedNucleo, modalidades, selectedModalidade]);
+  }, [selectedNucleo, modalidades]);
 
  
 
