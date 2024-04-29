@@ -62,12 +62,14 @@ export default function ArquivarAlunos() {
             console.error('Error:', error);
           }
           setSelectedAluno(null);
-          await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
-         axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
+          
+         
           
           alert("Aluno arquivado com sucesso.")
           setIsDeleting(false);
-         
+          axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
+          alert('Atualizando Turmas, espere um momento antes de recarregar a pagina')
+          await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
         } else {
           alert("Selecione um aluno para arquivar.");
         }
