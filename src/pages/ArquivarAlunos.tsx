@@ -21,7 +21,7 @@ export default function ArquivarAlunos() {
     useEffect(() => {
         const alunosExtraidos = modalidades.flatMap(modalidade =>
           modalidade.turmas.flatMap(turma =>
-            (turma.alunos || []).filter(aluno => turma.nome_da_turma === "arquivados").map(aluno => ({
+            (turma.alunos || []).filter(aluno => turma.nome_da_turma !== "excluidos").map(aluno => ({
               alunoId: aluno?.id?.toString(),
               nome: aluno?.nome ?? "",
               anoNascimento: aluno?.anoNascimento?? "",
@@ -62,8 +62,9 @@ export default function ArquivarAlunos() {
             console.error('Error:', error);
           }
           setSelectedAluno(null);
-          await axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
           await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
+         axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
+          
           alert("Aluno arquivado com sucesso.")
           setIsDeleting(false);
          
