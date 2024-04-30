@@ -96,7 +96,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                     noValidate
                     sx={BoxStyleCadastro}
                 >
-                    <HeaderForm titulo={"Mudança de Turma"} />
+                    <Typography variant='h6' sx={{color:"black",fontWeight:"bold",textAlign:"center"}}>MUDAR TURMA DO ATLETA</Typography>
                     <TextField
                         margin="normal"
                         fullWidth
@@ -120,7 +120,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                             shrink: true,
                         }}
 
-                        helperText="Turmas de origem dos alunos selecionados"
+                        
                     />
 
                     <TextField
@@ -133,7 +133,7 @@ function MoveAllStudents({ alunoNome, nomeDaTurmaOrigem, modalidadeOrigem }: { a
                             shrink: true,
                         }}
 
-                        helperText="Turmas de origem dos alunos selecionados"
+                        
                     />
 
 
