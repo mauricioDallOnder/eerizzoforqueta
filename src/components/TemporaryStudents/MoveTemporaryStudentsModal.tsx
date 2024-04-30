@@ -1,9 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextField, Button, Box, Autocomplete, Container, Typography, Modal } from "@mui/material";
+
 import { DataContext } from "@/context/context";
 import { Aluno, Modalidade, TemporaryMoveStudentsPayload, Turma } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
+
+
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import axios from "axios";
 
@@ -21,12 +24,11 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
   
 
     useEffect(() => {
-        fetchModalidades().catch(console.error);
+        fetchModalidades().then((data) => {
+           const validModalidades = data.filter(mod => mod.nome === "temporarios");
+           setModalidadesOptions(validModalidades);
+        });
     }, [fetchModalidades]);
-
-    useEffect(() => {
-        setModalidadesOptions(modalidades);
-    }, [modalidades]);
 
     useEffect(() => {
         const modalidadeSelecionada = modalidades.find(mod => mod.nome === watch("modalidadeDestino"));
@@ -69,7 +71,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
             };
             await moveStudentTemp(payload);
             await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
-            alert("Aluno movido com sucesso.");
+            alert("Aluno movido com sucesso, aguarde o ajuste das turmas!");
             reset();
         } catch (error) {
             console.error("Erro ao mover aluno", error);
@@ -116,7 +118,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                             shrink: true,
                         }}
                        
-                        
+                        helperText="Turmas de origem dos alunos selecionados"
                     />
 
                    
@@ -137,7 +139,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                                 required
                                 fullWidth
                                 error={!!errors.modalidadeDestino}
-                                helperText={errors.modalidadeDestino?.message || "Selecione a modalidade de destino"}
+
                             />
                         )}
                     />
@@ -157,7 +159,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                                 required
                                 fullWidth
                                 error={!!errors.nomeDaTurmaDestino}
-                                helperText={errors.nomeDaTurmaDestino?.message || "Selecione a turma de destino"}
+                               
                             />
                         )}
                     />
@@ -168,7 +170,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                         variant="contained"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? "Enviando dados, aguarde...": " Mudar turma"}
+                        {isSubmitting ? "Enviando dados e atualizando turmas, aguarde...": " Mudar turma"}
                     </Button>
                  
                 </Box>
