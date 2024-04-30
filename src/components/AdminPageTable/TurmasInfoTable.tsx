@@ -64,14 +64,18 @@ export default function TurmasInfoTable() {
   }
 
   useEffect(() => {
-    fetchModalidades().then(setModalidades)
-  }, [fetchModalidades])
+    fetchModalidades().then((data) => {
+       const validModalidades = data.filter(mod => mod.nome !== 'arquivados' && mod.nome !== 'excluidos');
+       setModalidades(validModalidades);
+    });
+}, [fetchModalidades]);
 
+  
   useEffect(() => {
     if (selectedModalidade) {
-      const modalidadeEscolhida = modalidades.find(
-        (modalidade) => modalidade.nome === selectedModalidade,
-      )
+     
+      const modalidadeEscolhida = modalidades.find((modalidade) => modalidade.nome === selectedModalidade)
+      
       setTurmas(modalidadeEscolhida ? modalidadeEscolhida.turmas : [])
     }
   }, [selectedModalidade, modalidades])
