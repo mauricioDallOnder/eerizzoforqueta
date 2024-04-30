@@ -1,12 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextField, Button, Box, Autocomplete, Container, Typography, Modal } from "@mui/material";
-
 import { DataContext } from "@/context/context";
 import { Aluno, Modalidade, TemporaryMoveStudentsPayload, Turma } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
-
-
 import { HeaderForm } from "@/components/HeaderDefaultForm";
 import axios from "axios";
 
@@ -95,7 +92,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                     noValidate
                     sx={BoxStyleCadastro}
                 >
-                    <HeaderForm titulo={"Mudança de Turma"} />
+                    <Typography variant='h6' sx={{color:"black",fontWeight:"bold",textAlign:"center"}}>MUDAR TURMA DO ATLETA</Typography>
                     <TextField
                         margin="normal"
                         fullWidth
@@ -119,7 +116,7 @@ export default function MoveTemporaryStudentsModal({ alunoNome, nomeDaTurmaOrige
                             shrink: true,
                         }}
                        
-                        helperText="Turmas de origem dos alunos selecionados"
+                        
                     />
 
                    
