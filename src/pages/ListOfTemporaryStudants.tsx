@@ -1,9 +1,8 @@
-import MoveTemporaryStudentsModal from "@/components/TemporaryStudents/MoveTemporaryStudentsModal";
+import { MoveAllStudentsMemo } from "@/components/MoveStudants/MoveAllStudents";
 import Layout from "@/components/TopBarComponents/Layout";
 import { useData } from "@/context/context";
-import { Aluno, Turma } from "@/interface/interfaces";
+import { Aluno} from "@/interface/interfaces";
 import {
-  Box,
   Typography,
   TableContainer,
   Paper,
@@ -79,7 +78,7 @@ export default function TurmasTemporariosTable() {
                   <TableCell>{aluno.dataMatricula}</TableCell>
                   <TableCell>
                     {aluno.nome && nomeDaTurma ? (
-                      <MoveTemporaryStudentsModal alunoNome={aluno.nome} nomeDaTurmaOrigem={nomeDaTurma} />
+                      <MoveAllStudentsMemo alunoNome={aluno.nome} nomeDaTurmaOrigem={nomeDaTurma} modalidadeOrigem="temporarios" />
                     ) : (
                       <span>Informação Incompleta</span>
                     )}
