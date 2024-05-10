@@ -302,7 +302,7 @@ export interface TurmaPresencaSemanalProps {
 
 export interface AlunoAutocompleteOption {
   [x: string]: Key | null | undefined
-  id: string | number
+  id: string 
   nome: string;
   modalidade: string;
   turma: string;
@@ -310,7 +310,7 @@ export interface AlunoAutocompleteOption {
 }
 
 export interface DeleteStudants{
-  alunoId?: string | number
+  alunoId?: string 
   modalidade: string, 
   nomeDaTurma: string
   alunosNomes?:string
@@ -319,7 +319,7 @@ export interface DeleteStudants{
 
 export interface DeleteAlunoAutocompleteOption {
   [x: string]: Key | null | undefined
-  alunoId: string | number
+  alunoId: string 
   alunosNomes?:string;
   modalidade: string;
   nomeDaTurma: string;

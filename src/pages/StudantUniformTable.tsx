@@ -72,7 +72,7 @@ function CustomPagination() {
 }
 
 const PAGE_SIZE = 15;
-export default function ExportStudentDataToExcel() {
+export default function StudantUniformTable() {
   const { fetchModalidades, updateUniformeInApi } = useData();
   const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);
   const [savedRows, setSavedRows] = useState<Record<string, boolean>>({});
