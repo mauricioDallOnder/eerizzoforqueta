@@ -65,7 +65,7 @@ function CustomPagination() {
         color="secondary"
       >
         <DownloadingIcon />
-        Export Filtered rows
+        Exportar colunas selecionadas
       </Button>
     </>
   );

@@ -3,9 +3,12 @@
 import * as React from "react";
 import {
   GridColDef,
+  GridCsvExportOptions,
+  GridCsvGetRowsToExportParams,
   GridRowId,
   GridRowsProp,
   GridToolbar,
+  gridExpandedSortedRowIdsSelector,
   gridPageCountSelector,
   gridPageSelector,
   useGridApiContext,
@@ -24,7 +27,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Button, Container } from "@mui/material";
 
 import Layout from "@/components/TopBarComponents/Layout";
-
+import DownloadingIcon from "@mui/icons-material/Downloading";
 import { StyledDataGrid } from "@/utils/Styles";
 import { MoveAllStudentsMemo } from "@/components/MoveStudants/MoveAllStudents";
 
@@ -35,6 +38,13 @@ function CustomPagination() {
   const apiRef = useGridApiContext();
   const page = useGridSelector(apiRef, gridPageSelector);
   const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+
+  const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
+    gridExpandedSortedRowIdsSelector(apiRef);
+
+  const handleExport = (options: GridCsvExportOptions) =>
+    apiRef.current.exportDataAsCsv(options);
+
   return (
     <>
       <Pagination
@@ -49,6 +59,16 @@ function CustomPagination() {
           apiRef.current.setPage(value - 1)
         }
       />
+
+      <Button
+        onClick={() => handleExport({ getRowsToExport: getFilteredRows })}
+        sx={{ gap: "2px", display: "flex", alignItems: "center" }}
+        variant="contained"
+        color="secondary"
+      >
+        <DownloadingIcon />
+        Exportar colunas selecionadas
+      </Button>
     </>
   );
 }
@@ -106,6 +126,7 @@ export default function MoveStudantsTurma() {
         col3: nomeDaTurma,
         col4: categoria,
         col5: modalidade,
+        col6:aluno.informacoesAdicionais.escolaEstuda,
       };
     }
   );
@@ -119,10 +140,11 @@ export default function MoveStudantsTurma() {
 
   const columns: GridColDef[] = [
     { field: "col1", headerName: "Nome", width: 250 },
-    { field: "col2", headerName: "Nascimento", width: 150 },
+    { field: "col2", headerName: "Nascimento", width: 100 },
     { field: "col3", headerName: "Turma", width: 250 },
-    { field: "col4", headerName: "Núcleo", width: 150 },
-    { field: "col5", headerName: "Modalidade", width: 150 },
+    { field: "col4", headerName: "Núcleo", width: 100 },
+    { field: "col5", headerName: "Modalidade", width: 100 },
+    { field: "col6", headerName: "Escola que estuda", width: 150 },
     {
       field: "MudarTurma",
       headerName: "Mudar Turma",
