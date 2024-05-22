@@ -2,9 +2,6 @@ import * as React from "react";
 import {
     DataGrid,
     GridColDef,
-    GridCsvExportOptions,
-    GridCsvGetRowsToExportParams,
-    GridRowId,
     GridRowsProp,
     GridToolbar,
     useGridApiContext,
@@ -12,7 +9,10 @@ import {
     gridPageSelector,
     gridPageCountSelector,
     gridExpandedSortedRowIdsSelector,
-    GridCellParams
+    GridCellParams,
+    GridCsvExportOptions,
+    GridCsvGetRowsToExportParams,
+    GridRowId
 } from "@mui/x-data-grid";
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
@@ -20,7 +20,7 @@ import { useData } from "@/context/context";
 import { useEffect, useState } from "react";
 import { AlunoComTurma } from "@/interface/interfaces";
 import { v4 as uuidv4 } from "uuid";
-import { Avatar, Button, Container, Dialog, DialogContent, DialogTitle, IconButton, Box, Snackbar, Alert } from "@mui/material";
+import { Avatar, Button, Box, Dialog, DialogContent, DialogTitle, IconButton, Snackbar, Alert } from "@mui/material";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import CloseIcon from '@mui/icons-material/Close';
 import ResponsiveAppBar from "@/components/TopBarComponents/TopBar";
@@ -50,7 +50,7 @@ function CustomPagination() {
                 shape="rounded"
                 page={page + 1}
                 count={pageCount}
-                 // @ts-expect-error
+                // @ts-expect-error
                 renderItem={(props2) => <PaginationItem {...props2} disableRipple />}
                 onChange={(event: React.ChangeEvent<unknown>, value: number) =>
                     apiRef.current.setPage(value - 1)
@@ -69,44 +69,49 @@ function CustomPagination() {
     );
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 30;
 
 export default function StudantTableGeral() {
-    const { fetchModalidades } = useData();
+    const { fetchStudantsTableData } = useData();
     const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);
     const [modifiedRows, setModifiedRows] = useState<Record<GridRowId, AlunoComTurma>>({});
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
     const [copiedText, copyToClipboard] = useCopyToClipboard();
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: PAGE_SIZE,
+        page: 0,
+    });
+
     useEffect(() => {
-        fetchModalidades().then((modalidadesFetched) => {
-            const modalidadesValidas = modalidadesFetched.filter(
-                (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
-            );
-
-            const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
-                modalidade.turmas.flatMap((turma) => {
-                    const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
-                    return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
-                        aluno: {
-                            ...aluno,
-                            informacoesAdicionais: {
-                                ...aluno.informacoesAdicionais,
-                                IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
-                            },
-                        },
-                        nomeDaTurma: turma.nome_da_turma,
-                        categoria: turma.categoria,
-                        modalidade: turma.modalidade,
-                        uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
-                    }));
-                })
-            );
-
-            setAlunosComTurma(alunosComTurmaTemp);
+        fetchStudantsTableData(undefined, PAGE_SIZE, paginationModel.page * PAGE_SIZE).then((modalidadesFetched) => {
+          const modalidadesValidas = modalidadesFetched.filter(
+            (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
+          );
+      
+          const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
+            modalidade.turmas.flatMap((turma) => {
+              const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+              return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
+                aluno: {
+                  ...aluno,
+                  informacoesAdicionais: {
+                    ...aluno.informacoesAdicionais,
+                    IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
+                  },
+                },
+                nomeDaTurma: turma.nome_da_turma,
+                categoria: turma.categoria,
+                modalidade: turma.modalidade,
+                uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
+              }));
+            })
+          );
+      
+          setAlunosComTurma(alunosComTurmaTemp);
         });
-    }, [fetchModalidades]);
+      }, [fetchStudantsTableData, paginationModel.page]);
 
     const handleClose = () => {
         setSelectedPhoto(null);
@@ -133,11 +138,6 @@ export default function StudantTableGeral() {
         }
         setOpenSnackbar(false);
     };
-
-    const [paginationModel, setPaginationModel] = useState({
-        pageSize: PAGE_SIZE,
-        page: 0,
-    });
 
     const rows: GridRowsProp = alunosComTurma.map(
         ({ aluno, nomeDaTurma, categoria, modalidade }) => {
@@ -273,3 +273,4 @@ export default function StudantTableGeral() {
         </>
     );
 }
+

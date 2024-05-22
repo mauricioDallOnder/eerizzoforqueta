@@ -10,7 +10,8 @@ import {
   MoveStudentsPayload,
   IIAlunoUpdate,
   DeleteStudants,
-  TemporaryMoveStudentsPayload
+  TemporaryMoveStudentsPayload,
+  Turma
 } from '../interface/interfaces'
 import axios from 'axios'
 import React, {
@@ -29,7 +30,8 @@ interface DataContextType {
   sendDataToApi: (data: FormValuesStudent[]) => Promise<{ resultados: any[] }>
   updateDataInApi: (data: IIAlunoUpdate) => Promise<void>
   modalidades: Modalidade[] // Adicione esta linha
-  fetchModalidades: (filtro?: string) => Promise<Modalidade[]> // Atualizado para re
+  fetchModalidades: (filtro?: string) => Promise<Modalidade[]> 
+  fetchStudantsTableData: (filtro?: string, limit?: number, offset?: number) => Promise<Modalidade[]>
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>
   moveStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
   updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
@@ -48,6 +50,7 @@ const DataContext = createContext<DataContextType>({
    // simplesmente retorne um objeto vazio ou dados mock
     return []
   },
+  fetchStudantsTableData: async () => [],
   updateAttendanceInApi: async (data: AlunoPresencaUpdate) => {},
   
   updateUniformeInApi: async (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => {
@@ -69,8 +72,42 @@ const useData = () => {
 const DataProvider: React.FC<ChildrenProps> = ({ children }) => {
   const [DataStudents, setDataStudents] = useState<FormValuesStudent[]>([])
   const [modalidades, setModalidades] = useState<Modalidade[]>([])
+  const [dataTable, setdataTable] = useState<Modalidade[]>([])
   /// api/GetDataFirebase
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+  // função para buscar dados para a tabela de forma otimizada
+  const fetchStudantsTableData = useCallback(async (filtro?: string, limit: number = 10, offset: number = 0): Promise<Modalidade[]> => {
+    try {
+      const url = filtro
+        ? `/api/GetStudantTableData?modalidade=${filtro}&limit=${limit}&offset=${offset}`
+        : `/api/GetStudantTableData?limit=${limit}&offset=${offset}`
+      const response = await fetch(url, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
+      if (!response.ok) throw new Error('Falha ao buscar modalidades')
+      const data: ModalidadesData = await response.json()
+      // Convertendo o objeto data para um array de modalidades
+      const modalidadesArray: Modalidade[] = Object.entries(data).map(
+        ([nome, valor]) => ({
+          nome,
+          turmas: (valor as any).turmas as Turma[] // Definindo explicitamente o tipo de valor como Turma[]
+        })
+      )
+      setdataTable(modalidadesArray)
+      return modalidadesArray
+    } catch (error) {
+      console.error('Erro ao buscar modalidades:', error)
+      return []
+    }
+  }, [])
+
+
+
+
   // buscar dados da api
   // Atualizar a função fetchModalidades para aceitar um parâmetro de filtro
 
@@ -297,6 +334,7 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
         updateDataInApi,
         modalidades,
         fetchModalidades,
+        fetchStudantsTableData,
         updateAttendanceInApi,
         updateUniformeInApi,
         deleteStudentFromApi, 
