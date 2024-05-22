@@ -73,7 +73,7 @@ function CustomPagination() {
   );
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 export default function MoveStudantsTurma() {
   const { fetchModalidades } = useData();
   const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);

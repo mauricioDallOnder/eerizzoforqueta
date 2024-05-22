@@ -62,7 +62,7 @@ function CustomPagination() {
   );
 }
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 export default function DeletarEtudantsDaTurma() {
   const { deleteStudentFromApi, modalidades, fetchModalidades } = React.useContext(DataContext);

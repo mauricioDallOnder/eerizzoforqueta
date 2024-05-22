@@ -69,7 +69,7 @@ function CustomPagination() {
     );
 }
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 15;
 
 export default function StudantTableGeral() {
     const { fetchModalidades } = useData();
