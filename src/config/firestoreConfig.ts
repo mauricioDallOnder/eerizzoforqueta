@@ -21,21 +21,3 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
-
-
-/*
- apiKey: "AIzaSyBledGNleg5J7lKVqzMHRlguJi3k0Lyw5E",
-
-  authDomain: "bcoescolinha.firebaseapp.com",
-
-  databaseURL: "https://bcoescolinha-default-rtdb.firebaseio.com",
-
-  projectId: "bcoescolinha",
-
-  storageBucket: "bcoescolinha.appspot.com",
-
-  messagingSenderId: "270520861913",
-
-  appId: "1:270520861913:web:291b6e1947d383c821aac8"
-
-*/
