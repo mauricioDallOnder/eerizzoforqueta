@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Autocomplete, Button, TextField, Typography, Box, Container } from '@mui/material';
 import { DataContext } from "@/context/context";
@@ -33,7 +33,7 @@ export default function ArquivarAlunos() {
                         nome: aluno.nome ?? "",
                         anoNascimento: aluno.anoNascimento ?? "",
                         telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
-                        informacoesAdicionais: aluno.informacoesAdicionais ?? "",
+                        informacoesAdicionais: aluno.informacoesAdicionais ?? {},
                         modalidade: modalidade.nome,
                         nomeDaTurma: turma.nome_da_turma,
                         dataMatricula: aluno.dataMatricula ?? "",
@@ -46,27 +46,31 @@ export default function ArquivarAlunos() {
     }, [modalidades, dataLoaded]);
 
     const onSubmit = useCallback(async () => {
-        if (selectedAluno) {
-            setIsDeleting(true);
-            try {
-                const response = await axios.post('/api/ArquivarAlunos', selectedAluno);
-                const data = response.data;
-                if (data.status === 'Success') {
-                    setAlunosOptions(prev => prev.filter(aluno => aluno.alunoId !== selectedAluno.alunoId));
-                   await axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
-                   await axios.post('/api/AjustarDadosTurma'); // Corrige os dados
-                } else {
-                    throw new Error('Falha ao arquivar o aluno');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            } finally {
-                setIsDeleting(false);
-                setSelectedAluno(null);
-                alert("Aluno arquivado com sucesso.")
-            }
-        } else {
+        if (!selectedAluno) {
             alert("Selecione um aluno para arquivar.");
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            const response = await axios.post('/api/ArquivarAlunos', selectedAluno);
+            const data = response.data;
+            if (data.status === 'Success') {
+                await deleteStudentFromApi({
+                    ...selectedAluno,
+                    alunoId: selectedAluno.informacoesAdicionais?.IdentificadorUnico,
+                  });
+                await axios.post('/api/AjustarDadosTurma');
+                setAlunosOptions(prev => prev.filter(aluno => aluno.alunoId !== selectedAluno.alunoId));
+                alert("Aluno arquivado com sucesso.");
+            } else {
+                throw new Error('Falha ao arquivar o aluno');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("Ocorreu um erro ao arquivar o aluno. Tente novamente.");
+        } finally {
+            setIsDeleting(false);
+            setSelectedAluno(null);
         }
     }, [selectedAluno]);
 
@@ -75,7 +79,8 @@ export default function ArquivarAlunos() {
             <Container>
                 <Box component="form" sx={BoxStyleCadastro} onSubmit={handleSubmit(onSubmit)} noValidate>
                     <HeaderForm titulo={"Arquivar Alunos"} />
-                    <Typography sx={{ color: "black", fontWeight: "bold" }}>Ao arquivar os alunos eles serão deletados do banco de dados, mas os seus dados serão salvos em uma planilha do google que pode ser acessada por esse link:<br />
+                    <Typography sx={{ color: "black", fontWeight: "bold" }}>
+                        Ao arquivar os alunos eles serão deletados do banco de dados, mas os seus dados serão salvos em uma planilha do google que pode ser acessada por esse link:<br />
                         <a href="https://docs.google.com/spreadsheets/d/1RPYA67-ycJAypRlN_GDwNtqpx0sKhyjF7NfDLTbshG8/edit#gid=0">Acessar Planilha de Alunos Arquivados</a>
                     </Typography>
                     <br />
@@ -108,5 +113,3 @@ export default function ArquivarAlunos() {
     );
 }
 
-
-//          axios.get(`https://script.google.com/macros/s/AKfycbxsjLlL_MJXTrO8zkegPoJJRDGABeRYrgdrA0zepshtMqSnuALt71kIcFVEX47KwQXQUg/exec?delete=true&identificadorUnico=${selectedAluno.informacoesAdicionais.IdentificadorUnico}`)
