@@ -264,6 +264,7 @@ export interface IIAlunoUpdate extends Omit<Aluno, 'id' | 'presencas'> {
 }
 
 export interface ArchiveAluno extends Omit<Aluno, 'id' | 'presencas'> {
+  IdentificadorUnico: string | undefined
   alunoId?: string | number
   modalidade: string, 
   nomeDaTurma: string

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Autocomplete, Button, TextField, Typography, Box, Container } from '@mui/material';
 import { DataContext } from "@/context/context";
@@ -7,6 +7,7 @@ import Layout from '@/components/TopBarComponents/Layout';
 import { BoxStyleCadastro } from '@/utils/Styles';
 import axios from 'axios';
 import { HeaderForm } from '@/components/HeaderDefaultForm';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ArquivarAlunos() {
     const { deleteStudentFromApi, modalidades, fetchModalidades } = useContext(DataContext);
@@ -14,12 +15,12 @@ export default function ArquivarAlunos() {
     const [selectedAluno, setSelectedAluno] = useState<ArchiveAluno | null>(null);
     const [alunosOptions, setAlunosOptions] = useState<ArchiveAluno[]>([]);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [dataLoaded, setDataLoaded] = useState(false); // State to track if data is loaded
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     useEffect(() => {
         if (!dataLoaded) {
             fetchModalidades().then(() => {
-                setDataLoaded(true); // Set data as loaded
+                setDataLoaded(true);
             }).catch(console.error);
         }
     }, [dataLoaded, fetchModalidades]);
@@ -29,7 +30,8 @@ export default function ArquivarAlunos() {
             const alunosExtraidos = modalidades.flatMap(modalidade =>
                 modalidade.turmas.flatMap(turma =>
                     (turma.alunos || []).map(aluno => ({
-                        alunoId: aluno.id.toString(),
+                        ...aluno,
+                        alunoId: uuidv4(), // Gerar chave única
                         nome: aluno.nome ?? "",
                         anoNascimento: aluno.anoNascimento ?? "",
                         telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
@@ -37,7 +39,8 @@ export default function ArquivarAlunos() {
                         modalidade: modalidade.nome,
                         nomeDaTurma: turma.nome_da_turma,
                         dataMatricula: aluno.dataMatricula ?? "",
-                        foto: aluno.foto ?? ""
+                        foto: aluno.foto ?? "",
+                        IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico // Preservar IdentificadorUnico
                     }))
                 )
             );
@@ -57,10 +60,10 @@ export default function ArquivarAlunos() {
             if (data.status === 'Success') {
                 await deleteStudentFromApi({
                     ...selectedAluno,
-                    alunoId: selectedAluno.informacoesAdicionais?.IdentificadorUnico,
-                  });
+                    alunoId: selectedAluno.IdentificadorUnico,
+                });
                 await axios.post('/api/AjustarDadosTurma');
-                setAlunosOptions(prev => prev.filter(aluno => aluno.alunoId !== selectedAluno.alunoId));
+                setAlunosOptions(prev => prev.filter(aluno => aluno.IdentificadorUnico !== selectedAluno.IdentificadorUnico));
                 alert("Aluno arquivado com sucesso.");
             } else {
                 throw new Error('Falha ao arquivar o aluno');
@@ -72,7 +75,7 @@ export default function ArquivarAlunos() {
             setIsDeleting(false);
             setSelectedAluno(null);
         }
-    }, [selectedAluno]);
+    }, [selectedAluno, deleteStudentFromApi]);
 
     return (
         <Layout>
@@ -92,10 +95,13 @@ export default function ArquivarAlunos() {
                                 {...field}
                                 value={selectedAluno}
                                 options={alunosOptions}
-                                getOptionLabel={(option) => option.nome}
+                                getOptionLabel={(option) => `${option.nome} - ${option.nomeDaTurma}`}
                                 onChange={(_, value) => setSelectedAluno(value)}
                                 renderInput={(params) => <TextField {...params} label="Selecione o Aluno" variant="outlined" fullWidth />}
                                 isOptionEqualToValue={(option, value) => option.alunoId === value.alunoId}
+                                filterSelectedOptions
+                                autoComplete
+                                autoHighlight
                             />
                         )}
                     />
@@ -112,4 +118,3 @@ export default function ArquivarAlunos() {
         </Layout>
     );
 }
-
