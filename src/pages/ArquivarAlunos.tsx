@@ -105,11 +105,7 @@ export default function ArquivarAlunos() {
                             />
                         )}
                     />
-                    {selectedAluno && (
-                        <Typography variant="body1" sx={{ mt: 2, color: "black", fontWeight: "bold" }}>
-                            Turma: {selectedAluno.nomeDaTurma}
-                        </Typography>
-                    )}
+                   
                     <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }} disabled={isDeleting}>
                         {isDeleting ? "Arquivando estudante e atualizando turmas.. aguarde.." : "Arquivar Aluno"}
                     </Button>
