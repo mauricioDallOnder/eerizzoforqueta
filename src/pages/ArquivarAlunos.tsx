@@ -29,7 +29,7 @@ export default function ArquivarAlunos() {
         if (modalidades.length > 0 && dataLoaded) {
             const alunosExtraidos = modalidades.flatMap(modalidade =>
                 modalidade.turmas.flatMap(turma =>
-                    (turma.alunos || []).map(aluno => ({
+                    (turma.alunos || []).filter(Boolean).map(aluno => ({
                         ...aluno,
                         alunoId: uuidv4(), // Gerar chave única
                         nome: aluno.nome ?? "",
@@ -98,7 +98,7 @@ export default function ArquivarAlunos() {
                                 getOptionLabel={(option) => `${option.nome} - ${option.nomeDaTurma}`}
                                 onChange={(_, value) => setSelectedAluno(value)}
                                 renderInput={(params) => <TextField {...params} label="Selecione o Aluno" variant="outlined" fullWidth />}
-                                isOptionEqualToValue={(option, value) => option.alunoId === value.alunoId}
+                                isOptionEqualToValue={(option, value) => option.alunoId === value?.alunoId}
                                 filterSelectedOptions
                                 autoComplete
                                 autoHighlight
