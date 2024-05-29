@@ -30,6 +30,7 @@ import AssignmentLateIcon from '@mui/icons-material/AssignmentLate'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
+import ExportFaltasSemestre from '@/components/ExportFaltasDoSemestre/ExportFaltasDoSemestre'
 const drawerWidth = 280
 export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
@@ -85,7 +86,7 @@ const drawer = (
         { icon: <FileDownloadIcon color="success" />, text: "Controle de uniformes", href: "/StudantUniformTable" },
         { icon: <ErrorOutlineIcon color="warning" />, text: "Verificação e correção", href: "/AjusteDadosTurmas" },
         { icon: <AutoDeleteIcon color="error" />, text: "Deletar alunos", href: "/DeleteStudants" },
-     { icon: <UpdateIcon color="disabled" />, text: "Arquivar alunos", href: "/ArquivarAlunos" },
+        { icon: <UpdateIcon color="disabled" />, text: "Arquivar alunos", href: "/ArquivarAlunos" },
       ].map((item, index) => (
         <React.Fragment key={index}>
           <ListItem disablePadding sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
@@ -98,9 +99,11 @@ const drawer = (
               } />
             </ListItemButton>
           </ListItem>
+          
           {index < 9 && <Divider variant="inset" component="li" />}
         </React.Fragment>
       ))}
+      <ExportFaltasSemestre/>
     </List>
   </Box>
 );

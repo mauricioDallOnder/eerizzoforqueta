@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
-
+// database teste: https://teste-1fba5-default-rtdb.firebaseio.com/
+//database oficial: https://bcoescolinha-default-rtdb.firebaseio.com/
 if (!admin.apps.length) {
   const serviceAccount = require('./serviceKey.json');
   admin.initializeApp({
