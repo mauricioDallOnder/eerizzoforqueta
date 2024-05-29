@@ -228,6 +228,75 @@ export function gerarDiasDoMes(
 }
 
 
+//-----------------------------------------------------------------------------------------------
+
+export function extrairDiaDaSemanaSemestre(nomeDaTurma: string): string {
+  const partes = nomeDaTurma.split("_");
+  return (
+      partes.find((parte) =>
+          [
+              "SEGUNDA",
+              "TERCA",
+              "QUARTA",
+              "QUINTA",
+              "SEXTA",
+              "SABADO",
+              "DOMINGO",
+          ].includes(parte.toUpperCase())
+      ) || "SEGUNDA"
+  );
+}
+
+export function gerarPresencasParaAlunoSemestre(diaDaSemana: string, semestre: string, ano: number): Presencas {
+  const diasDaSemana: DiasDaSemanaMap = {
+      SEGUNDA: 1,
+      TERCA: 2,
+      QUARTA: 3,
+      QUINTA: 4,
+      SEXTA: 5,
+      SABADO: 6,
+      DOMINGO: 0,
+  };
+
+  let presencasSemestre: Presencas = {};
+  const mesesPrimeiroSemestre = ["fevereiro", "março", "abril", "maio", "junho"];
+  const mesesSegundoSemestre = ["julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  const meses = semestre === "primeiro" ? mesesPrimeiroSemestre : mesesSegundoSemestre;
+
+  meses.forEach((mes, index) => {
+      presencasSemestre[mes] = {};
+      const mesIndex = semestre === "primeiro" ? index + 1 : index + 7;
+      const dias = gerarDiasDoMesSemestre(ano, mesIndex, diasDaSemana[diaDaSemana.toUpperCase()]);
+      dias.forEach((data) => {
+          presencasSemestre[mes][data] = false;
+      });
+  });
+
+  return presencasSemestre;
+}
+
+export function gerarDiasDoMesSemestre(
+  ano: number,
+  mes: number,
+  diaDaSemana: number
+): string[] {
+  let datas: string[] = [];
+  let data = new Date(ano, mes - 1, 1); // Corrigir o índice do mês
+  while (data.getDay() !== diaDaSemana) {
+      data.setDate(data.getDate() + 1);
+  }
+  while (data.getMonth() === mes - 1) {
+      let diaFormatado = `${data.getDate()}-${mes}-${ano}`;
+      datas.push(diaFormatado);
+      data.setDate(data.getDate() + 7);
+  }
+  return datas;
+}
+
+
+
+//----------------------------------------------------------------------------------------------
+
 const resizeImage = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();

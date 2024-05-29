@@ -64,7 +64,7 @@ const ExportFaltasSemestre: React.FC = () => {
     };
 
     return (
-        <Button variant="contained" color="warning" onClick={handleExport} sx={{width:"90%",marginLeft:"16px"}}>
+        <Button variant="contained" color="error" onClick={handleExport} sx={{marginTop:"16px"}}>
             Exportar os registros de frequencia do semestre
         </Button>
     );

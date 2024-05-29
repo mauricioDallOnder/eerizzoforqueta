@@ -193,6 +193,12 @@ useEffect(() => {
           <MenuItem value="abril">Abril</MenuItem>
           <MenuItem value="maio">maio</MenuItem>
           <MenuItem value="junho">junho</MenuItem>
+          <MenuItem value="julho">julho</MenuItem>
+          <MenuItem value="agosto">agosto</MenuItem>
+          <MenuItem value="setembro">setembro</MenuItem>
+          <MenuItem value="outubro">outubro</MenuItem>
+          <MenuItem value="novembro">novembro</MenuItem>
+          <MenuItem value="dezembro">dezembro</MenuItem>
         </TextField>
 
         {selectedMonth && (
