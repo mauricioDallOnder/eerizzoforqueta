@@ -478,7 +478,7 @@ export default function StudentUpdatePersonalInformation() {
                     fullWidth
                     margin="normal"
                     variant="filled"
-                    disabled
+                   
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -1071,3 +1071,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 // update
+//update2
