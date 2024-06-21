@@ -17,22 +17,19 @@ import {
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
 import { useData } from "@/context/context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   AlunoComTurma,
-
   TemporaryMoveStudentsPayload,
 } from "@/interface/interfaces";
 import { v4 as uuidv4 } from "uuid";
-import { Button, Container } from "@mui/material";
+import { Button, Container, Snackbar, Typography, CircularProgress } from "@mui/material";
 
 import Layout from "@/components/TopBarComponents/Layout";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import { StyledDataGrid } from "@/utils/Styles";
 import { MoveAllStudentsMemo } from "@/components/MoveStudants/MoveAllStudents";
-
-
-
+import { CopyStudentMemo } from "@/components/MoveStudants/CopyStudant";
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -59,7 +56,6 @@ function CustomPagination() {
           apiRef.current.setPage(value - 1)
         }
       />
-
       <Button
         onClick={() => handleExport({ getRowsToExport: getFilteredRows })}
         sx={{ gap: "2px", display: "flex", alignItems: "center" }}
@@ -74,69 +70,69 @@ function CustomPagination() {
 }
 
 const PAGE_SIZE = 10;
+
 export default function MoveStudantsTurma() {
   const { fetchModalidades } = useData();
   const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);
-  const [modifiedRows, setModifiedRows] = useState<
-    Record<GridRowId, AlunoComTurma>
-  >({});
-  useEffect(() => {
-    fetchModalidades().then((modalidadesFetched) => {
-      const modalidadesValidas = modalidadesFetched.filter(
-        (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
-      );
+  const [modifiedRows, setModifiedRows] = useState<Record<GridRowId, AlunoComTurma>>({});
+  const [isProcessing, setIsProcessing] = useState(false); // State to track processing
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
 
-      const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
-        modalidade.turmas.flatMap((turma) => {
-          const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
-          return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
-            aluno: {
-              ...aluno,
-              informacoesAdicionais: {
-                ...aluno.informacoesAdicionais,
-                IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
-              },
+  const fetchAndSetModalidades = useCallback(async () => {
+    const modalidadesFetched = await fetchModalidades();
+    const modalidadesValidas = modalidadesFetched.filter(
+      (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
+    );
+
+    const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
+      modalidade.turmas.flatMap((turma) => {
+        const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+        return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
+          aluno: {
+            ...aluno,
+            informacoesAdicionais: {
+              ...aluno.informacoesAdicionais,
+              IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
             },
-            nomeDaTurma: turma.nome_da_turma,
-            categoria: turma.categoria,
-            modalidade: turma.modalidade,
-            uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
-          }));
-        })
-      );
+          },
+          nomeDaTurma: turma.nome_da_turma,
+          categoria: turma.categoria,
+          modalidade: turma.modalidade,
+          uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
+        }));
+      })
+    );
 
-      setAlunosComTurma(alunosComTurmaTemp);
-    });
+    setAlunosComTurma(alunosComTurmaTemp);
   }, [fetchModalidades]);
 
-
+  useEffect(() => {
+    fetchAndSetModalidades();
+  }, [fetchAndSetModalidades]);
 
   const [paginationModel, setPaginationModel] = useState({
     pageSize: PAGE_SIZE,
     page: 0,
   });
 
-
   const rows: GridRowsProp = alunosComTurma.map(
     ({ aluno, nomeDaTurma, categoria, modalidade }) => {
       return {
-        id: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(), // Usar IdentificadorUnico como id se disponível
+        id: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
         col1: aluno.nome,
         col2: aluno.anoNascimento,
         col3: nomeDaTurma,
         col4: categoria,
         col5: modalidade,
-        col6:aluno.informacoesAdicionais.escolaEstuda,
+        col6: aluno.informacoesAdicionais.escolaEstuda,
       };
     }
   );
-
 
   const mergedRows = rows.map(row => ({
     ...row,
     ...(modifiedRows[row.id] ? { uniforme: modifiedRows[row.id].uniforme } : {})
   }));
-
 
   const columns: GridColDef[] = [
     { field: "col1", headerName: "Nome", width: 250 },
@@ -150,9 +146,6 @@ export default function MoveStudantsTurma() {
       headerName: "Mudar Turma",
       width: 150,
       renderCell: (params) => {
-
-
-
         const data: TemporaryMoveStudentsPayload = {
           alunoNome: params.row.col1,
           modalidadeOrigem: params.row.col5,
@@ -160,42 +153,75 @@ export default function MoveStudantsTurma() {
           modalidadeDestino: "",
           nomeDaTurmaDestino: ""
         };
-
-
-        // Use a propriedade sx para estilizar condicionalmente o botão com base em isSaved
         return (
           <MoveAllStudentsMemo alunoNome={data.alunoNome} nomeDaTurmaOrigem={data.nomeDaTurmaOrigem} modalidadeOrigem={data.modalidadeOrigem} />
         );
       },
+    },
+    {
+      field: "CopiarAluno",
+      headerName: "Copiar Aluno",
+      width: 150,
+      renderCell: (params) => {
+        const data: TemporaryMoveStudentsPayload = {
+          alunoNome: params.row.col1,
+          modalidadeOrigem: params.row.col5,
+          nomeDaTurmaOrigem: params.row.col3,
+          modalidadeDestino: "",
+          nomeDaTurmaDestino: ""
+        };
+        return (
+          <CopyStudentMemo alunoNome={data.alunoNome} nomeDaTurmaOrigem={data.nomeDaTurmaOrigem} modalidadeOrigem={data.modalidadeOrigem} />
+        );
+      },
     }
-
   ];
 
   return (
-    <>
-      <Layout>
-        <Container
-          style={{ marginTop: "10px", height: "auto", width: "fit-content" }}
-        >
-          <StyledDataGrid
-            checkboxSelection
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[PAGE_SIZE]}
-            slots={{
-              pagination: CustomPagination,
-              toolbar: GridToolbar,
+    <Layout>
+      <Container style={{ marginTop: "10px", height: "auto", width: "fit-content" }}>
+        {isProcessing && (
+          <Typography
+            variant="h6"
+            align="center"
+            sx={{
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              color: "#FFFFFF",
+              padding: "10px",
+              borderRadius: "5px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
             }}
-            slotProps={{
-              toolbar: {
-                showQuickFilter: true,
-              },
-            }}
-            rows={mergedRows}
-            columns={columns}
-          />
-        </Container>
-      </Layout>
-    </>
+          >
+            Ajustando dados da turma, por favor aguarde...
+            <CircularProgress size={24} sx={{ ml: 2 }} />
+          </Typography>
+        )}
+        <StyledDataGrid
+          checkboxSelection
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[PAGE_SIZE]}
+          slots={{
+            pagination: CustomPagination,
+            toolbar: GridToolbar,
+          }}
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+            },
+          }}
+          rows={mergedRows}
+          columns={columns}
+        />
+      </Container>
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage(null)}
+        message={successMessage}
+      />
+    </Layout>
   );
 }

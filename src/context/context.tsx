@@ -34,6 +34,7 @@ interface DataContextType {
   fetchStudantsTableData: (filtro?: string, limit?: number, offset?: number) => Promise<Modalidade[]>
   updateAttendanceInApi: (data: AlunoPresencaUpdate) => Promise<void>
   moveStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
+  copyStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
   updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
   deleteStudentFromApi:(payload: DeleteStudants) => Promise<void>
 }
@@ -60,6 +61,9 @@ const DataContext = createContext<DataContextType>({
     console.warn('moveStudentInApi not implemented', payload)
   },
   moveStudentTemp: async (payload: TemporaryMoveStudentsPayload) => {
+    console.warn('moveStudentInApi not implemented', payload)
+  },
+  copyStudentTemp: async (payload: TemporaryMoveStudentsPayload) => {
     console.warn('moveStudentInApi not implemented', payload)
   },
 })
@@ -255,14 +259,32 @@ const moveStudentTemp = async (payload:TemporaryMoveStudentsPayload ) => {
     alert("Erro ao mover aluno: " + error.message);
   }
 }
-
-
-
-
-
-//TemporaryMoveStudentsPayload
 //--------------------------------------------------------------------------
+//função para copiar o aluno de uma turma para outra
+const copyStudentTemp = async (payload:TemporaryMoveStudentsPayload ) => {
+  try {
+    const response = await fetch('/api/CopyStudant', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Falha ao mover aluno');
+    }
+
+    // Assumindo que a API cuida de tudo e apenas retorna sucesso/falha
+    alert("Aluno movido com sucesso!");
+  } catch (error:any) {
+    console.error('Erro ao mover aluno:', error);
+    alert("Erro ao mover aluno: " + error.message);
+  }
+}
+
+//----------------------------------------------------------------------------
 // Função para excluir um estudante
 const deleteStudentFromApi = async (payload: DeleteStudants) => {
   try {
@@ -338,7 +360,8 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
         updateAttendanceInApi,
         updateUniformeInApi,
         deleteStudentFromApi, 
-        moveStudentTemp 
+        moveStudentTemp,
+        copyStudentTemp 
       }}
     >
       {children}

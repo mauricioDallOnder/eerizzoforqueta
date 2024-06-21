@@ -11,17 +11,17 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-} from '@mui/material'
-import { AdminTableProps, Aluno } from '@/interface/interfaces'
-import Modal from '@mui/material/Modal'
+} from '@mui/material';
+import { AdminTableProps, Aluno } from '@/interface/interfaces';
+import Modal from '@mui/material/Modal';
 
 // Props adicionais para o modal
 interface ControleFrequenciaTableProps extends AdminTableProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const months = ['fevereiro', 'março', 'abril', 'maio', 'junho', 'julho']
+const months = ['fevereiro', 'março', 'abril', 'maio', 'junho', 'julho'];
 
 export default function ControleFrequenciaTable({
   alunosDaTurma,
@@ -29,22 +29,32 @@ export default function ControleFrequenciaTable({
   isOpen,
   onClose,
 }: ControleFrequenciaTableProps) {
-  const theme = useTheme()
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   // Função para contar as faltas mensais
   const countMonthlyAbsence = (
     presencas: Record<string, Record<string, boolean>>,
     month: string,
   ): number => {
-    const monthPresences = presencas[month]
+    const monthPresences = presencas[month];
     return monthPresences
       ? Object.values(monthPresences).filter((presence) => !presence).length
-      : 0
-  }
+      : 0;
+  };
 
   // Filtrar para garantir que não há alunos nulos no array antes de mapeá-los
-  const validAlunosDaTurma = alunosDaTurma.filter(Boolean)
+  const validAlunosDaTurma = alunosDaTurma.filter(Boolean);
+
+  // Função de comparação para ordenar alunos por nome
+  const compareByName = (a: Aluno, b: Aluno) => {
+    if (a.nome < b.nome) return -1;
+    if (a.nome > b.nome) return 1;
+    return 0;
+  };
+
+  // Ordenar os alunos por nome
+  const sortedAlunosDaTurma = validAlunosDaTurma.sort(compareByName);
 
   return (
     <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
@@ -83,8 +93,8 @@ export default function ControleFrequenciaTable({
               </TableRow>
             </TableHead>
             <TableBody>
-              {validAlunosDaTurma.length > 0 ? (
-                validAlunosDaTurma.map((aluno: Aluno) => (
+              {sortedAlunosDaTurma.length > 0 ? (
+                sortedAlunosDaTurma.map((aluno: Aluno) => (
                   <TableRow key={aluno.id}>
                     <TableCell>{aluno.nome}</TableCell>
                     {months.map((month) => (
@@ -111,5 +121,5 @@ export default function ControleFrequenciaTable({
         </Box>
       </Box>
     </Modal>
-  )
+  );
 }

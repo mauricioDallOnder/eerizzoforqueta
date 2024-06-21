@@ -19,7 +19,7 @@ import {
 import { BoxStyleCadastro } from "@/utils/Styles";
 import axios from "axios";
 
-function MoveAllStudents({
+function CopyStudent({
   alunoNome,
   nomeDaTurmaOrigem,
   modalidadeOrigem,
@@ -28,7 +28,7 @@ function MoveAllStudents({
   nomeDaTurmaOrigem: string;
   modalidadeOrigem: string;
 }) {
-  const { moveStudentTemp, modalidades, fetchModalidades } =
+  const { copyStudentTemp, modalidades, fetchModalidades } =
     useContext(DataContext);
   const {
     register,
@@ -71,20 +71,20 @@ function MoveAllStudents({
           modalidadeDestino: watch("modalidadeDestino"),
           nomeDaTurmaDestino: watch("nomeDaTurmaDestino"),
         };
-        await moveStudentTemp(payload);
-        await axios.post("/api/AjustarDadosTurma"); // Corrige os dados
+        await copyStudentTemp(payload);
+        //await axios.post("/api/AjustarDadosTurma"); // Corrige os dados
         reset();
       } catch (error) {
         console.error("Erro ao mover aluno", error);
       }
     },
-    [moveStudentTemp, reset]
+    [copyStudentTemp, reset]
   );
 
   return (
     <>
-      <Button variant="contained" color="error" onClick={handleOpen}>
-        Trocar turma
+      <Button variant="contained" color="success" onClick={handleOpen}>
+        Copiar Aluno
       </Button>
       <Modal
         open={open}
@@ -102,7 +102,7 @@ function MoveAllStudents({
             variant="h6"
             sx={{ color: "black", fontWeight: "bold", textAlign: "center" }}
           >
-            MUDAR TURMA DO ATLETA
+            COPIAR ALUNO PARA OUTRA TURMA
           </Typography>
           <TextField
             margin="normal"
@@ -175,7 +175,7 @@ function MoveAllStudents({
           <Button type="submit" variant="contained" disabled={isSubmitting}>
             {isSubmitting
               ? "Enviando dados aguarde..."
-              : " Mudar turma"}
+              : " COPIAR ALUNO"}
           </Button>
         </Box>
       </Modal>
@@ -200,4 +200,4 @@ function areEqual(
   );
 }
 
-export const MoveAllStudentsMemo = React.memo(MoveAllStudents, areEqual);
+export const CopyStudentMemo = React.memo(CopyStudent, areEqual);

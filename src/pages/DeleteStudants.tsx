@@ -185,7 +185,8 @@ export default function DeletarEtudantsDaTurma() {
           </Button>
         );
       },
-    }
+    },
+    { field: "id", headerName: "id", width: 350 },
   ];
 
   return (
