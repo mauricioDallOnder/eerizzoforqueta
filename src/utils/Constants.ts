@@ -191,19 +191,39 @@ export function gerarPresencasParaAluno(diaDaSemana: string): Presencas {
   };
 
   let presencas: Presencas = {};
-  for (let mes = 1; mes < 7; mes++) {
-    let nomeMes = new Date(ano, mes, 1).toLocaleString("pt-BR", {
-      month: "long",
-    });
-    presencas[nomeMes] = {};
-    let dias = gerarDiasDoMes(
-      ano,
-      mes,
-      diasDaSemana[diaDaSemana.toUpperCase()]
-    );
-    dias.forEach((data) => {
-      presencas[nomeMes][data] = false;
-    });
+  const mesAtual = new Date().getMonth() + 1;
+
+  // Verifica se estamos antes ou depois de julho
+  if (mesAtual < 7) {
+    for (let mes = 1; mes < 7; mes++) {
+      let nomeMes = new Date(ano, mes - 1, 1).toLocaleString("pt-BR", {
+        month: "long",
+      });
+      presencas[nomeMes] = {};
+      let dias = gerarDiasDoMes(
+        ano,
+        mes,
+        diasDaSemana[diaDaSemana.toUpperCase()]
+      );
+      dias.forEach((data) => {
+        presencas[nomeMes][data] = false;
+      });
+    }
+  } else {
+    for (let mes = 7; mes <= 12; mes++) {
+      let nomeMes = new Date(ano, mes - 1, 1).toLocaleString("pt-BR", {
+        month: "long",
+      });
+      presencas[nomeMes] = {};
+      let dias = gerarDiasDoMes(
+        ano,
+        mes,
+        diasDaSemana[diaDaSemana.toUpperCase()]
+      );
+      dias.forEach((data) => {
+        presencas[nomeMes][data] = false;
+      });
+    }
   }
 
   return presencas;
@@ -215,47 +235,46 @@ export function gerarDiasDoMes(
   diaDaSemana: number
 ): string[] {
   let datas: string[] = [];
-  let data = new Date(ano, mes, 1);
+  let data = new Date(ano, mes - 1, 1);
   while (data.getDay() !== diaDaSemana) {
     data.setDate(data.getDate() + 1);
   }
-  while (data.getMonth() === mes) {
-    let diaFormatado = `${data.getDate()}-${mes + 1}-${ano}`;
+  while (data.getMonth() === mes - 1) {
+    let diaFormatado = `${data.getDate()}-${mes}-${ano}`;
     datas.push(diaFormatado);
     data.setDate(data.getDate() + 7);
   }
   return datas;
 }
 
-
 //-----------------------------------------------------------------------------------------------
 
 export function extrairDiaDaSemanaSemestre(nomeDaTurma: string): string {
   const partes = nomeDaTurma.split("_");
   return (
-      partes.find((parte) =>
-          [
-              "SEGUNDA",
-              "TERCA",
-              "QUARTA",
-              "QUINTA",
-              "SEXTA",
-              "SABADO",
-              "DOMINGO",
-          ].includes(parte.toUpperCase())
-      ) || "SEGUNDA"
+    partes.find((parte) =>
+      [
+        "SEGUNDA",
+        "TERCA",
+        "QUARTA",
+        "QUINTA",
+        "SEXTA",
+        "SABADO",
+        "DOMINGO",
+      ].includes(parte.toUpperCase())
+    ) || "SEGUNDA"
   );
 }
 
 export function gerarPresencasParaAlunoSemestre(diaDaSemana: string, semestre: string, ano: number): Presencas {
   const diasDaSemana: DiasDaSemanaMap = {
-      SEGUNDA: 1,
-      TERCA: 2,
-      QUARTA: 3,
-      QUINTA: 4,
-      SEXTA: 5,
-      SABADO: 6,
-      DOMINGO: 0,
+    SEGUNDA: 1,
+    TERCA: 2,
+    QUARTA: 3,
+    QUINTA: 4,
+    SEXTA: 5,
+    SABADO: 6,
+    DOMINGO: 0,
   };
 
   let presencasSemestre: Presencas = {};

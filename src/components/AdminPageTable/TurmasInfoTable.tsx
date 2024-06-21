@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react'
-import Box from '@mui/material/Box'
-import { Modalidade, Turma } from '@/interface/interfaces'
+import React, { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import { Modalidade, Turma } from '@/interface/interfaces';
 import {
   TableRow,
   TableCell,
@@ -19,72 +19,75 @@ import {
   SelectChangeEvent,
   Typography,
   Button,
-} from '@mui/material'
+} from '@mui/material';
 
-import { ControleFrequenciaTableNoSSR } from './DynamicComponents'
-import { BoxStyleCadastro, TituloSecaoStyle } from '@/utils/Styles'
-import { useData } from '@/context/context'
-import { TurmaPresencaSemanal } from './TurmaPresencaSemanal'
+import { ControleFrequenciaTableNoSSR } from './DynamicComponents';
+import { BoxStyleCadastro, BoxStyleTurmaInfoTable, TituloSecaoStyle } from '@/utils/Styles';
+import { useData } from '@/context/context';
+import { TurmaPresencaSemanal } from './TurmaPresencaSemanal';
 
 export default function TurmasInfoTable() {
-  const { fetchModalidades } = useData()
-  const [modalidades, setModalidades] = useState<Modalidade[]>([])
-  const [selectedModalidade, setSelectedModalidade] = useState<string>('')
-  const [turmas, setTurmas] = useState<Turma[]>([])
-  const [selectedTurma, setSelectedTurma] = useState<Turma | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false) // Estado para o modal ControleFrequenciaTableNoSSR
+  const { fetchModalidades } = useData();
+  const [modalidades, setModalidades] = useState<Modalidade[]>([]);
+  const [selectedModalidade, setSelectedModalidade] = useState<string>('');
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [selectedTurma, setSelectedTurma] = useState<Turma | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para o modal ControleFrequenciaTableNoSSR
   const [isPresencaSemanalModalOpen, setIsPresencaSemanalModalOpen] =
-    useState(false) // Estado para o modal TurmaPresencaSemanal
-  const [searchTerm, setSearchTerm] = useState<string>('')
+    useState(false); // Estado para o modal TurmaPresencaSemanal
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const handleOpenModal = (turma: Turma) => {
     if (turma.capacidade_atual_da_turma > 0) {
-      setSelectedTurma(turma)
-      setIsModalOpen(true)
+      setSelectedTurma(turma);
+      setIsModalOpen(true);
     } else {
-      alert('Essa turma não possui alunos')
+      alert('Essa turma não possui alunos');
     }
-  }
+  };
 
   const handleOpenPresencaSemanalModal = (turma: Turma) => {
     if (turma.capacidade_atual_da_turma > 0) {
-      setSelectedTurma(turma)
-      setIsPresencaSemanalModalOpen(true)
+      setSelectedTurma(turma);
+      setIsPresencaSemanalModalOpen(true);
     } else {
-      alert('Esta turma não possui alunos')
+      alert('Esta turma não possui alunos');
     }
-  }
+  };
 
   const filteredTurmas = turmas.filter((turma) =>
     turma.nome_da_turma.toLowerCase().includes(searchTerm),
-  )
+  );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value.toLowerCase())
-  }
+    setSearchTerm(event.target.value.toLowerCase());
+  };
 
   useEffect(() => {
     fetchModalidades().then((data) => {
-       const validModalidades = data.filter(mod => mod.nome !== 'arquivados' && mod.nome !== 'excluidos');
-       setModalidades(validModalidades);
+      const validModalidades = data.filter(
+        (mod) => mod.nome !== 'arquivados' && mod.nome !== 'excluidos',
+      );
+      setModalidades(validModalidades);
     });
-}, [fetchModalidades]);
+  }, [fetchModalidades]);
 
-  
   useEffect(() => {
     if (selectedModalidade) {
-     
-      const modalidadeEscolhida = modalidades.find((modalidade) => modalidade.nome === selectedModalidade)
-      
-      setTurmas(modalidadeEscolhida ? modalidadeEscolhida.turmas : [])
+      const modalidadeEscolhida = modalidades.find(
+        (modalidade) => modalidade.nome === selectedModalidade,
+      );
+
+      setTurmas(modalidadeEscolhida ? modalidadeEscolhida.turmas : []);
     }
-  }, [selectedModalidade, modalidades])
+  }, [selectedModalidade, modalidades]);
 
   const handleModalidadeChange = (event: SelectChangeEvent<string>) => {
-    setSelectedModalidade(event.target.value)
-  }
+    setSelectedModalidade(event.target.value);
+  };
+
   return (
-    <Box sx={BoxStyleCadastro}>
+    <Box sx={BoxStyleTurmaInfoTable}>
       <Typography sx={TituloSecaoStyle}>
         Informações Gerais das Turmas
       </Typography>
@@ -113,41 +116,37 @@ export default function TurmasInfoTable() {
         />
       </FormControl>
       <Divider sx={{ my: 2 }} />
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
         <Table aria-label="simple table">
           <TableHead>
-            <TableRow>
-              <TableCell>Nome da Turma</TableCell>
-              <TableCell>Núcleo</TableCell>
-              <TableCell>Categoria</TableCell>
-              <TableCell>Capacidade Máxima</TableCell>
-              <TableCell>Capacidade Atual</TableCell>
-              <TableCell>Presença Semanal</TableCell>
+            <TableRow sx={{ bgcolor: 'primary.main' }}>
+              <TableCell sx={{ color: 'primary.contrastText'}}>Nome da Turma</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Núcleo</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Categoria</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Capacidade Máxima</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Capacidade Atual</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Presença Semanal</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredTurmas.map((turma) => (
+            {filteredTurmas.map((turma, index) => (
               <TableRow
                 key={turma.nome_da_turma}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{
+                  '&:last-child td, &:last-child th': { border: 0 },
+                  bgcolor: index % 2 === 0 ? 'background.default' : 'grey.100',
+                }}
               >
-                <TableCell
-                  component="th"
-                  scope="row"
-                  onClick={() => handleOpenModal(turma)}
-                >
+                <TableCell component="th" scope="row" onClick={() => handleOpenModal(turma)} sx={{ cursor: 'pointer', color: 'text.primary' }}>
                   {turma.nome_da_turma}
                 </TableCell>
-                <TableCell>{turma.nucleo}</TableCell>
-                <TableCell>{turma.categoria}</TableCell>
-                <TableCell>{turma.capacidade_maxima_da_turma}</TableCell>
-                <TableCell>{turma.capacidade_atual_da_turma}</TableCell>
+                <TableCell sx={{ color: 'text.primary',textAlign:"center" }}>{turma.nucleo}</TableCell>
+                <TableCell sx={{ color: 'text.primary' ,textAlign:"center"}}>{turma.categoria}</TableCell>
+                <TableCell sx={{ color: 'text.primary',textAlign:"center" }}>{turma.capacidade_maxima_da_turma}</TableCell>
+                <TableCell sx={{ color: 'text.primary' ,textAlign:"center"}}>{turma.capacidade_atual_da_turma}</TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleOpenPresencaSemanalModal(turma)}
-                  >
-                    Abrir
+                  <Button variant="contained"  color="secondary" onClick={() => handleOpenPresencaSemanalModal(turma)}>
+                    Presença Semanal
                   </Button>
                 </TableCell>
               </TableRow>
@@ -172,6 +171,5 @@ export default function TurmasInfoTable() {
         />
       )}
     </Box>
-  )
+  );
 }
-// update

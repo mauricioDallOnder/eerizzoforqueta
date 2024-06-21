@@ -70,23 +70,26 @@ export default function ControleFrequenciaTable({
           p: 4,
           overflowY: 'auto', // Scroll vertical se necessário
           maxHeight: '90vh',
+          borderRadius: 2,
         }}
       >
         <Typography
           variant="h6"
           component="h2"
           gutterBottom
-          sx={{ color: 'black' }}
+          sx={{ color: 'black', mb: 3 }}
         >
           Turma: {nomeDaTurma} - Total de Faltas Mês a Mês
         </Typography>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
           <Table stickyHeader aria-label="tabela de frequência">
             <TableHead>
               <TableRow>
-                <TableCell>Nome</TableCell>
+                <TableCell sx={{ bgcolor: theme.palette.primary.main, color: theme.palette.primary.contrastText }}>
+                  Nome
+                </TableCell>
                 {months.map((month) => (
-                  <TableCell key={month} align="center">
+                  <TableCell key={month} align="center" sx={{ bgcolor: theme.palette.primary.main, color: theme.palette.primary.contrastText }}>
                     {month.charAt(0).toUpperCase() + month.slice(1)}
                   </TableCell>
                 ))}
@@ -94,11 +97,11 @@ export default function ControleFrequenciaTable({
             </TableHead>
             <TableBody>
               {sortedAlunosDaTurma.length > 0 ? (
-                sortedAlunosDaTurma.map((aluno: Aluno) => (
-                  <TableRow key={aluno.id}>
-                    <TableCell>{aluno.nome}</TableCell>
+                sortedAlunosDaTurma.map((aluno: Aluno, index) => (
+                  <TableRow key={aluno.id} sx={{ bgcolor: index % 2 === 0 ? 'background.default' : 'grey.100' }}>
+                    <TableCell sx={{ color: 'text.primary' }}>{aluno.nome}</TableCell>
                     {months.map((month) => (
-                      <TableCell key={month} align="center">
+                      <TableCell key={month} align="center" sx={{ color: 'text.primary' }}>
                         {countMonthlyAbsence(aluno.presencas, month)}
                       </TableCell>
                     ))}
@@ -106,7 +109,7 @@ export default function ControleFrequenciaTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={13} align="center">
+                  <TableCell colSpan={13} align="center" sx={{ bgcolor: 'grey.200', color: 'text.primary' }}>
                     Nenhum aluno encontrado nesta turma.
                   </TableCell>
                 </TableRow>
