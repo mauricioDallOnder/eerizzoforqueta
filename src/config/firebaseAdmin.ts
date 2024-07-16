@@ -6,28 +6,30 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
-// Define a interface para o tipo de dados do service account
+// Define a interface para o tipo de dados do service account conforme esperado por Firebase
 interface ServiceAccount {
-  type: string;
-  project_id: string;
-  private_key_id: string;
-  private_key: string;
-  client_email: string;
-  client_id: string;
-  auth_uri: string;
-  token_uri: string;
-  auth_provider_x509_cert_url: string;
-  client_x509_cert_url: string;
-  universe_domain: string;
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
+}
+
+// Função para converter o JSON decodificado para o formato esperado
+function parseServiceAccount(jsonString: string): ServiceAccount {
+  const parsed = JSON.parse(jsonString);
+  return {
+    projectId: parsed.project_id,
+    clientEmail: parsed.client_email,
+    privateKey: parsed.private_key,
+  };
 }
 
 if (!admin.apps.length) {
   // Decodifica a string Base64 e converte para JSON
   const serviceAccountString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string, 'base64').toString('utf-8');
-  const serviceAccount: ServiceAccount = JSON.parse(serviceAccountString);
+  const serviceAccount: ServiceAccount = parseServiceAccount(serviceAccountString);
   
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     databaseURL: process.env.FIREBASE_DATABASE_URL,
   });
 }
