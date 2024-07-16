@@ -29,7 +29,8 @@ export default function ArquivarAlunos() {
         if (modalidades.length > 0 && dataLoaded) {
             const alunosExtraidos = modalidades.flatMap(modalidade =>
                 modalidade.turmas.flatMap(turma =>
-                    (turma.alunos || []).filter(Boolean).map(aluno => ({
+                    Array.isArray(turma.alunos) ? 
+                    turma.alunos.filter(Boolean).map(aluno => ({
                         ...aluno,
                         alunoId: uuidv4(), // Gerar chave única
                         nome: aluno.nome ?? "",
@@ -41,7 +42,7 @@ export default function ArquivarAlunos() {
                         dataMatricula: aluno.dataMatricula ?? "",
                         foto: aluno.foto ?? "",
                         IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico // Preservar IdentificadorUnico
-                    }))
+                    })) : []
                 )
             );
             setAlunosOptions(alunosExtraidos);
@@ -68,7 +69,7 @@ export default function ArquivarAlunos() {
             } else {
                 throw new Error('Falha ao arquivar o aluno');
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.error(error);
             alert(`Ocorreu um erro ao arquivar o aluno: ${error.message}`);
         } finally {
