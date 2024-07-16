@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxMWLkAhCilAGczQL3HpSKFpv0Bwp71e92e1uywttkt-XCzOjEQ-jxAQomI5Ks3Lq0IiQ/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycby1VcTzwmoR9yGgs90lN69BRYzIF0YznRcAV5VuVhC1HStIvKr1ZyO981YAYjjf9aoRsw/exec', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
         res.status(200).json({ status: 'Success', data: data });
       } catch (error) {
-        res.status(500).json({ status: 'Failed', message: 'Internal Server Error' });
+        res.status(500).json({ status: 'Failed', message: error });
       }
   } else {
     res.setHeader('Allow', ['POST']);

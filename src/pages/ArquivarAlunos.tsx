@@ -68,9 +68,9 @@ export default function ArquivarAlunos() {
             } else {
                 throw new Error('Falha ao arquivar o aluno');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert("Ocorreu um erro ao arquivar o aluno. Tente novamente.");
+        } catch (error:any) {
+            console.error(error);
+            alert(`Ocorreu um erro ao arquivar o aluno: ${error.message}`);
         } finally {
             setIsDeleting(false);
             setSelectedAluno(null);
@@ -105,7 +105,7 @@ export default function ArquivarAlunos() {
                             />
                         )}
                     />
-                   
+
                     <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }} disabled={isDeleting}>
                         {isDeleting ? "Arquivando estudante e atualizando turmas.. aguarde.." : "Arquivar Aluno"}
                     </Button>
