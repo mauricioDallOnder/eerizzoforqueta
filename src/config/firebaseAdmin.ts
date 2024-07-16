@@ -1,11 +1,25 @@
 import * as admin from 'firebase-admin';
-// database teste: https://teste-1fba5-default-rtdb.firebaseio.com/
-//database oficial: https://escola15072024-default-rtdb.firebaseio.com/
+import dotenv from 'dotenv';
+
+// Carrega as variáveis de ambiente do arquivo .env se estiver em ambiente de desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
+
+// Define a interface para o tipo de dados do service account
+interface ServiceAccount {
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
+}
+
 if (!admin.apps.length) {
-  const serviceAccount = require('./serviceKey.json');
+  // Converte a string JSON armazenada na variável de ambiente em um objeto
+  const serviceAccount: ServiceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
+  
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount), // Substitua serviceAccount pelo seu arquivo de credenciais
-    databaseURL: 'https://bcooficial-dd90c-default-rtdb.europe-west1.firebasedatabase.app', // Substitua pela sua URL do banco de dados
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
   });
 }
 
