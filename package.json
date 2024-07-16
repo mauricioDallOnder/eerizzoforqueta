@@ -32,7 +32,8 @@
     "react-image-crop": "^11.0.5",
     "uuidv4": "^6.2.13",
     "xlsx": "^0.18.5",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.5",
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "^2.2.2",
