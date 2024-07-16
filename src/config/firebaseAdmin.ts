@@ -8,14 +8,23 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Define a interface para o tipo de dados do service account
 interface ServiceAccount {
-  projectId: string;
-  clientEmail: string;
-  privateKey: string;
+  type: string;
+  project_id: string;
+  private_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
+  universe_domain: string;
 }
 
 if (!admin.apps.length) {
-  // Converte a string JSON armazenada na variável de ambiente em um objeto
-  const serviceAccount: ServiceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
+  // Decodifica a string Base64 e converte para JSON
+  const serviceAccountString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string, 'base64').toString('utf-8');
+  const serviceAccount: ServiceAccount = JSON.parse(serviceAccountString);
   
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
