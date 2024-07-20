@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Button, Container, Grid, TextField, Typography, MenuItem, Paper } from "@mui/material";
+import { Button, Container, Grid, TextField, Typography, MenuItem, Paper, CircularProgress, Snackbar } from "@mui/material";
 import { v4 as uuidv4 } from 'uuid';
 import {
   TituloSecaoStyle,
@@ -9,7 +9,8 @@ import {
 import { extrairDiaDaSemana, gerarPresencasParaAluno } from "@/utils/Constants";
 import { useData } from "@/context/context";
 import { FormValuesStudent, Turma } from "@/interface/interfaces";
-import axios from 'axios';
+import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
+
 
 interface TemporaryStudentRegistrationProps {
   handleCloseModal: () => void;
@@ -30,6 +31,8 @@ export default function TemporaryStudentRegistration({
   const [nucleosDisponiveis, setNucleosDisponiveis] = useState<string[]>([]);
   const [turmasDisponiveis, setTurmasDisponiveis] = useState<Turma[]>([]);
   const [studentName, setStudentName] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchModalidades();
@@ -41,9 +44,9 @@ export default function TemporaryStudentRegistration({
   };
 
   const onSubmit: SubmitHandler<FormValuesStudent> = async (data) => {
+    setIsUpdating(true);
     const currentDate = new Date().toLocaleDateString();
     const presencas = gerarPresencasParaAluno(extrairDiaDaSemana(data.turmaSelecionada));
-   
 
     // Construindo o objeto aluno com valores padrão e adicionando todos os campos necessários
     data.aluno = {
@@ -94,16 +97,20 @@ export default function TemporaryStudentRegistration({
     };
 
     try {
-      console.log(data)
+      console.log(data);
       await sendDataToApi([data]); // Enviando os dados do aluno
-      alert("Cadastro efetuado com sucesso");
+
+      // Chamar o endpoint para ajustar os dados da turma
+      await CorrigirDadosDefinitivos();
+
+      setSuccessMessage("Aluno temporário adicionado com sucesso.");
       reset(); // Resetando o formulário após o envio
     } catch (error) {
       console.error("Erro ao enviar os dados do formulário", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
-
-
 
   const getNucleosForModalidade = (modalidade: string) => {
     const turmas = modalidades.find((m) => m.nome === modalidade)?.turmas;
@@ -125,117 +132,140 @@ export default function TemporaryStudentRegistration({
     setTurmasDisponiveis(turmasFiltradas || []);
   }, [selectedNucleo, modalidades]);
 
- 
-
   return (
     <Container>
+      {isUpdating && (
+        <Typography
+          variant="h6"
+          align="center"
+          sx={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            color: "#FFFFFF",
+            padding: "10px",
+            borderRadius: "5px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000
+          }}
+        >
+          Adicionando aluno e ajustando turma, por favor aguarde...
+          <CircularProgress size={24} sx={{ ml: 2 }} />
+        </Typography>
+      )}
       <Paper sx={modalStyleTemporaly}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          
-            <Typography sx={TituloSecaoStyle}>
-              Cadastro de Alunos Temporários
-            </Typography>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Nome do Aluno"
-              variant="standard"
-              {...register("aluno.nome")}
-              required
-              
-              onChange={handleNameChange} // Atualiza o nome quando o campo é alterado
-             
-            />
-          </Grid>
-              {/* Restante dos campos do formulário */}
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  select
-                  required
-                  label="Modalidade"
-                  {...register("modalidade")}
-                  fullWidth
-                  variant="outlined"
-                  sx={{ marginBottom: 2 }}
-                >
-                  {modalidades.map((modalidade) => (
-                      <MenuItem key={modalidade.nome} value={modalidade.nome}>
-                        {modalidade.nome}
-                      </MenuItem>
-                    ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  select
-                  label="Local de treinamento"
-                  value={selectedNucleo ? selectedNucleo : ""}
-                  onChange={(event) =>
-                    setSelectedNucleo(event.target.value as string)
-                  }
-                  fullWidth
-                  required
-                  variant="outlined"
-                  sx={{ marginBottom: 2 }}
-                >
-                  {nucleosDisponiveis.map((nucleo) => (
-                    <MenuItem key={nucleo} value={nucleo}>
-                      {nucleo}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  select
-                  label="Turma"
-                  {...register("turmaSelecionada")}
-                  fullWidth
-                  required
-                  variant="outlined"
-                  sx={{ marginBottom: 2 }}
-                >
-                  {turmasDisponiveis.map((turma) => (
-                    <MenuItem
-                      key={turma.nome_da_turma}
-                      value={turma.nome_da_turma}
-                    >
-                      {turma.nome_da_turma}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              {/* Botões */}
-              <Grid item xs={12} sm={6}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isSubmitting}
-                  fullWidth
-                >
-                  Cadastrar aluno
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleCloseModal}
-                  fullWidth
-                >
-                  Fechar Cadastro
-                </Button>
-              </Grid>
+          <Typography sx={TituloSecaoStyle}>
+            Cadastro de Alunos Temporários
+          </Typography>
+          <Grid
+            container
+            spacing={2}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Nome do Aluno"
+                variant="standard"
+                {...register("aluno.nome")}
+                required
+                onChange={handleNameChange} // Atualiza o nome quando o campo é alterado
+              />
             </Grid>
-         
+            {/* Restante dos campos do formulário */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                required
+                label="Modalidade"
+                {...register("modalidade")}
+                fullWidth
+                variant="outlined"
+                sx={{ marginBottom: 2 }}
+              >
+                {modalidades.map((modalidade) => (
+                  <MenuItem key={modalidade.nome} value={modalidade.nome}>
+                    {modalidade.nome}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                label="Local de treinamento"
+                value={selectedNucleo ? selectedNucleo : ""}
+                onChange={(event) =>
+                  setSelectedNucleo(event.target.value as string)
+                }
+                fullWidth
+                required
+                variant="outlined"
+                sx={{ marginBottom: 2 }}
+              >
+                {nucleosDisponiveis.map((nucleo) => (
+                  <MenuItem key={nucleo} value={nucleo}>
+                    {nucleo}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                label="Turma"
+                {...register("turmaSelecionada")}
+                fullWidth
+                required
+                variant="outlined"
+                sx={{ marginBottom: 2 }}
+              >
+                {turmasDisponiveis.map((turma) => (
+                  <MenuItem
+                    key={turma.nome_da_turma}
+                    value={turma.nome_da_turma}
+                  >
+                    {turma.nome_da_turma}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            {/* Botões */}
+            <Grid item xs={12} sm={6}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting || isUpdating}
+                fullWidth
+              >
+                {isUpdating ? "Atualizando turma... aguarde" : "Cadastrar aluno"}
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleCloseModal}
+                fullWidth
+              >
+                Fechar Cadastro
+              </Button>
+            </Grid>
+          </Grid>
         </form>
       </Paper>
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage(null)}
+        message={successMessage}
+      />
     </Container>
   );
 }

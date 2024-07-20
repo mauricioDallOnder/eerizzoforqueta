@@ -23,6 +23,8 @@ import Layout from "@/components/TopBarComponents/Layout";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import { StyledDataGrid } from "@/utils/Styles";
 import axios from 'axios';
+import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
+
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -130,10 +132,7 @@ export default function DeletarEtudantsDaTurma() {
       ));
 
       // Chame a API para corrigir dados da turma
-      await axios.post('/api/ajustardadosdaturma', {
-        modalidadeNome: alunoToDelete.modalidade,
-        turmaNome: alunoToDelete.nomeDaTurma
-      });
+      await CorrigirDadosDefinitivos()
 
       setSuccessMessage("Aluno deletado com sucesso e dados da turma ajustados.");
     } else {

@@ -18,6 +18,8 @@ import {
 } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
 import axios from "axios";
+import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
+
 
 function MoveAllStudents({
   alunoNome,
@@ -74,18 +76,10 @@ function MoveAllStudents({
         await moveStudentTemp(payload);
 
         // Ajustar dados da turma de origem e destino
-        await axios.post('/api/ajustardadosdaturma', {
-          modalidadeNome: modalidadeOrigem,
-          turmaNome: nomeDaTurmaOrigem
-        });
-
-        await axios.post('/api/ajustardadosdaturma', {
-          modalidadeNome: payload.modalidadeDestino,
-          turmaNome: payload.nomeDaTurmaDestino
-        });
+        await CorrigirDadosDefinitivos()
 
         reset();
-        alert("Aluno movido com sucesso.");
+       
       } catch (error) {
         console.error("Erro ao mover aluno", error);
         alert("Erro ao mover aluno.");

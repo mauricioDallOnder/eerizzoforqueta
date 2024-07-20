@@ -15,7 +15,7 @@ async function corrigirDadosTurmaFirebase(modalidadeNome: string, turmaNome: str
   const turmaSnapshot = await turmaRef.once('value');
   const turma = turmaSnapshot.val();
 
-  if (!turma.alunos) return { corrigidos, duplicados };
+  if (!turma || !turma.alunos) return { corrigidos, duplicados };
 
   const alunosObj: { [key: string]: Aluno } = turma.alunos;
   const alunosArray: Aluno[] = Object.values(alunosObj);

@@ -8,6 +8,8 @@ import { BoxStyleCadastro } from '@/utils/Styles';
 import axios from 'axios';
 import { HeaderForm } from '@/components/HeaderDefaultForm';
 import { v4 as uuidv4 } from 'uuid';
+import { CorrigirDadosDefinitivos } from '@/utils/CorrigirDadosTurmasEmComponetes';
+
 
 export default function ArquivarAlunos() {
     const { deleteStudentFromApi, modalidades, fetchModalidades } = useContext(DataContext);
@@ -59,12 +61,21 @@ export default function ArquivarAlunos() {
             const response = await axios.post('/api/ArquivarAlunos', selectedAluno);
             const data = response.data;
             if (data.status === 'Success') {
-                await deleteStudentFromApi({
-                    ...selectedAluno,
-                    alunoId: selectedAluno.IdentificadorUnico,
-                });
-                const { modalidade, nomeDaTurma } = selectedAluno;
-                await axios.post('/api/ajustardadosdaturma', { modalidadeNome: modalidade, turmaNome: nomeDaTurma });
+                try {
+                    await deleteStudentFromApi({
+                        ...selectedAluno,
+                        alunoId: selectedAluno.IdentificadorUnico,
+                    });
+                } catch (error) {
+                    console.error('Erro ao remover aluno:', error);
+                }
+
+                try {
+                    await CorrigirDadosDefinitivos();
+                } catch (error) {
+                    console.error('Erro ao corrigir dados da turma:', error);
+                }
+
                 setAlunosOptions(prev => prev.filter(aluno => aluno.IdentificadorUnico !== selectedAluno.IdentificadorUnico));
                 alert("Aluno arquivado com sucesso.");
             } else {

@@ -1,8 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import corrigirDadosTurmaFirebase from '@/utils/AjustarDadosFirebase';
-import admin from '@/config/firebaseAdmin';
-
-const db = admin.database();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -12,8 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      const { corrigidos, duplicados } = await corrigirDadosTurmaFirebase(modalidadeNome, turmaNome); // Captura o retorno da função
-      res.status(200).json({ corrigidos, duplicados }); // Envie esses dados na resposta
+      const { corrigidos, duplicados } = await corrigirDadosTurmaFirebase(modalidadeNome, turmaNome);
+      res.status(200).json({ corrigidos, duplicados });
     } catch (error) {
       console.error('Erro ao corrigir dados da turma:', error);
       res.status(500).json({ error: 'Erro ao corrigir dados da turma.' });

@@ -18,6 +18,8 @@ import {
 } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
 import axios from "axios";
+import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
+
 
 function CopyStudent({
   alunoNome,
@@ -73,21 +75,12 @@ function CopyStudent({
         };
         await copyStudentTemp(payload);
 
-        // Ajustar dados da turma de origem e destino
-        await axios.post('/api/ajustardadosdaturma', {
-          modalidadeNome: modalidadeOrigem,
-          turmaNome: nomeDaTurmaOrigem
-        });
-
-        await axios.post('/api/ajustardadosdaturma', {
-          modalidadeNome: payload.modalidadeDestino,
-          turmaNome: payload.nomeDaTurmaDestino
-        });
+        await CorrigirDadosDefinitivos()
 
         reset();
         alert("Aluno copiado com sucesso.");
       } catch (error) {
-        console.error("Erro ao mover aluno", error);
+        console.error("Erro ao copiar aluno", error);
         alert("Erro ao copiar aluno.");
       }
     },
