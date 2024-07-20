@@ -42,6 +42,7 @@ import resizeImage from "../utils/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from 'axios';
+import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
 export default function StudentRegistration() {
   const {
     register,
@@ -347,15 +348,7 @@ export default function StudentRegistration() {
     }
   };
 
-  async function corrigirDados() {
-    try {
-      const response = await axios.post('/api/ajustardadosdaturma');
-      console.log('Dados da turma corrigidos com sucesso.');
-    } catch (error) {
-      console.error('Erro ao corrigir dados da turma.');
-    }
-  }
-
+  
   // Função para resetar o formulário e estados relacionados
   const resetFormulario = () => {
     reset(); // Reseta o formulário usando react-hook-form
@@ -366,7 +359,7 @@ export default function StudentRegistration() {
     setAvatarUrl("");
     setIsUploading(false);
     setUploadProgress(0);
-    corrigirDados()
+    CorrigirDadosDefinitivos();
   };
 
   return (
