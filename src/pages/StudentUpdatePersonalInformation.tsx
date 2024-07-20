@@ -424,7 +424,7 @@ export default function StudentUpdatePersonalInformation() {
 
   async function corrigirDados() {
     try {
-      const response = await axios.post("/api/AjustarDadosTurma");
+      const response = await axios.post("/api/ajustardadosdaturma");
       console.log("Dados da turma corrigidos com sucesso.");
     } catch (error) {
       console.error("Erro ao corrigir dados da turma.");

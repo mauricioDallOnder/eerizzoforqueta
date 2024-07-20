@@ -130,7 +130,10 @@ export default function DeletarEtudantsDaTurma() {
       ));
 
       // Chame a API para corrigir dados da turma
-      await axios.post('/api/AjustarDadosTurma');
+      await axios.post('/api/ajustardadosdaturma', {
+        modalidadeNome: alunoToDelete.modalidade,
+        turmaNome: alunoToDelete.nomeDaTurma
+      });
 
       setSuccessMessage("Aluno deletado com sucesso e dados da turma ajustados.");
     } else {
@@ -186,7 +189,6 @@ export default function DeletarEtudantsDaTurma() {
         );
       },
     }
-   
   ];
 
   return (

@@ -63,7 +63,8 @@ export default function ArquivarAlunos() {
                     ...selectedAluno,
                     alunoId: selectedAluno.IdentificadorUnico,
                 });
-                await axios.post('/api/AjustarDadosTurma');
+                const { modalidade, nomeDaTurma } = selectedAluno;
+                await axios.post('/api/ajustardadosdaturma', { modalidadeNome: modalidade, turmaNome: nomeDaTurma });
                 setAlunosOptions(prev => prev.filter(aluno => aluno.IdentificadorUnico !== selectedAluno.IdentificadorUnico));
                 alert("Aluno arquivado com sucesso.");
             } else {

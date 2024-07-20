@@ -72,13 +72,26 @@ function MoveAllStudents({
           nomeDaTurmaDestino: watch("nomeDaTurmaDestino"),
         };
         await moveStudentTemp(payload);
-        await axios.post("/api/AjustarDadosTurma"); // Corrige os dados
+
+        // Ajustar dados da turma de origem e destino
+        await axios.post('/api/ajustardadosdaturma', {
+          modalidadeNome: modalidadeOrigem,
+          turmaNome: nomeDaTurmaOrigem
+        });
+
+        await axios.post('/api/ajustardadosdaturma', {
+          modalidadeNome: payload.modalidadeDestino,
+          turmaNome: payload.nomeDaTurmaDestino
+        });
+
         reset();
+        alert("Aluno movido com sucesso.");
       } catch (error) {
         console.error("Erro ao mover aluno", error);
+        alert("Erro ao mover aluno.");
       }
     },
-    [moveStudentTemp, reset]
+    [moveStudentTemp, reset, modalidadeOrigem, nomeDaTurmaOrigem, watch]
   );
 
   return (

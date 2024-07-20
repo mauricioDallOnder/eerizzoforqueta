@@ -8,15 +8,33 @@ export default function CorrigirDadosTurma() {
 
   const corrigirDados = async () => {
     setCarregando(true);
+    setResultado('');
     try {
-      const response = await axios.post('/api/AjustarDadosTurma');
-      if (response.data.corrigidos || response.data.duplicados) {
-        const corrigidosStr = response.data.corrigidos && response.data.corrigidos.length > 0 ? `Corrigidos: ${response.data.corrigidos.join(', ')}` : 'Todos os indices foram atualizados e nenhum erro foi encontrado!';
-        const duplicadosStr = response.data.duplicados && response.data.duplicados.length > 0 ? `\nDuplicados: ${response.data.duplicados.join(', ')}` : '\nNenhum duplicado encontrado.';
-        setResultado(`${corrigidosStr}${duplicadosStr}`);
-      } else {
-        setResultado('A resposta do servidor não contém os campos esperados.');
+      const modalidadesResponse = await axios.get('/api/obtermodalidades');
+      const modalidades = modalidadesResponse.data;
+
+      let corrigidosTotal = [];
+      let duplicadosTotal = [];
+
+      for (const modalidadeNome in modalidades) {
+        const modalidade = modalidades[modalidadeNome];
+        for (const turmaNome in modalidade.turmas) {
+          const response = await axios.post('/api/ajustardadosdaturma', { modalidadeNome, turmaNome });
+          const { corrigidos, duplicados } = response.data;
+
+          if (corrigidos && corrigidos.length > 0) {
+            corrigidosTotal.push(...corrigidos);
+          }
+          if (duplicados && duplicados.length > 0) {
+            duplicadosTotal.push(...duplicados);
+          }
+        }
       }
+
+      const corrigidosStr = corrigidosTotal.length > 0 ? `Corrigidos: ${corrigidosTotal.join(', ')}` : 'Todos os índices foram atualizados e nenhum erro foi encontrado!';
+      const duplicadosStr = duplicadosTotal.length > 0 ? `\nDuplicados: ${duplicadosTotal.join(', ')}` : '\nNenhum duplicado encontrado.';
+      setResultado(`${corrigidosStr}${duplicadosStr}`);
+
     } catch (error) {
       console.error('Erro ao corrigir dados da turma:', error);
       setResultado('Erro ao corrigir dados da turma.');
@@ -26,7 +44,6 @@ export default function CorrigirDadosTurma() {
   };
 
   return (
-    
     <Box 
       sx={{
         display: 'flex', 

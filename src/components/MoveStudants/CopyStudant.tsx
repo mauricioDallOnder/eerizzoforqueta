@@ -72,13 +72,26 @@ function CopyStudent({
           nomeDaTurmaDestino: watch("nomeDaTurmaDestino"),
         };
         await copyStudentTemp(payload);
-        //await axios.post("/api/AjustarDadosTurma"); // Corrige os dados
+
+        // Ajustar dados da turma de origem e destino
+        await axios.post('/api/ajustardadosdaturma', {
+          modalidadeNome: modalidadeOrigem,
+          turmaNome: nomeDaTurmaOrigem
+        });
+
+        await axios.post('/api/ajustardadosdaturma', {
+          modalidadeNome: payload.modalidadeDestino,
+          turmaNome: payload.nomeDaTurmaDestino
+        });
+
         reset();
+        alert("Aluno copiado com sucesso.");
       } catch (error) {
         console.error("Erro ao mover aluno", error);
+        alert("Erro ao copiar aluno.");
       }
     },
-    [copyStudentTemp, reset]
+    [copyStudentTemp, reset, modalidadeOrigem, nomeDaTurmaOrigem, watch]
   );
 
   return (
@@ -175,7 +188,7 @@ function CopyStudent({
           <Button type="submit" variant="contained" disabled={isSubmitting}>
             {isSubmitting
               ? "Enviando dados aguarde..."
-              : " COPIAR ALUNO"}
+              : "COPIAR ALUNO"}
           </Button>
         </Box>
       </Modal>
