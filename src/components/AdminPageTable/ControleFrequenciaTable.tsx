@@ -21,7 +21,7 @@ interface ControleFrequenciaTableProps extends AdminTableProps {
   onClose: () => void;
 }
 
-const months = ['fevereiro', 'março', 'abril', 'maio', 'junho', 'julho'];
+const months = ['julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 export default function ControleFrequenciaTable({
   alunosDaTurma,
