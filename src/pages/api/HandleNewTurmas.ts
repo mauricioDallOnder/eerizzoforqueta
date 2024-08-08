@@ -76,9 +76,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   try {
     // Validando o corpo da requisição
     const updateTurmaData = turmaSchema.partial().extend({
-      uuidTurma: z.string().uuid()
+      uuidTurma: z.string().uuid(),
+      nome_da_turma: z.string().min(1)
     }).parse(req.body);
-    const { uuidTurma, modalidade, ...updates } = updateTurmaData;
+    const { uuidTurma, modalidade, nome_da_turma, capacidade_maxima_da_turma, nucleo, categoria } = updateTurmaData;
 
     // Encontrando a turma a ser atualizada
     const turmaRef = db.ref(`modalidades/${modalidade}/turmas`).orderByChild('uuidTurma').equalTo(uuidTurma);
@@ -89,7 +90,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const turmaKey = Object.keys(snapshot.val())[0];
-    await db.ref(`modalidades/${modalidade}/turmas/${turmaKey}`).update(updates);
+    await db.ref(`modalidades/${modalidade}/turmas/${turmaKey}`).update({ nome_da_turma, capacidade_maxima_da_turma, nucleo, categoria });
 
     return res.status(200).json({ message: 'Turma atualizada com sucesso' });
   } catch (error) {
@@ -99,6 +100,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ message: 'Erro no servidor' });
   }
 }
+
+
 
 // Função para lidar com o método DELETE (Exclusão)
 async function handleDelete(req: NextApiRequest, res: NextApiResponse) {

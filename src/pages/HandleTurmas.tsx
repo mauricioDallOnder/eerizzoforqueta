@@ -134,7 +134,14 @@ export default function ManageTurmas() {
     setLoading(true);
     try {
       if (selectedTurma) {
-        await axios.put('/api/HandleNewTurmas', { ...formValues, uuidTurma: selectedTurma.uuidTurma, nome_da_turma: nomeTurma });
+        await axios.put('/api/HandleNewTurmas', { 
+          uuidTurma: selectedTurma.uuidTurma, 
+          nome_da_turma: nomeTurma, 
+          capacidade_maxima_da_turma: formValues.capacidade_maxima_da_turma, 
+          modalidade: selectedTurma.modalidade,
+          nucleo: formValues.nucleo,
+          categoria: formValues.categoria,
+        });
         setSuccessMessage('Turma atualizada com sucesso!');
       } else {
         await axios.post('/api/HandleNewTurmas', { ...formValues, nome_da_turma: nomeTurma });
@@ -161,7 +168,7 @@ export default function ManageTurmas() {
     setLoading(true);
     try {
       if (selectedTurma && selectedTurma.uuidTurma) {
-        await axios.delete('/api/turma', { data: { uuidTurma: selectedTurma.uuidTurma } });
+        await axios.delete('/api/HandleNewTurmas', { data: { uuidTurma: selectedTurma.uuidTurma, modalidade: selectedTurma.modalidade } });
         setSuccessMessage('Turma deletada com sucesso!');
         setTurmas(turmas.filter(t => t.uuidTurma !== selectedTurma.uuidTurma));
       }
@@ -184,12 +191,12 @@ export default function ManageTurmas() {
 
   return (
     <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 0 }}>
-       <Box sx={BoxStyleCadastro}>
-      <AppBar position="static" sx={{ backgroundColor: '#2e3b55',mt:"10px" }}>
-          <Tabs 
-            value={tabIndex} 
-            onChange={handleTabChange} 
-            variant="fullWidth" 
+      <Box sx={BoxStyleCadastro}>
+        <AppBar position="static" sx={{ backgroundColor: '#2e3b55', mt: "10px" }}>
+          <Tabs
+            value={tabIndex}
+            onChange={handleTabChange}
+            variant="fullWidth"
             textColor="inherit"
             indicatorColor="secondary"
           >
@@ -198,71 +205,18 @@ export default function ManageTurmas() {
             <Tab label="Excluir Turma" />
           </Tabs>
         </AppBar>
-      <TabPanel value={tabIndex} index={0}>
-        <form onSubmit={handleSubmit}>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Modalidade</InputLabel>
-            <Select name="modalidade" value={formValues.modalidade} onChange={handleSelectChange} required>
-              {modalidades.map((modalidade) => (
-                <MenuItem key={modalidade.nome} value={modalidade.nome}>
-                  {modalidade.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField label="Núcleo" name="nucleo" value={formValues.nucleo} onChange={handleInputChange} required fullWidth margin="normal" />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Categoria</InputLabel>
-            <Select name="categoria" value={formValues.categoria} onChange={handleSelectChange} required>
-              {categorias.map((categoria) => (
-                <MenuItem key={categoria} value={categoria}>
-                  {categoria}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Dia da Semana</InputLabel>
-            <Select name="diaDaSemana" value={formValues.diaDaSemana} onChange={handleSelectChange} required>
-              {['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'].map((dia) => (
-                <MenuItem key={dia} value={dia}>
-                  {dia}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField label="Horário" name="horario" value={formValues.horario} onChange={handleInputChange} required fullWidth margin="normal" />
-          <TextField type="number" label="Capacidade Máxima" name="capacidade_maxima_da_turma" value={formValues.capacidade_maxima_da_turma.toString()} onChange={handleInputChange} required fullWidth margin="normal" />
-          <TextField label="Nome da Turma" value={nomeTurma} onChange={() => {}} fullWidth margin="normal" disabled />
-          <Button type="submit" variant="contained" color="primary" disabled={loading}>
-            Criar Turma
-          </Button>
-        </form>
-      </TabPanel>
-      <TabPanel value={tabIndex} index={1}>
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Modalidade</InputLabel>
-          <Select value={selectedModalidade} onChange={(e) => setSelectedModalidade(e.target.value as string)} required>
-            {modalidades.map((modalidade) => (
-              <MenuItem key={modalidade.nome} value={modalidade.nome}>
-                {modalidade.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Divider sx={{ my: 2 }} />
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Turma</InputLabel>
-          <Select value={selectedTurma?.uuidTurma || ''} onChange={handleTurmaSelectChange} required>
-            {turmas.map((turma) => (
-              <MenuItem key={turma.uuidTurma} value={turma.uuidTurma}>
-                {turma.nome_da_turma}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {selectedTurma && (
+        <TabPanel value={tabIndex} index={0}>
           <form onSubmit={handleSubmit}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Modalidade</InputLabel>
+              <Select name="modalidade" value={formValues.modalidade} onChange={handleSelectChange} required>
+                {modalidades.map((modalidade) => (
+                  <MenuItem key={modalidade.nome} value={modalidade.nome}>
+                    {modalidade.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField label="Núcleo" name="nucleo" value={formValues.nucleo} onChange={handleInputChange} required fullWidth margin="normal" />
             <FormControl fullWidth margin="normal">
               <InputLabel>Categoria</InputLabel>
@@ -286,51 +240,104 @@ export default function ManageTurmas() {
             </FormControl>
             <TextField label="Horário" name="horario" value={formValues.horario} onChange={handleInputChange} required fullWidth margin="normal" />
             <TextField type="number" label="Capacidade Máxima" name="capacidade_maxima_da_turma" value={formValues.capacidade_maxima_da_turma.toString()} onChange={handleInputChange} required fullWidth margin="normal" />
-            {capacidadeInvalida && (
-              <Typography color="error" variant="body2">
-                A capacidade máxima não pode ser menor que o número atual de alunos ({selectedTurma.capacidade_atual_da_turma}).
-              </Typography>
-            )}
             <TextField label="Nome da Turma" value={nomeTurma} onChange={() => {}} fullWidth margin="normal" disabled />
-            <Button type="submit" variant="contained" color="primary" disabled={loading || capacidadeInvalida}>
-              Atualizar Turma
+            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+              Criar Turma
             </Button>
           </form>
-        )}
-      </TabPanel>
-      <TabPanel value={tabIndex} index={2}>
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Modalidade</InputLabel>
-          <Select value={selectedModalidade} onChange={(e) => setSelectedModalidade(e.target.value as string)} required>
-            {modalidades.map((modalidade) => (
-              <MenuItem key={modalidade.nome} value={modalidade.nome}>
-                {modalidade.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Divider sx={{ my: 2 }} />
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Turma</InputLabel>
-          <Select value={selectedTurma?.uuidTurma || ''} onChange={handleTurmaSelectChange} required>
-            {turmas.map((turma) => (
-              <MenuItem key={turma.uuidTurma} value={turma.uuidTurma}>
-                {turma.nome_da_turma}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {selectedTurma && (
-          <Button variant="contained" color="secondary" onClick={handleDelete} disabled={loading}>
-            {loading ? 'Aguarde, deletando turma' : 'Deletar Turma'}
-          </Button>
-        )}
-      </TabPanel>
-      <Snackbar open={!!successMessage} autoHideDuration={6000} onClose={() => setSuccessMessage('')}>
-        <Alert onClose={() => setSuccessMessage('')} severity="success" sx={{ width: '100%' }}>
-          {successMessage}
-        </Alert>
-      </Snackbar>
+        </TabPanel>
+        <TabPanel value={tabIndex} index={1}>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Modalidade</InputLabel>
+            <Select value={selectedModalidade} onChange={(e) => setSelectedModalidade(e.target.value as string)} required>
+              {modalidades.map((modalidade) => (
+                <MenuItem key={modalidade.nome} value={modalidade.nome}>
+                  {modalidade.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Divider sx={{ my: 2 }} />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Turma</InputLabel>
+            <Select value={selectedTurma?.uuidTurma || ''} onChange={handleTurmaSelectChange} required>
+              {turmas.map((turma) => (
+                <MenuItem key={turma.uuidTurma} value={turma.uuidTurma}>
+                  {turma.nome_da_turma}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {selectedTurma && (
+            <form onSubmit={handleSubmit}>
+              <TextField label="Núcleo" name="nucleo" value={formValues.nucleo} onChange={handleInputChange} required fullWidth margin="normal" />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Categoria</InputLabel>
+                <Select name="categoria" value={formValues.categoria} onChange={handleSelectChange} required>
+                  {categorias.map((categoria) => (
+                    <MenuItem key={categoria} value={categoria}>
+                      {categoria}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Dia da Semana</InputLabel>
+                <Select name="diaDaSemana" value={formValues.diaDaSemana} onChange={handleSelectChange} required>
+                  {['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'].map((dia) => (
+                    <MenuItem key={dia} value={dia}>
+                      {dia}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField label="Horário" name="horario" value={formValues.horario} onChange={handleInputChange} required fullWidth margin="normal" />
+              <TextField type="number" label="Capacidade Máxima" name="capacidade_maxima_da_turma" value={formValues.capacidade_maxima_da_turma.toString()} onChange={handleInputChange} required fullWidth margin="normal" />
+              {capacidadeInvalida && (
+                <Typography color="error" variant="body2">
+                  A capacidade máxima não pode ser menor que o número atual de alunos ({selectedTurma.capacidade_atual_da_turma}).
+                </Typography>
+              )}
+              <TextField label="Nome da Turma" value={nomeTurma} onChange={() => {}} fullWidth margin="normal" disabled />
+              <Button type="submit" variant="contained" color="primary" disabled={loading || capacidadeInvalida}>
+                Atualizar Turma
+              </Button>
+            </form>
+          )}
+        </TabPanel>
+        <TabPanel value={tabIndex} index={2}>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Modalidade</InputLabel>
+            <Select value={selectedModalidade} onChange={(e) => setSelectedModalidade(e.target.value as string)} required>
+              {modalidades.map((modalidade) => (
+                <MenuItem key={modalidade.nome} value={modalidade.nome}>
+                  {modalidade.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Divider sx={{ my: 2 }} />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Turma</InputLabel>
+            <Select value={selectedTurma?.uuidTurma || ''} onChange={handleTurmaSelectChange} required>
+              {turmas.map((turma) => (
+                <MenuItem key={turma.uuidTurma} value={turma.uuidTurma}>
+                  {turma.nome_da_turma}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {selectedTurma && (
+            <Button variant="contained" color="secondary" onClick={handleDelete} disabled={loading}>
+              {loading ? 'Aguarde, deletando turma' : 'Deletar Turma'}
+            </Button>
+          )}
+        </TabPanel>
+        <Snackbar open={!!successMessage} autoHideDuration={6000} onClose={() => setSuccessMessage('')}>
+          <Alert onClose={() => setSuccessMessage('')} severity="success" sx={{ width: '100%' }}>
+            {successMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </Container>
   );

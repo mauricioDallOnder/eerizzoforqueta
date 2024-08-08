@@ -101,7 +101,7 @@ export default function TemporaryStudentRegistration({
       await sendDataToApi([data]); // Enviando os dados do aluno
 
       // Chamar o endpoint para ajustar os dados da turma
-      await CorrigirDadosDefinitivos();
+     CorrigirDadosDefinitivos();
 
       setSuccessMessage("Aluno temporário adicionado com sucesso.");
       reset(); // Resetando o formulário após o envio
@@ -134,29 +134,7 @@ export default function TemporaryStudentRegistration({
 
   return (
     <Container>
-      {isUpdating && (
-        <Typography
-          variant="h6"
-          align="center"
-          sx={{
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            color: "#FFFFFF",
-            padding: "10px",
-            borderRadius: "5px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1000
-          }}
-        >
-          Adicionando aluno e ajustando turma, por favor aguarde...
-          <CircularProgress size={24} sx={{ ml: 2 }} />
-        </Typography>
-      )}
+     
       <Paper sx={modalStyleTemporaly}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Typography sx={TituloSecaoStyle}>
