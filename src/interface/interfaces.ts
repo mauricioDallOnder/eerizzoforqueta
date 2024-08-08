@@ -172,6 +172,9 @@ export interface Turma {
   capacidade_maxima_da_turma: number
   capacidade_atual_da_turma: number
   alunos: Aluno[]
+  uuidTurma?:string
+  diaDaSemana?:string
+  horario?:string
 }
 
 export interface AlunoComTurma {
