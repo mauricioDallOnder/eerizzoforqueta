@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { Modalidade, Turma } from '@/interface/interfaces';
 import { useData } from '@/context/context';
 import { BoxStyleCadastro } from '@/utils/Styles';
+import Layout from '@/components/TopBarComponents/Layout';
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -190,6 +191,7 @@ export default function ManageTurmas() {
   };
 
   return (
+    <Layout>
     <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 0 }}>
       <Box sx={BoxStyleCadastro}>
         <AppBar position="static" sx={{ backgroundColor: '#2e3b55', mt: "10px" }}>
@@ -340,5 +342,6 @@ export default function ManageTurmas() {
         </Snackbar>
       </Box>
     </Container>
+    </Layout>
   );
 }
