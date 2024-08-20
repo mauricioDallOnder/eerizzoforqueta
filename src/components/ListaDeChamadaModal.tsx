@@ -24,6 +24,14 @@ export const ListaDeChamadaModal: React.FC<AttendanceModalContentProps> = ({
       >
         {aluno.nome} <br /> {month}/2024
       </Typography>
+       <Typography
+        id="modal-title"
+        variant="h6"
+        component="h2"
+        sx={{ textAlign: "center", marginBottom: "16px" }}
+      >
+        {aluno.anoNascimento}
+      </Typography>
       <Avatar
         sx={{
           width: 80, // tamanho do Avatar
