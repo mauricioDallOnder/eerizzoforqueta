@@ -27,10 +27,10 @@ export const ListaDeChamadaModal: React.FC<AttendanceModalContentProps> = ({
        <Typography
         id="modal-title"
         variant="h6"
-        component="h2"
+        component="h3"
         sx={{ textAlign: "center", marginBottom: "16px" }}
       >
-        {aluno.anoNascimento}
+       Nascimento: {aluno.anoNascimento}
       </Typography>
       <Avatar
         sx={{
