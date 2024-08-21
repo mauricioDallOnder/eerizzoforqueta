@@ -32,14 +32,7 @@ export const ListaDeChamadaModal: React.FC<AttendanceModalContentProps> = ({
       >
        Nascimento: {aluno.anoNascimento}
       </Typography>
-       <Typography
-        id="modal-title"
-        variant="h6"
-        component="h3"
-        sx={{ textAlign: "center", marginBottom: "16px" }}
-      >
-      Presenças do mês de {month}
-      </Typography>
+     
       <Avatar
         sx={{
           width: 80, // tamanho do Avatar
@@ -60,6 +53,14 @@ export const ListaDeChamadaModal: React.FC<AttendanceModalContentProps> = ({
           }}
         />
       </Avatar>
+        <Typography
+        id="modal-title"
+        variant="h6"
+        component="h3"
+        sx={{ textAlign: "center", marginBottom: "16px" }}
+      >
+      Presenças do mês de {month}
+      </Typography>
       <Box
         id="modal-description"
         sx={{
