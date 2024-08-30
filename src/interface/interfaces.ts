@@ -153,6 +153,15 @@ export interface InformacoesAdicionais {
   IdentificadorUnico?:string
 }
 
+export interface IIAvisos{
+  alunoNome: string;
+  modalidade: string;
+  nomeDaTurma: string;
+  textaviso:string;
+  dataaviso:Date;
+  IsActive:boolean
+}
+
 export interface Aluno {
   id: number
   informacoesAdicionais: InformacoesAdicionais
@@ -162,6 +171,7 @@ export interface Aluno {
   presencas: Record<string, Record<string, boolean>>
   foto?: string
   dataMatricula?: string
+  avisos?:IIAvisos
 }
 
 export interface Turma {

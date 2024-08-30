@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import Table from "@mui/joy/Table";
-import { Aluno, StudentPresenceTableProps } from "@/interface/interfaces"; // Importe a interface Aluno conforme definida
+import { Aluno, StudentPresenceTableProps } from "@/interface/interfaces";
 import { DataContext } from "@/context/context";
 import { modalStyle } from "@/utils/Styles";
 import { ListaDeChamadaModal } from "./ListaDeChamadaModal";
@@ -28,7 +28,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   modalidade,
   nomeDaTurma,
 }) => {
-  const { updateAttendanceInApi } = useContext(DataContext); // Use o useContext para acessar a função
+  const { updateAttendanceInApi } = useContext(DataContext);
   const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [selectedDay, setSelectedDay] = useState<string>("");
   const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
@@ -38,35 +38,30 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("xs"));
 
-  // Estado para alunos ordenados
   const [alunosOrdenados, setAlunosOrdenados] = useState<Aluno[]>([]);
 
   useEffect(() => {
-    const alunosOrdenados = [...alunosDaTurma].filter(Boolean).sort((a, b) => a.nome.localeCompare(b.nome));
+    const alunosOrdenados = [...alunosDaTurma]
+      .filter(Boolean)
+      .sort((a, b) => a.nome.localeCompare(b.nome));
     setAlunosOrdenados(alunosOrdenados);
   }, [alunosDaTurma]);
-
 
   const tableContainerStyles = {
     marginTop: 2,
     marginBottom: 2,
-    overflowX: "auto", // Permite rolagem horizontal
+    overflowX: "auto",
     maxWidth: "100%",
     ...(isXs && {
-      // Estilos adicionais para telas pequenas
       "& .MuiTableCell-sizeSmall": {
-        // Diminui o padding das células para telas pequenas
         padding: "6px 8px",
       },
       "& .MuiTypography-root": {
-        // Diminui o tamanho da fonte para telas pequenas
         fontSize: "0.75rem",
       },
     }),
   };
 
-  // Gera uma lista de dias com base no mês selecionado
-  
   const daysInMonth =
     alunosDaTurma.length > 0
       ? Object.keys(
@@ -85,24 +80,24 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
     setIsModalOpen(false);
     setSelectedAluno(null);
   };
-  // Função para lidar com a mudança no campo de pesquisa
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
   };
-  // Filtre os alunos com base na string de pesquisa
-  const filteredAlunosFind = alunosOrdenados.filter((aluno) =>
-  aluno.nome.toLowerCase().includes(search.toLowerCase())
-);
 
-useEffect(() => {
-  const searchTermLowercased = search.toLowerCase();
-  const filtered = filteredAlunosFind.filter(
-    (aluno) =>
-      aluno.nome.toLowerCase().includes(searchTermLowercased) ||
-      nomeDaTurma.toLowerCase().includes(searchTermLowercased)
+  const filteredAlunosFind = alunosOrdenados.filter((aluno) =>
+    aluno.nome.toLowerCase().includes(search.toLowerCase())
   );
-  setFilteredAlunos(filtered);
-}, [search, filteredAlunosFind, nomeDaTurma]);
+
+  useEffect(() => {
+    const searchTermLowercased = search.toLowerCase();
+    const filtered = filteredAlunosFind.filter(
+      (aluno) =>
+        aluno.nome.toLowerCase().includes(searchTermLowercased) ||
+        nomeDaTurma.toLowerCase().includes(searchTermLowercased)
+    );
+    setFilteredAlunos(filtered);
+  }, [search, filteredAlunosFind, nomeDaTurma]);
 
   const toggleAttendance = (alunoId: number, day: string) => {
     setAlunosDaTurma((current) =>
@@ -116,17 +111,14 @@ useEffect(() => {
             },
           };
 
-          // Preparar dados para a atualização
           const alunoUpdateData = {
             ...student,
             modalidade: modalidade,
             nomeDaTurma: nomeDaTurma,
-            // Converta alunoId para string aqui
             alunoId: alunoId.toString(),
             presencas: updatedAttendance,
           };
 
-          // Chama a função do contexto para atualizar as presenças
           updateAttendanceInApi(alunoUpdateData);
 
           return { ...student, presencas: updatedAttendance };
@@ -138,7 +130,6 @@ useEffect(() => {
 
   const countPresentStudents = () => {
     return alunosDaTurma.reduce((count, aluno) => {
-      // Verifica se o aluno não é nulo e se tem presenças registradas para o mês e dia selecionados
       const isPresent =
         aluno &&
         aluno.presencas &&
@@ -146,6 +137,16 @@ useEffect(() => {
         aluno.presencas[selectedMonth][selectedDay];
       return count + (isPresent ? 1 : 0);
     }, 0);
+  };
+
+  const isAvisoValid = (aluno: Aluno) => {
+    if (aluno.avisos && aluno.avisos.IsActive) {
+      const avisoDate = new Date(aluno.avisos.dataaviso);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return avisoDate >= today;
+    }
+    return false;
   };
 
   return (
@@ -159,10 +160,19 @@ useEffect(() => {
         >
           <Box sx={modalStyle}>
             {selectedAluno && (
-              <ListaDeChamadaModal
-                aluno={selectedAluno}
-                month={selectedMonth}
-              />
+              <>
+                {isAvisoValid(selectedAluno) && selectedAluno.avisos && (
+                  <Box sx={{ backgroundColor: "#ffd700", padding: "8px", marginBottom: "16px" }}>
+                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                      Aviso: {selectedAluno.avisos.textaviso}
+                    </Typography>
+                  </Box>
+                )}
+                <ListaDeChamadaModal
+                  aluno={selectedAluno}
+                  month={selectedMonth}
+                />
+              </>
             )}
             <Box sx={{ backgroundColor: "red" }}>
               <Typography
@@ -173,7 +183,6 @@ useEffect(() => {
                   padding: "5px",
                 }}
               >
-                {" "}
                 Telefone para Emergência: {selectedAluno?.telefoneComWhatsapp}
               </Typography>
             </Box>
@@ -187,18 +196,17 @@ useEffect(() => {
           onChange={(e) => setSelectedMonth(e.target.value)}
           fullWidth
         >
-          
           <MenuItem value="fevereiro">Fevereiro</MenuItem>
           <MenuItem value="março">Março</MenuItem>
           <MenuItem value="abril">Abril</MenuItem>
-          <MenuItem value="maio">maio</MenuItem>
-          <MenuItem value="junho">junho</MenuItem>
-          <MenuItem value="julho">julho</MenuItem>
-          <MenuItem value="agosto">agosto</MenuItem>
-          <MenuItem value="setembro">setembro</MenuItem>
-          <MenuItem value="outubro">outubro</MenuItem>
-          <MenuItem value="novembro">novembro</MenuItem>
-          <MenuItem value="dezembro">dezembro</MenuItem>
+          <MenuItem value="maio">Maio</MenuItem>
+          <MenuItem value="junho">Junho</MenuItem>
+          <MenuItem value="julho">Julho</MenuItem>
+          <MenuItem value="agosto">Agosto</MenuItem>
+          <MenuItem value="setembro">Setembro</MenuItem>
+          <MenuItem value="outubro">Outubro</MenuItem>
+          <MenuItem value="novembro">Novembro</MenuItem>
+          <MenuItem value="dezembro">Dezembro</MenuItem>
         </TextField>
 
         {selectedMonth && (
@@ -248,9 +256,7 @@ useEffect(() => {
                 "& tbody tr:nth-of-type(odd)": {
                   backgroundColor: "rgba(247, 247, 247, 1)",
                 },
-                "& tbody tr:hover": {
-                  backgroundColor: "rgba(237, 245, 251, 1)",
-                },
+                
               }}
             >
               <TableHead>
@@ -274,7 +280,6 @@ useEffect(() => {
                   >
                     Frequência
                   </TableCell>
-
                   <TableCell
                     align="center"
                     sx={{
@@ -283,37 +288,60 @@ useEffect(() => {
                       textAlign: "center",
                     }}
                   >
-                    Exibir Informações do atleta
+                    Exibir Informações do Atleta
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAlunos.map((aluno, index) => (
-                  <TableRow
-                    key={aluno.nome}
-                    sx={{ "& > *": { borderBottom: "unset" } }}
-                  >
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      {aluno.nome}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ color: "black", fontWeight: "bold" }}
-                      onClick={() => toggleAttendance(aluno.id, selectedDay)}
-                    >
-                      {aluno.presencas[selectedMonth][selectedDay] ? "." : "F"}
-                    </TableCell>
+                {filteredAlunos.map((aluno, index) => {
+                  const hasValidAviso = isAvisoValid(aluno);
 
-                    <TableCell onClick={() => handleOpenModal(aluno)}>
-                      <Button
-                        sx={{ width: "50px", fontSize: "12px" }}
-                        variant="contained"
+                  return (
+                    <TableRow
+                      key={aluno.nome}
+                      sx={{
+                        "& > *": { borderBottom: "unset" },
+                        backgroundColor: hasValidAviso ? "#ffeb3b" : "inherit",
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          color: hasValidAviso ? "#b71c1c" : "inherit",
+                        }}
                       >
-                        Abrir
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        {aluno.nome}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{ color: "black", fontWeight: "bold" }}
+                        onClick={() => toggleAttendance(aluno.id, selectedDay)}
+                      >
+                        {aluno.presencas[selectedMonth][selectedDay] ? "." : "F"}
+                      </TableCell>
+                      <TableCell onClick={() => handleOpenModal(aluno)}>
+                        <Button
+                          sx={{
+                            width: "fit-content",
+                            fontSize: "12px",
+                            backgroundColor: hasValidAviso
+                              ? "#d32f2f" // Cor vermelha para indicar um aviso
+                              : "#1976d2", // Cor azul para botões normais
+                            color: "white",
+                            "&:hover": {
+                              backgroundColor: hasValidAviso
+                                ? "#b71c1c"
+                                : "#1565c0",
+                            },
+                          }}
+                          variant="contained"
+                        >
+                          {hasValidAviso ? "Ver Aviso" : "Ver Detalhes"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

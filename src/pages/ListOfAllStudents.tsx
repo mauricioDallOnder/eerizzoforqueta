@@ -18,7 +18,7 @@ import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
 import { useData } from "@/context/context";
 import { useEffect, useState } from "react";
-import { AlunoComTurma } from "@/interface/interfaces";
+import { AlunoComTurma, IIAvisos } from "@/interface/interfaces";
 import { v4 as uuidv4 } from "uuid";
 import { Avatar, Button, Box, Dialog, DialogContent, DialogTitle, IconButton, Snackbar, Alert } from "@mui/material";
 import DownloadingIcon from "@mui/icons-material/Downloading";
@@ -26,6 +26,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ResponsiveAppBar from "@/components/TopBarComponents/TopBar";
 import { StyledDataGrid } from "@/utils/Styles";
 import { useCopyToClipboard } from "@/hooks/CopyToClipboardHook";
+import  { AvisoStudents } from "@/components/AvisosModal/Avisos";
 
 const normalizeText = (text: any): string => {
     return text ? String(text).trim() : "";
@@ -122,6 +123,11 @@ export default function StudantTableGeral() {
     };
 
     const handleCellClick = async (params: GridCellParams) => {
+        if (params.field === 'CriarAviso') {
+            // Se o campo for o botão "Criar Aviso", não faça nada.
+            return;
+        }
+    
         const cellContent = params.value ? String(params.value) : '';
         const success = await copyToClipboard(cellContent);
         if (success) {
@@ -131,6 +137,7 @@ export default function StudantTableGeral() {
             console.error('Failed to copy text to clipboard.');
         }
     };
+    
 
     const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
@@ -162,6 +169,7 @@ export default function StudantTableGeral() {
                 pagadorMensalidadesCpf: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)) : "-",
                 pagadorMensalidadesEmail: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.email) : "-",
                 pagadorMensalidadesCelular: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.celularWhatsapp)) : "-",
+                modalidade:modalidade
             };
         }
     );
@@ -206,6 +214,30 @@ export default function StudantTableGeral() {
         { field: "pagadorMensalidadesCpf", headerName: "CPF do Pagador", width: 200, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesEmail", headerName: "Email do Pagador", width: 250, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesCelular", headerName: "Celular do Pagador", width: 250, cellClassName: 'cell-wrap' },
+        { field: "modalidade", headerName: "Modalidade", width: 250, cellClassName: 'cell-wrap' },
+        {
+            field: "CriarAviso",
+            headerName: "Criar Aviso",
+            width: 150,
+            renderCell: (params) => {
+                const data: IIAvisos = {
+                    alunoNome: params.row.nome, // Ajuste conforme a propriedade correta
+                    modalidade: params.row.modalidade,
+                    nomeDaTurma: params.row.turma, // Ajuste conforme a propriedade correta
+                    textaviso: "",
+                    dataaviso: new Date(),
+                    IsActive: false,
+                };
+                return (
+                    <AvisoStudents 
+                        alunoNome={data.alunoNome} 
+                        nomeDaTurma={data.nomeDaTurma} 
+                        modalidade={data.modalidade} 
+                    />
+                );
+            },
+        },        
+      
     ];
 
     return (

@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import admin from '../../config/firebaseAdmin';
 
-// Supondo que Turma e Aluno estejam corretamente definidos em '@/interface/interfaces'
-import { Turma } from '@/interface/interfaces';
+
 
 export default async function updateUniforme(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {

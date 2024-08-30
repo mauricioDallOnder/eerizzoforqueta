@@ -30,8 +30,7 @@ function CopyStudent({
   nomeDaTurmaOrigem: string;
   modalidadeOrigem: string;
 }) {
-  const { copyStudentTemp, modalidades, fetchModalidades } =
-    useContext(DataContext);
+  const { copyStudentTemp, modalidades, fetchModalidades } = useContext(DataContext);
   const {
     register,
     handleSubmit,
@@ -41,9 +40,7 @@ function CopyStudent({
     formState: { isSubmitting, errors },
   } = useForm<TemporaryMoveStudentsPayload>();
   const [turmasDestinoOptions, setTurmasDestinoOptions] = useState<Turma[]>([]);
-  const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>(
-    []
-  );
+  const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

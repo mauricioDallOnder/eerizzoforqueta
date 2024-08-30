@@ -11,7 +11,8 @@ import {
   IIAlunoUpdate,
   DeleteStudants,
   TemporaryMoveStudentsPayload,
-  Turma
+  Turma,
+  IIAvisos
 } from '../interface/interfaces'
 import axios from 'axios'
 import React, {
@@ -37,6 +38,7 @@ interface DataContextType {
   copyStudentTemp: (payload: TemporaryMoveStudentsPayload) => Promise<void>
   updateUniformeInApi: (data: { modalidade: string; nomeDaTurma: string; alunoNome: string; hasUniforme: boolean }) => Promise<void>;
   deleteStudentFromApi:(payload: DeleteStudants) => Promise<void>
+  avisoStudent: (payload: IIAvisos, method: 'POST' | 'PUT' | 'DELETE') => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType>({
@@ -66,6 +68,10 @@ const DataContext = createContext<DataContextType>({
   copyStudentTemp: async (payload: TemporaryMoveStudentsPayload) => {
     console.warn('moveStudentInApi not implemented', payload)
   },
+  avisoStudent: async (payload: IIAvisos) => {
+    console.warn('moveStudentInApi not implemented', payload)
+  },
+
 })
 
 const useData = () => {
@@ -284,6 +290,35 @@ const copyStudentTemp = async (payload:TemporaryMoveStudentsPayload ) => {
   }
 }
 
+//----------- função para colocar aviso.
+
+const avisoStudent = async (payload: IIAvisos, method: 'POST' | 'PUT' | 'DELETE' = 'POST') => {
+  try {
+    const response = await fetch('/api/ApiAvisos', {
+      method: method, // Usando o método passado como parâmetro
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Falha ao manipular aviso');
+    }
+
+    alert(`Aviso ${method === 'DELETE' ? 'deletado' : 'processado'} com sucesso!`);
+  } catch (error: any) {
+    console.error('Erro ao manipular aviso:', error);
+    alert(`Erro ao manipular aviso: ${error.message}`);
+  }
+}
+
+
+
+
+
+
 //----------------------------------------------------------------------------
 // Função para excluir um estudante
 const deleteStudentFromApi = async (payload: DeleteStudants) => {
@@ -361,7 +396,8 @@ const deleteStudentFromApi = async (payload: DeleteStudants) => {
         updateUniformeInApi,
         deleteStudentFromApi, 
         moveStudentTemp,
-        copyStudentTemp 
+        copyStudentTemp,
+        avisoStudent 
       }}
     >
       {children}

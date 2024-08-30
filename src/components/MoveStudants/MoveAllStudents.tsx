@@ -5,19 +5,17 @@ import {
   Button,
   Box,
   Autocomplete,
-  Container,
   Typography,
   Modal,
 } from "@mui/material";
 import { DataContext } from "@/context/context";
 import {
-  Aluno,
   Modalidade,
   TemporaryMoveStudentsPayload,
   Turma,
 } from "@/interface/interfaces";
 import { BoxStyleCadastro } from "@/utils/Styles";
-import axios from "axios";
+
 import { CorrigirDadosDefinitivos } from "@/utils/CorrigirDadosTurmasEmComponetes";
 
 
