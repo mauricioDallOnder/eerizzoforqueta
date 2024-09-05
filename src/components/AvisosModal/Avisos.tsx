@@ -36,7 +36,7 @@ export function Avisos({
     const [modalidadesOptions, setModalidadesOptions] = useState<Modalidade[]>([]);
     const [checkedAvisoTrue, setcheckedAvisoTrue] = useState<boolean>(false);
     const [avisoExists, setAvisoExists] = useState<boolean>(true);
-    
+
     const verificaAviso = watch("IsActive");
     const dataavisoWatch = watch("dataaviso");
 
@@ -77,11 +77,11 @@ export function Avisos({
                 },
                 body: JSON.stringify({ alunoNome, nomeDaTurma, modalidade }),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Erro ao verificar aviso');
             }
-    
+
             const existingAviso = await response.json();
             setAvisoExists(!!existingAviso);
             if (existingAviso) {
@@ -101,7 +101,7 @@ export function Avisos({
             console.error('Erro ao verificar aviso:', error);
         }
     };
-    
+
     const onSubmit: SubmitHandler<IIAvisos> = useCallback(
         async (data) => {
             try {
@@ -157,7 +157,7 @@ export function Avisos({
     return (
         <>
             <Button variant="contained" color="warning" onClick={() => setOpen(true)}>
-             Avisos
+                Avisos
             </Button>
             <Modal
                 open={open}
@@ -215,9 +215,21 @@ export function Avisos({
                         type="date"
                         label="Data de expiração do aviso"
                         InputLabelProps={{ shrink: true }}
-                        value={dataavisoWatch ? new Date(dataavisoWatch).toISOString().split('T')[0] : ''}
-                        onChange={(e) => setValue('dataaviso', new Date(e.target.value))} // Converte para Date
+                        value={
+                            dataavisoWatch && !isNaN(new Date(dataavisoWatch).getTime())
+                                ? new Date(dataavisoWatch).toISOString().split('T')[0]
+                                : ''
+                        }
+                        onChange={(e) => {
+                            const selectedDate = new Date(e.target.value);
+                            if (!isNaN(selectedDate.getTime())) {
+                                setValue('dataaviso', selectedDate); // Converte para Date apenas se for válido
+                            } else {
+                                console.error('Data inválida selecionada:', e.target.value);
+                            }
+                        }}
                     />
+
                     <FormLabel>Ativar/Desativar Aviso</FormLabel>
                     <FormControlLabel
                         control={
