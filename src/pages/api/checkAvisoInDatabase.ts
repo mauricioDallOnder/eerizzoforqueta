@@ -15,17 +15,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         let avisoEncontrado = null;
-        Object.keys(turmas).forEach(key => {
-            const turma = turmas[key];
+        Object.keys(turmas).forEach(turmaKey => {
+            const turma = turmas[turmaKey];
             if (turma.nome_da_turma === nomeDaTurma) {
-                const alunos = turma.alunos || [];
-                const alunoIndex = alunos.findIndex((aluno: { nome: any; }) => aluno.nome === alunoNome);
-                if (alunoIndex !== -1) {
-                    const avisos = alunos[alunoIndex].avisos;
-                    if (avisos) {
-                        avisoEncontrado = avisos;
+                const alunos = turma.alunos || {};
+                Object.keys(alunos).forEach(alunoKey => {
+                    const aluno = alunos[alunoKey];
+                    if (aluno.nome === alunoNome) {
+                        if (aluno.avisos) {
+                            avisoEncontrado = aluno.avisos;
+                        }
                     }
-                }
+                });
             }
         });
 

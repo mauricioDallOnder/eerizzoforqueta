@@ -77,30 +77,29 @@ export function Avisos({
                 },
                 body: JSON.stringify({ alunoNome, nomeDaTurma, modalidade }),
             });
-
-            if (!response.ok) {
+    
+            if (response.status === 404) {
+                setAvisoExists(false);
+            } else if (!response.ok) {
                 throw new Error('Erro ao verificar aviso');
-            }
-
-            const existingAviso = await response.json();
-            setAvisoExists(!!existingAviso);
-            if (existingAviso) {
+            } else {
+                const existingAviso = await response.json();
+                setAvisoExists(true);
                 setValue('textaviso', existingAviso.textaviso);
-
-                // Certifique-se de que a data seja válida e converta para um objeto Date
                 const date = new Date(existingAviso.dataaviso);
                 if (!isNaN(date.getTime())) {
-                    setValue('dataaviso', date); // Agora é um Date
-                } else {
-                    console.error('Data inválida encontrada:', existingAviso.dataaviso);
+                    setValue('dataaviso', date);
                 }
-
                 setValue('IsActive', existingAviso.IsActive);
             }
         } catch (error) {
             console.error('Erro ao verificar aviso:', error);
         }
     };
+    useEffect(() => {
+        console.log('Estado de avisoExists:', avisoExists);
+    }, [avisoExists]);
+        
 
     const onSubmit: SubmitHandler<IIAvisos> = useCallback(
         async (data) => {
