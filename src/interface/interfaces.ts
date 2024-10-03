@@ -153,14 +153,15 @@ export interface InformacoesAdicionais {
   IdentificadorUnico?:string
 }
 
-export interface IIAvisos{
+export interface IIAvisos {
   alunoNome: string;
   modalidade: string;
   nomeDaTurma: string;
-  textaviso:string;
-  dataaviso:Date;
-  IsActive:boolean
+  textaviso: string;
+  dataaviso: string; // Alterado de Date para string
+  IsActive: boolean;
 }
+
 
 export interface Aluno {
   id: number

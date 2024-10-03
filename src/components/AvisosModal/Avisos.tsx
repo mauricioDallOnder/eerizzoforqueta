@@ -38,16 +38,24 @@ export function Avisos({
     const [avisoExists, setAvisoExists] = useState<boolean>(true);
 
     const verificaAviso = watch("IsActive");
-    const dataavisoWatch = watch("dataaviso");
 
     useEffect(() => {
         if (open) {
-            setValue('alunoNome', alunoNome);
-            setValue('nomeDaTurma', nomeDaTurma);
-            setValue('modalidade', modalidade);
-            checkExistingAviso(); // Checa se o aviso já existe quando o modal é aberto
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+
+            reset({
+                alunoNome: alunoNome,
+                nomeDaTurma: nomeDaTurma,
+                modalidade: modalidade,
+                IsActive: true,
+                dataaviso: todayString,
+                textaviso: '',
+            });
+
+            checkExistingAviso();
         }
-    }, [open, alunoNome, nomeDaTurma, modalidade, setValue]);
+    }, [open, alunoNome, nomeDaTurma, modalidade, reset]);
 
     useEffect(() => {
         fetchModalidades().catch(console.error);
@@ -77,7 +85,7 @@ export function Avisos({
                 },
                 body: JSON.stringify({ alunoNome, nomeDaTurma, modalidade }),
             });
-    
+
             if (response.status === 404) {
                 setAvisoExists(false);
             } else if (!response.ok) {
@@ -85,27 +93,28 @@ export function Avisos({
             } else {
                 const existingAviso = await response.json();
                 setAvisoExists(true);
-                setValue('textaviso', existingAviso.textaviso);
+
                 const date = new Date(existingAviso.dataaviso);
-                if (!isNaN(date.getTime())) {
-                    setValue('dataaviso', date);
-                }
-                setValue('IsActive', existingAviso.IsActive);
+                const dateString = !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : '';
+
+                reset({
+                    alunoNome: alunoNome,
+                    nomeDaTurma: nomeDaTurma,
+                    modalidade: modalidade,
+                    IsActive: existingAviso.IsActive,
+                    dataaviso: dateString,
+                    textaviso: existingAviso.textaviso,
+                });
             }
         } catch (error) {
             console.error('Erro ao verificar aviso:', error);
         }
     };
-    useEffect(() => {
-        console.log('Estado de avisoExists:', avisoExists);
-    }, [avisoExists]);
-        
 
     const onSubmit: SubmitHandler<IIAvisos> = useCallback(
         async (data) => {
             try {
-                // Certifique-se de que dataaviso é um objeto Date
-                const dataavisoDate = new Date(data.dataaviso);
+                const dataavisoDate = new Date(`${data.dataaviso}T00:00:00`);
                 if (isNaN(dataavisoDate.getTime())) {
                     throw new Error('Data inválida fornecida');
                 }
@@ -115,8 +124,8 @@ export function Avisos({
                     modalidade: data.modalidade,
                     nomeDaTurma: data.nomeDaTurma,
                     textaviso: data.textaviso,
-                    dataaviso: dataavisoDate, // Passe como um Date
-                    IsActive: data.IsActive
+                    dataaviso: dataavisoDate.toISOString(),
+                    IsActive: data.IsActive,
                 };
 
                 if (avisoExists) {
@@ -133,7 +142,7 @@ export function Avisos({
                 alert("Erro ao processar aviso.");
             }
         },
-        [avisoStudent, reset, avisoExists, modalidade, nomeDaTurma, watch]
+        [avisoStudent, reset, avisoExists]
     );
 
     const handleDelete = async () => {
@@ -141,7 +150,7 @@ export function Avisos({
             await avisoStudent({
                 alunoNome, nomeDaTurma, modalidade,
                 textaviso: "",
-                dataaviso: new Date(), // Passe um Date válido
+                dataaviso: new Date().toISOString(),
                 IsActive: false
             }, 'DELETE');
             alert("Aviso deletado com sucesso");
@@ -210,23 +219,12 @@ export function Avisos({
                     <TextField
                         margin="normal"
                         fullWidth
-                        {...register("dataaviso")}
+                        {...register("dataaviso", { required: true })}
                         type="date"
                         label="Data de expiração do aviso"
                         InputLabelProps={{ shrink: true }}
-                        value={
-                            dataavisoWatch && !isNaN(new Date(dataavisoWatch).getTime())
-                                ? new Date(dataavisoWatch).toISOString().split('T')[0]
-                                : ''
-                        }
-                        onChange={(e) => {
-                            const selectedDate = new Date(e.target.value);
-                            if (!isNaN(selectedDate.getTime())) {
-                                setValue('dataaviso', selectedDate); // Converte para Date apenas se for válido
-                            } else {
-                                console.error('Data inválida selecionada:', e.target.value);
-                            }
-                        }}
+                        error={!!errors.dataaviso}
+                        helperText={errors.dataaviso ? 'Data de expiração é obrigatória' : ''}
                     />
 
                     <FormLabel>Ativar/Desativar Aviso</FormLabel>
@@ -266,6 +264,7 @@ interface IIAvisosProps {
     nomeDaTurma: string;
     modalidade: string;
 }
+
 function areEqual(
     prevProps: IIAvisosProps,
     nextProps: IIAvisosProps
