@@ -21,7 +21,7 @@ import { Aluno, StudentPresenceTableProps } from "@/interface/interfaces";
 import { DataContext } from "@/context/context";
 import { modalStyle } from "@/utils/Styles";
 import { ListaDeChamadaModal } from "./ListaDeChamadaModal";
-
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   alunosDaTurma,
   setAlunosDaTurma,
@@ -65,10 +65,10 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
   const daysInMonth =
     alunosDaTurma.length > 0
       ? Object.keys(
-          alunosDaTurma.find((aluno) => aluno !== null)?.presencas[
-            selectedMonth
-          ] || {}
-        )
+        alunosDaTurma.find((aluno) => aluno !== null)?.presencas[
+        selectedMonth
+        ] || {}
+      )
       : [];
 
   const handleOpenModal = (aluno: Aluno) => {
@@ -256,7 +256,7 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
                 "& tbody tr:nth-of-type(odd)": {
                   backgroundColor: "rgba(247, 247, 247, 1)",
                 },
-                
+
               }}
             >
               <TableHead>
@@ -304,14 +304,36 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
                         backgroundColor: hasValidAviso ? "#ffeb3b" : "inherit",
                       }}
                     >
-                      <TableCell
+                      {hasValidAviso ? <TableCell
                         sx={{
                           fontWeight: "bold",
-                          color: hasValidAviso ? "#b71c1c" : "inherit",
+                          backgroundColor: hasValidAviso ? "#b71c1c" : "inherit",
+
                         }}
                       >
-                        {aluno.nome}
-                      </TableCell>
+                        <Box sx={{
+                          display: "flex",
+                          height: "fit-content",
+                          alignItems: "center",
+                          alignContent: "center"
+                        }}>
+                          
+                          {aluno.nome}
+                          <WarningAmberIcon color="error" />
+                        </Box>
+
+
+                      </TableCell> :
+
+                        <TableCell
+                          sx={{
+                            fontWeight: "bold",
+                            color: "inherit",
+                          }}
+                        >
+                          {aluno.nome}
+                        </TableCell>}
+
                       <TableCell
                         align="center"
                         sx={{ color: "black", fontWeight: "bold" }}
