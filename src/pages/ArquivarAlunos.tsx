@@ -103,7 +103,7 @@ export default function ArquivarAlunos() {
 
                 try {
                     // Corrige os dados das turmas após a remoção do aluno
-                    //await CorrigirDadosDefinitivos();
+                    await CorrigirDadosDefinitivos();
                 } catch (error) {
                     console.error('Erro ao corrigir dados da turma:', error);
                 }
