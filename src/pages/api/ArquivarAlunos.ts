@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyJfDJO6OmPrVfwV4Ls5HRCj2kt3xQWL5qBe_e7H5itUrn9wjwhME2kM8UOGJLTuusc1Q/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwVo_YHHeLdhJoXSgkFCl0WLd9kbJNtHApm2j-JfDpgXJpS872_E6DFV_yTEG5S09ZTzw/exec', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

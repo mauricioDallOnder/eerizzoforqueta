@@ -321,29 +321,29 @@ const avisoStudent = async (payload: IIAvisos, method: 'POST' | 'PUT' | 'DELETE'
 
 //----------------------------------------------------------------------------
 // Função para excluir um estudante
-const deleteStudentFromApi = async (payload: DeleteStudants) => {
-  try {
-    const response = await fetch('/api/deleteStudent', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+// No contexto (DataContext)
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Falha ao excluir aluno');
-    }
-
-    const data = await response.json();
-    console.log('Aluno excluído com sucesso:', data);
-    return data;  // Retorne os dados recebidos para confirmação ou atualização do estado local, se necessário.
-  } catch (error) {
-    console.error('Erro ao excluir aluno:', error);
-    throw error;  // Relance o erro para ser tratado por quem chamou a função.
+async function deleteStudentFromApi(data: { alunoId: string; modalidade: string; nomeDaTurma: string; }) {
+  if (!data.alunoId || !data.modalidade || !data.nomeDaTurma) {
+    throw new Error('Dados incompletos para excluir o aluno.');
   }
-};
+
+  const response = await fetch('/api/deleteStudent', {
+    method: 'POST', // Alterado para POST
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Erro ao excluir o aluno.');
+  }
+
+  return response.json();
+}
+
 
 
 

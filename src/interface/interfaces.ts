@@ -325,7 +325,7 @@ export interface AlunoAutocompleteOption {
 }
 
 export interface DeleteStudants{
-  alunoId?: string 
+  alunoId: string 
   modalidade: string, 
   nomeDaTurma: string
   alunosNomes?:string

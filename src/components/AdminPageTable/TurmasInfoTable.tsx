@@ -121,43 +121,62 @@ export default function TurmasInfoTable() {
           <TableHead>
             <TableRow sx={{ bgcolor: 'primary.main' }}>
               <TableCell sx={{ color: 'primary.contrastText'}}>Nome da Turma</TableCell>
-              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Núcleo</TableCell>
-              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Categoria</TableCell>
-              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Capacidade Máxima</TableCell>
-              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Capacidade Atual</TableCell>
-              <TableCell sx={{ color: 'primary.contrastText',textAlign:"center" }}>Presença Semanal</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText', textAlign:"center" }}>Núcleo</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText', textAlign:"center" }}>Categoria</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText', textAlign:"center" }}>Capacidade Máxima</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText', textAlign:"center" }}>Capacidade Atual</TableCell>
+              <TableCell sx={{ color: 'primary.contrastText', textAlign:"center" }}>Presença Semanal</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredTurmas.map((turma, index) => (
-              <TableRow
-                key={turma.nome_da_turma}
-                sx={{
-                  '&:last-child td, &:last-child th': { border: 0 },
-                  bgcolor: index % 2 === 0 ? 'background.default' : 'grey.100',
-                }}
-              >
-                <TableCell component="th" scope="row" onClick={() => handleOpenModal(turma)} sx={{ cursor: 'pointer', color: 'text.primary' }}>
-                  {turma.nome_da_turma}
-                </TableCell>
-                <TableCell sx={{ color: 'text.primary',textAlign:"center" }}>{turma.nucleo}</TableCell>
-                <TableCell sx={{ color: 'text.primary' ,textAlign:"center"}}>{turma.categoria}</TableCell>
-                <TableCell sx={{ color: 'text.primary',textAlign:"center" }}>{turma.capacidade_maxima_da_turma}</TableCell>
-                <TableCell sx={{ color: 'text.primary' ,textAlign:"center"}}>{turma.capacidade_atual_da_turma}</TableCell>
-                <TableCell>
-                  <Button variant="contained"  color="secondary" onClick={() => handleOpenPresencaSemanalModal(turma)}>
-                    Presença Semanal
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {filteredTurmas.map((turma, index) => {
+              const modalidade = selectedModalidade;
+              let nomeDaTurmaDisplay = turma.nome_da_turma;
+
+              // Verifica se o nome da turma já inclui a modalidade
+              if (!turma.nome_da_turma.toLowerCase().includes(modalidade.toLowerCase())) {
+                nomeDaTurmaDisplay = `${modalidade}_${turma.nome_da_turma}`;
+              }
+
+              return (
+                <TableRow
+                  key={nomeDaTurmaDisplay}
+                  sx={{
+                    '&:last-child td, &:last-child th': { border: 0 },
+                    bgcolor: index % 2 === 0 ? 'background.default' : 'grey.100',
+                  }}
+                >
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    onClick={() => handleOpenModal(turma)}
+                    sx={{ cursor: 'pointer', color: 'text.primary' }}
+                  >
+                    {nomeDaTurmaDisplay}
+                  </TableCell>
+                  <TableCell sx={{ color: 'text.primary', textAlign:"center" }}>{turma.nucleo}</TableCell>
+                  <TableCell sx={{ color: 'text.primary', textAlign:"center" }}>{turma.categoria}</TableCell>
+                  <TableCell sx={{ color: 'text.primary', textAlign:"center" }}>{turma.capacidade_maxima_da_turma}</TableCell>
+                  <TableCell sx={{ color: 'text.primary', textAlign:"center" }}>{turma.capacidade_atual_da_turma}</TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="secondary" onClick={() => handleOpenPresencaSemanalModal(turma)}>
+                      Presença Semanal
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
       {selectedTurma && (
         <ControleFrequenciaTableNoSSR
           alunosDaTurma={selectedTurma.alunos}
-          nomeDaTurma={selectedTurma.nome_da_turma}
+          nomeDaTurma={
+            !selectedTurma.nome_da_turma.toLowerCase().includes(selectedModalidade.toLowerCase())
+              ? `${selectedModalidade}_${selectedTurma.nome_da_turma}`
+              : selectedTurma.nome_da_turma
+          }
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
@@ -165,7 +184,11 @@ export default function TurmasInfoTable() {
       {selectedTurma && isPresencaSemanalModalOpen && (
         <TurmaPresencaSemanal
           alunosDaTurma={selectedTurma.alunos}
-          nomeDaTurma={selectedTurma.nome_da_turma}
+          nomeDaTurma={
+            !selectedTurma.nome_da_turma.toLowerCase().includes(selectedModalidade.toLowerCase())
+              ? `${selectedModalidade}_${selectedTurma.nome_da_turma}`
+              : selectedTurma.nome_da_turma
+          }
           isOpen={isPresencaSemanalModalOpen}
           onClose={() => setIsPresencaSemanalModalOpen(false)}
         />

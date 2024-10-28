@@ -1,3 +1,4 @@
+// Importações necessárias
 import * as React from "react";
 import {
     DataGrid,
@@ -26,12 +27,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import ResponsiveAppBar from "@/components/TopBarComponents/TopBar";
 import { StyledDataGrid } from "@/utils/Styles";
 import { useCopyToClipboard } from "@/hooks/CopyToClipboardHook";
-import  { AvisoStudents } from "@/components/AvisosModal/Avisos";
+import { AvisoStudents } from "@/components/AvisosModal/Avisos";
 
+// Função para normalizar textos
 const normalizeText = (text: any): string => {
     return text ? String(text).trim() : "";
 };
 
+// Componente de paginação customizada
 function CustomPagination() {
     const apiRef = useGridApiContext();
     const page = useGridSelector(apiRef, gridPageSelector);
@@ -70,8 +73,10 @@ function CustomPagination() {
     );
 }
 
+// Definição do tamanho da página
 const PAGE_SIZE = 30;
 
+// Componente principal
 export default function StudantTableGeral() {
     const { fetchStudantsTableData } = useData();
     const [alunosComTurma, setAlunosComTurma] = useState<AlunoComTurma[]>([]);
@@ -85,35 +90,37 @@ export default function StudantTableGeral() {
         page: 0,
     });
 
+    // Efeito para buscar os dados dos alunos
     useEffect(() => {
         fetchStudantsTableData(undefined, PAGE_SIZE, paginationModel.page * PAGE_SIZE).then((modalidadesFetched) => {
-          const modalidadesValidas = modalidadesFetched.filter(
-            (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
-          );
-      
-          const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
-            modalidade.turmas.flatMap((turma) => {
-              const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
-              return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
-                aluno: {
-                  ...aluno,
-                  informacoesAdicionais: {
-                    ...aluno.informacoesAdicionais,
-                    IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
-                  },
-                },
-                nomeDaTurma: turma.nome_da_turma,
-                categoria: turma.categoria,
-                modalidade: turma.modalidade,
-                uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
-              }));
-            })
-          );
-      
-          setAlunosComTurma(alunosComTurmaTemp);
-        });
-      }, [fetchStudantsTableData, paginationModel.page]);
+            const modalidadesValidas = modalidadesFetched.filter(
+                (modalidade) => !["temporarios", "arquivados", "excluidos"].includes(modalidade.nome.toLowerCase())
+            );
 
+            const alunosComTurmaTemp: AlunoComTurma[] = modalidadesValidas.flatMap((modalidade) =>
+                modalidade.turmas.flatMap((turma) => {
+                    const alunosArray = Array.isArray(turma.alunos) ? turma.alunos : [];
+                    return alunosArray.filter(Boolean).map((aluno): AlunoComTurma => ({
+                        aluno: {
+                            ...aluno,
+                            informacoesAdicionais: {
+                                ...aluno.informacoesAdicionais,
+                                IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico ?? uuidv4(),
+                            },
+                        },
+                        nomeDaTurma: turma.nome_da_turma,
+                        categoria: turma.categoria,
+                        modalidade: turma.modalidade,
+                        uniforme: aluno.informacoesAdicionais?.hasUniforme ?? false,
+                    }));
+                })
+            );
+
+            setAlunosComTurma(alunosComTurmaTemp);
+        });
+    }, [fetchStudantsTableData, paginationModel.page]);
+
+    // Funções para manipulação de foto e snackbar
     const handleClose = () => {
         setSelectedPhoto(null);
     };
@@ -127,17 +134,16 @@ export default function StudantTableGeral() {
             // Se o campo for o botão "Criar Aviso", não faça nada.
             return;
         }
-    
+
         const cellContent = params.value ? String(params.value) : '';
         const success = await copyToClipboard(cellContent);
         if (success) {
-            console.log(`Text "${cellContent}" copied to clipboard successfully.`);
+            console.log(`Texto "${cellContent}" copiado para a área de transferência com sucesso.`);
             setOpenSnackbar(true);
         } else {
-            console.error('Failed to copy text to clipboard.');
+            console.error('Falha ao copiar texto para a área de transferência.');
         }
     };
-    
 
     const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
@@ -146,6 +152,7 @@ export default function StudantTableGeral() {
         setOpenSnackbar(false);
     };
 
+    // Preparação das linhas da tabela
     const rows: GridRowsProp = alunosComTurma.map(
         ({ aluno, nomeDaTurma, categoria, modalidade }) => {
             return {
@@ -157,7 +164,9 @@ export default function StudantTableGeral() {
                 rg: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.rg) : "-",
                 uniforme: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.uniforme) : "-",
                 telefoneComWhatsapp: aluno.telefoneComWhatsapp == undefined ? "-" : normalizeText(String(aluno.telefoneComWhatsapp)),
-                turma: nomeDaTurma,
+                modalidade_turma: `${modalidade}_${nomeDaTurma}`, // Campo combinado
+                turma: nomeDaTurma, // Mantém para uso interno
+                modalidade: modalidade, // Mantém para uso interno
                 irmaos: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.irmaos) : "-",
                 nomefuncionarioJBS: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionarioJBS) : "-",
                 nomefuncionariomarcopolo: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.nomefuncionariomarcopolo) : "-",
@@ -169,7 +178,6 @@ export default function StudantTableGeral() {
                 pagadorMensalidadesCpf: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)) : "-",
                 pagadorMensalidadesEmail: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.email) : "-",
                 pagadorMensalidadesCelular: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.celularWhatsapp)) : "-",
-                modalidade:modalidade
             };
         }
     );
@@ -179,6 +187,7 @@ export default function StudantTableGeral() {
         ...(modifiedRows[row.id] ? { uniforme: modifiedRows[row.id].uniforme } : {})
     }));
 
+    // Definição das colunas da tabela
     const columns: GridColDef[] = [
         {
             field: "foto",
@@ -202,7 +211,16 @@ export default function StudantTableGeral() {
         { field: "rg", headerName: "RG", width: 200, cellClassName: 'cell-wrap' },
         { field: "uniforme", headerName: "Uniforme", width: 100, cellClassName: 'cell-wrap' },
         { field: "telefoneComWhatsapp", headerName: "Telefone com WhatsApp", width: 250, cellClassName: 'cell-wrap' },
-        { field: "turma", headerName: "Turma", width: 250, cellClassName: 'cell-wrap' },
+        // Nova coluna combinada
+        {
+            field: "modalidade_turma",
+            headerName: "Modalidade e Turma",
+            width: 250,
+            cellClassName: 'cell-wrap',
+        },
+        // Remova as colunas individuais se não forem necessárias
+        // { field: "turma", headerName: "Turma", width: 250, cellClassName: 'cell-wrap' },
+        // { field: "modalidade", headerName: "Modalidade", width: 250, cellClassName: 'cell-wrap' },
         { field: "irmaos", headerName: "Irmãos", width: 150, cellClassName: 'cell-wrap' },
         { field: "nomefuncionarioJBS", headerName: "Funcionário JBS", width: 150, cellClassName: 'cell-wrap' },
         { field: "nomefuncionariomarcopolo", headerName: "Funcionário Marcopolo", width: 180, cellClassName: 'cell-wrap' },
@@ -214,30 +232,28 @@ export default function StudantTableGeral() {
         { field: "pagadorMensalidadesCpf", headerName: "CPF do Pagador", width: 200, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesEmail", headerName: "Email do Pagador", width: 250, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesCelular", headerName: "Celular do Pagador", width: 250, cellClassName: 'cell-wrap' },
-        { field: "modalidade", headerName: "Modalidade", width: 250, cellClassName: 'cell-wrap' },
         {
             field: "CriarAviso",
             headerName: "Criar Aviso",
             width: 150,
             renderCell: (params) => {
                 const data: IIAvisos = {
-                    alunoNome: params.row.nome, // Ajuste conforme a propriedade correta
-                    modalidade: params.row.modalidade,
-                    nomeDaTurma: params.row.turma, // Ajuste conforme a propriedade correta
+                    alunoNome: params.row.nome,
+                    modalidade: params.row.modalidade, // Utiliza o campo modalidade
+                    nomeDaTurma: params.row.turma,     // Utiliza o campo turma
                     textaviso: "",
-                    dataaviso: new Date(),
+                    dataaviso: new Date().toISOString(),
                     IsActive: false,
                 };
                 return (
-                    <AvisoStudents 
-                        alunoNome={data.alunoNome} 
-                        nomeDaTurma={data.nomeDaTurma} 
-                        modalidade={data.modalidade} 
+                    <AvisoStudents
+                        alunoNome={data.alunoNome}
+                        nomeDaTurma={data.nomeDaTurma}
+                        modalidade={data.modalidade}
                     />
                 );
             },
-        },        
-      
+        },
     ];
 
     return (
@@ -277,6 +293,7 @@ export default function StudantTableGeral() {
                         }}
                     />
                 </Box>
+                {/* Dialog para exibição da foto em tamanho maior */}
                 <Dialog open={!!selectedPhoto} onClose={handleClose} maxWidth="sm" fullWidth>
                     <DialogTitle>
                         <IconButton
@@ -292,6 +309,7 @@ export default function StudantTableGeral() {
                         <img src={selectedPhoto!} alt="Aluno" style={{ width: '100%' }} />
                     </DialogContent>
                 </Dialog>
+                {/* Snackbar para confirmação de cópia */}
                 <Snackbar
                     open={openSnackbar}
                     autoHideDuration={3000}
@@ -305,4 +323,3 @@ export default function StudantTableGeral() {
         </>
     );
 }
-

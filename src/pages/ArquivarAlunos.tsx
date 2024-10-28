@@ -10,7 +10,6 @@ import { HeaderForm } from '@/components/HeaderDefaultForm';
 import { v4 as uuidv4 } from 'uuid';
 import { CorrigirDadosDefinitivos } from '@/utils/CorrigirDadosTurmasEmComponetes';
 
-
 export default function ArquivarAlunos() {
     const { deleteStudentFromApi, modalidades, fetchModalidades } = useContext(DataContext);
     const { handleSubmit, control } = useForm();
@@ -31,20 +30,36 @@ export default function ArquivarAlunos() {
         if (modalidades.length > 0 && dataLoaded) {
             const alunosExtraidos = modalidades.flatMap(modalidade =>
                 modalidade.turmas.flatMap(turma =>
-                    Array.isArray(turma.alunos) ? 
-                    turma.alunos.filter(Boolean).map(aluno => ({
-                        ...aluno,
-                        alunoId: uuidv4(), // Gerar chave única
-                        nome: aluno.nome ?? "",
-                        anoNascimento: aluno.anoNascimento ?? "",
-                        telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
-                        informacoesAdicionais: aluno.informacoesAdicionais ?? {},
-                        modalidade: modalidade.nome,
-                        nomeDaTurma: turma.nome_da_turma,
-                        dataMatricula: aluno.dataMatricula ?? "",
-                        foto: aluno.foto ?? "",
-                        IdentificadorUnico: aluno.informacoesAdicionais?.IdentificadorUnico // Preservar IdentificadorUnico
-                    })) : []
+                    Array.isArray(turma.alunos) ?
+                        turma.alunos.filter(Boolean).map(aluno => {
+                            // Verificar e adicionar IdentificadorUnico se necessário
+                            let identificadorUnico = aluno.informacoesAdicionais?.IdentificadorUnico;
+                            if (!identificadorUnico) {
+                                identificadorUnico = uuidv4();
+                                // Atualizar o aluno no banco de dados com o novo IdentificadorUnico
+                                // Atenção: Atualizar o banco de dados diretamente do frontend não é recomendado
+                                // Idealmente, isso deveria ser feito através de uma API segura no backend
+                                // Aqui estamos apenas atualizando o objeto localmente
+                                aluno.informacoesAdicionais = {
+                                    ...aluno.informacoesAdicionais,
+                                    IdentificadorUnico: identificadorUnico,
+                                };
+                            }
+
+                            return {
+                                ...aluno,
+                                alunoId: identificadorUnico,
+                                nome: aluno.nome ?? "",
+                                anoNascimento: aluno.anoNascimento ?? "",
+                                telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
+                                informacoesAdicionais: aluno.informacoesAdicionais ?? {},
+                                modalidade: modalidade.nome,
+                                nomeDaTurma: turma.nome_da_turma,
+                                dataMatricula: aluno.dataMatricula ?? "",
+                                foto: aluno.foto ?? "",
+                                IdentificadorUnico: identificadorUnico, // Certificando-se de que o IdentificadorUnico está presente
+                            };
+                        }) : []
                 )
             );
             setAlunosOptions(alunosExtraidos);
@@ -56,26 +71,44 @@ export default function ArquivarAlunos() {
             alert("Selecione um aluno para arquivar.");
             return;
         }
+
+        // Verifica se os dados necessários estão presentes
+        if (!selectedAluno.IdentificadorUnico || !selectedAluno.modalidade || !selectedAluno.nomeDaTurma) {
+            alert("Dados do aluno incompletos. Não é possível arquivar.");
+            console.log('IdentificadorUnico:', selectedAluno.IdentificadorUnico);
+            console.log('Modalidade:', selectedAluno.modalidade);
+            console.log('Nome da Turma:', selectedAluno.nomeDaTurma);
+            return;
+        }
+
         setIsDeleting(true);
         try {
+            // Envia os dados do aluno para serem salvos na planilha do Google Sheets
             const response = await axios.post('/api/ArquivarAlunos', selectedAluno);
             const data = response.data;
             if (data.status === 'Success') {
                 try {
+                    // Remove o aluno do banco de dados via API do Next.js
                     await deleteStudentFromApi({
-                        ...selectedAluno,
-                        alunoId: selectedAluno.IdentificadorUnico,
+                        alunoId: selectedAluno.IdentificadorUnico as string,
+                        modalidade: selectedAluno.modalidade,
+                        nomeDaTurma: selectedAluno.nomeDaTurma,
                     });
                 } catch (error) {
                     console.error('Erro ao remover aluno:', error);
+                    console.log(selectedAluno.IdentificadorUnico)
+                    console.log(selectedAluno.modalidade)
+                    console.log( selectedAluno.nomeDaTurma)
                 }
 
                 try {
-                    await CorrigirDadosDefinitivos();
+                    // Corrige os dados das turmas após a remoção do aluno
+                    //await CorrigirDadosDefinitivos();
                 } catch (error) {
                     console.error('Erro ao corrigir dados da turma:', error);
                 }
 
+                // Atualiza a lista de alunos disponíveis para arquivamento
                 setAlunosOptions(prev => prev.filter(aluno => aluno.IdentificadorUnico !== selectedAluno.IdentificadorUnico));
                 alert("Aluno arquivado com sucesso.");
             } else {
@@ -96,7 +129,7 @@ export default function ArquivarAlunos() {
                 <Box component="form" sx={BoxStyleCadastro} onSubmit={handleSubmit(onSubmit)} noValidate>
                     <HeaderForm titulo={"Arquivar Alunos"} />
                     <Typography sx={{ color: "black", fontWeight: "bold" }}>
-                        Ao arquivar os alunos eles serão deletados do banco de dados, mas os seus dados serão salvos em uma planilha do google que pode ser acessada por esse link:<br />
+                        Ao arquivar os alunos, eles serão deletados do banco de dados, mas os seus dados serão salvos em uma planilha do Google que pode ser acessada por esse link:<br />
                         <a href="https://docs.google.com/spreadsheets/d/1RPYA67-ycJAypRlN_GDwNtqpx0sKhyjF7NfDLTbshG8/edit#gid=0">Acessar Planilha de Alunos Arquivados</a>
                     </Typography>
                     <br />
@@ -120,7 +153,7 @@ export default function ArquivarAlunos() {
                     />
 
                     <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }} disabled={isDeleting}>
-                        {isDeleting ? "Arquivando estudante e atualizando turmas.. aguarde.." : "Arquivar Aluno"}
+                        {isDeleting ? "Arquivando estudante e atualizando turmas... aguarde..." : "Arquivar Aluno"}
                     </Button>
                 </Box>
             </Container>
