@@ -178,6 +178,7 @@ export default function StudantTableGeral() {
                 pagadorMensalidadesCpf: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.cpf)) : "-",
                 pagadorMensalidadesEmail: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.pagadorMensalidades?.email) : "-",
                 pagadorMensalidadesCelular: aluno.informacoesAdicionais ? normalizeText(String(aluno.informacoesAdicionais.pagadorMensalidades?.celularWhatsapp)) : "-",
+                escolaEstuda: aluno.informacoesAdicionais ? normalizeText(aluno.informacoesAdicionais.escolaEstuda) : "-", //escolaEstuda
             };
         }
     );
@@ -232,6 +233,7 @@ export default function StudantTableGeral() {
         { field: "pagadorMensalidadesCpf", headerName: "CPF do Pagador", width: 200, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesEmail", headerName: "Email do Pagador", width: 250, cellClassName: 'cell-wrap' },
         { field: "pagadorMensalidadesCelular", headerName: "Celular do Pagador", width: 250, cellClassName: 'cell-wrap' },
+        { field: "escolaEstuda", headerName: "Escola que estuda:", width: 250, cellClassName: 'cell-wrap' },
         {
             field: "CriarAviso",
             headerName: "Criar Aviso",
