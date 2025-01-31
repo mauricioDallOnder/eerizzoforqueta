@@ -1,19 +1,31 @@
+// pages/api/updatePresencas.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import admin from '../../config/firebaseAdmin';
-import { gerarPresencasParaAlunoSemestre, extrairDiaDaSemana } from '@/utils/Constants';
+
+// Importe as funções que você precisa
+import {
+  extrairDiaDaSemana,
+  gerarPresencasParaAluno,
+  gerarPresencasParaAlunoSemestre,
+} from '@/utils/Constants';
 
 const db = admin.database();
 
+/**
+ * Exemplo de API que pode usar EITHER "gerarPresencasParaAluno" ou "gerarPresencasParaAlunoSemestre"
+ * dependendo do body enviado.
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).end('Method Not Allowed');
   }
 
-  const { ano, semestre, modalidade } = req.body;
+  // Exemplo: se o frontend mandar { modalidade, modo: "semestre"|"corrente", semestre: "primeiro"|"segundo", ano: number }
+  const { modalidade, modo, semestre, ano } = req.body;
 
-  if (!modalidade || !ano || !semestre) {
-    return res.status(400).json({ error: 'Dados incompletos. Ex: { ano, semestre, modalidade }' });
+  if (!modalidade) {
+    return res.status(400).json({ error: 'Nenhuma modalidade foi recebida.' });
   }
 
   try {
@@ -24,17 +36,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // extrai dia da semana do nome_da_turma
       const diaDaSemana = extrairDiaDaSemana(turma.nome_da_turma);
-      console.log('Dia da semana:', diaDaSemana);
+      console.log('Dia da semana extraído:', diaDaSemana);
 
-      // Aqui geramos presenças, definindo jan..jun se "primeiro", jul..dez se "segundo"
-      // e usando o "ano" que veio no body
-      const novasPresencas = gerarPresencasParaAlunoSemestre(
-        diaDaSemana,
-        semestre,  // "primeiro" ou "segundo"
-        ano        // ex: 2024, 2025 etc
-      );
+      // Escolhe qual função usar dependendo do "modo"
+      let novasPresencas;
+      if (modo === 'semestre' && semestre && ano) {
+        // Gera presenças fixas pro "semestre"
+        novasPresencas = gerarPresencasParaAlunoSemestre(diaDaSemana, semestre, ano);
+      } else {
+        // Gera presenças com ano corrente e base no mesAtual <7 ou >=7
+        novasPresencas = gerarPresencasParaAluno(diaDaSemana);
+      }
 
-      const turmaSnapshot = await db.ref(`modalidades/${modalidade.nome}/turmas`)
+      // Buscar a turma no Firebase
+      const turmaSnapshot = await db
+        .ref(`modalidades/${modalidade.nome}/turmas`)
         .orderByChild('nome_da_turma')
         .equalTo(turma.nome_da_turma)
         .once('value');
@@ -50,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Atualiza cada aluno
       for (const aluno of turma.alunos) {
         if (aluno && aluno.id !== undefined) {
-          console.log('Atualizando presenças para o aluno:', aluno.nome, 'com ID:', aluno.id);
+          console.log('Atualizando presenças para o aluno:', aluno.nome, 'ID:', aluno.id);
           await db.ref(`modalidades/${modalidade.nome}/turmas/${turmaKey}/alunos/${aluno.id}`)
             .update({ presencas: novasPresencas });
         }
