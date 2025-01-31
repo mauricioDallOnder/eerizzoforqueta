@@ -197,14 +197,7 @@ export default function AtualizarSemestre() {
  * Divide um array em lotes (sub-arrays) de tamanho "chunkSize".
  * Ex.: chunkArray([1,2,3,4,5], 2) => [[1,2],[3,4],[5]]
  */
-// Repetido aqui para ficar tudo em um arquivo, ou você pode manter em outro local
-function chunkArray(array: any[], chunkSize: number) {
-    const result = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        result.push(array.slice(i, i + chunkSize));
-    }
-    return result;
-}
+
 
 // Proteção de rota Next Auth (caso use Admin)
 export const getServerSideProps: GetServerSideProps = async (context) => {
