@@ -293,79 +293,87 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {filteredAlunos.map((aluno, index) => {
-                  const hasValidAviso = isAvisoValid(aluno);
+             <TableBody>
+  {filteredAlunos.map((aluno, index) => {
+    const hasValidAviso = isAvisoValid(aluno);
 
-                  return (
-                    <TableRow
-                      key={aluno.nome}
-                      sx={{
-                        "& > *": { borderBottom: "unset" },
-                        backgroundColor: hasValidAviso ? "#ffeb3b" : "inherit",
-                      }}
-                    >
-                      {hasValidAviso ? <TableCell
-                        sx={{
-                          fontWeight: "bold",
-                          backgroundColor: hasValidAviso ? "#b71c1c" : "inherit",
+    return (
+      <TableRow
+        key={aluno.nome}
+        sx={{
+          "& > *": { borderBottom: "unset" },
+          // Fundo da linha amarelo se tiver aviso
+          backgroundColor: hasValidAviso ? "#ffeb3b" : "inherit",
+        }}
+      >
+        {hasValidAviso ? (
+          <TableCell
+            // Removemos o background #b71c1c para não sobrescrever a cor da fonte
+            sx={{
+              // Se preferir, poderia usar backgroundColor: 'inherit'
+              // se não quiser outra cor no cell
+              backgroundColor: "inherit",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px", // espaçamento horizontal
+              }}
+            >
+              {/* Texto em vermelho e negrito, com ▲ antes e depois */}
+              <Typography
+                sx={{
+                  color: "red",
+                  fontWeight: "bold",
+                }}
+              >
+                ▲ {aluno.nome} ▲
+              </Typography>
+              {/* Ícone de alerta */}
+              <WarningAmberIcon color="error" />
+            </Box>
+          </TableCell>
+        ) : (
+          <TableCell
+            sx={{
+              fontWeight: "bold",
+              color: "inherit",
+            }}
+          >
+            {aluno.nome}
+          </TableCell>
+        )}
 
-                        }}
-                      >
-                        <Box sx={{
-                          display: "flex",
-                          height: "fit-content",
-                          alignItems: "center",
-                          alignContent: "center"
-                        }}>
-                          
-                          {aluno.nome}
-                          <WarningAmberIcon color="error" />
-                        </Box>
+        <TableCell
+          align="center"
+          sx={{ color: "black", fontWeight: "bold" }}
+          onClick={() => toggleAttendance(aluno.id, selectedDay)}
+        >
+          {aluno.presencas[selectedMonth][selectedDay] ? "." : "F"}
+        </TableCell>
+        <TableCell onClick={() => handleOpenModal(aluno)}>
+          <Button
+            sx={{
+              width: "fit-content",
+              fontSize: "12px",
+              backgroundColor: hasValidAviso ? "#d32f2f" : "#1976d2",
+              color: "white",
+              "&:hover": {
+                backgroundColor: hasValidAviso ? "#b71c1c" : "#1565c0",
+              },
+            }}
+            variant="contained"
+          >
+            {hasValidAviso ? "Ver Aviso" : "Ver Detalhes"}
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
 
-
-                      </TableCell> :
-
-                        <TableCell
-                          sx={{
-                            fontWeight: "bold",
-                            color: "inherit",
-                          }}
-                        >
-                          {aluno.nome}
-                        </TableCell>}
-
-                      <TableCell
-                        align="center"
-                        sx={{ color: "black", fontWeight: "bold" }}
-                        onClick={() => toggleAttendance(aluno.id, selectedDay)}
-                      >
-                        {aluno.presencas[selectedMonth][selectedDay] ? "." : "F"}
-                      </TableCell>
-                      <TableCell onClick={() => handleOpenModal(aluno)}>
-                        <Button
-                          sx={{
-                            width: "fit-content",
-                            fontSize: "12px",
-                            backgroundColor: hasValidAviso
-                              ? "#d32f2f" // Cor vermelha para indicar um aviso
-                              : "#1976d2", // Cor azul para botões normais
-                            color: "white",
-                            "&:hover": {
-                              backgroundColor: hasValidAviso
-                                ? "#b71c1c"
-                                : "#1565c0",
-                            },
-                          }}
-                          variant="contained"
-                        >
-                          {hasValidAviso ? "Ver Aviso" : "Ver Detalhes"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
             </Table>
           </TableContainer>
         )}
