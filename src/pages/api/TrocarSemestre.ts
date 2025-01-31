@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import admin from '../../config/firebaseAdmin';
-import { gerarPresencasParaAlunoSemestre, extrairDiaDaSemanaSemestre } from '@/utils/Constants';
+import { gerarPresencasParaAluno, extrairDiaDaSemana } from '@/utils/Constants';
 
 const db = admin.database();
 
