@@ -28,43 +28,52 @@ export default function ArquivarAlunos() {
 
     useEffect(() => {
         if (modalidades.length > 0 && dataLoaded) {
-            const alunosExtraidos = modalidades.flatMap(modalidade =>
-                modalidade.turmas.flatMap(turma =>
-                    Array.isArray(turma.alunos) ?
-                        turma.alunos.filter(Boolean).map(aluno => {
-                            // Verificar e adicionar IdentificadorUnico se necessário
-                            let identificadorUnico = aluno.informacoesAdicionais?.IdentificadorUnico;
-                            if (!identificadorUnico) {
-                                identificadorUnico = uuidv4();
-                                // Atualizar o aluno no banco de dados com o novo IdentificadorUnico
-                                // Atenção: Atualizar o banco de dados diretamente do frontend não é recomendado
-                                // Idealmente, isso deveria ser feito através de uma API segura no backend
-                                // Aqui estamos apenas atualizando o objeto localmente
-                                aluno.informacoesAdicionais = {
-                                    ...aluno.informacoesAdicionais,
-                                    IdentificadorUnico: identificadorUnico,
-                                };
-                            }
-
-                            return {
-                                ...aluno,
-                                alunoId: identificadorUnico,
-                                nome: aluno.nome ?? "",
-                                anoNascimento: aluno.anoNascimento ?? "",
-                                telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
-                                informacoesAdicionais: aluno.informacoesAdicionais ?? {},
-                                modalidade: modalidade.nome,
-                                nomeDaTurma: turma.nome_da_turma,
-                                dataMatricula: aluno.dataMatricula ?? "",
-                                foto: aluno.foto ?? "",
-                                IdentificadorUnico: identificadorUnico, // Certificando-se de que o IdentificadorUnico está presente
-                            };
-                        }) : []
-                )
-            );
-            setAlunosOptions(alunosExtraidos);
+          const alunosExtraidos = modalidades
+            .filter(Boolean) // Filtra modalidades nulas (se existirem)
+            .flatMap((modalidade) => {
+              // Se não houver turmas, retorna array vazio
+              if (!modalidade.turmas) return []
+      
+              // Filtra quaisquer turmas que sejam nulas ou indefinidas
+              return modalidade.turmas
+                .filter(Boolean)
+                .flatMap((turma) => {
+                  // Se turma.alunos não for array, retorna array vazio
+                  if (!Array.isArray(turma.alunos)) return []
+      
+                  // Filtra alunos nulos/undefined
+                  return turma.alunos
+                    .filter(Boolean)
+                    .map(aluno => {
+                      let identificadorUnico = aluno.informacoesAdicionais?.IdentificadorUnico;
+                      if (!identificadorUnico) {
+                        identificadorUnico = uuidv4();
+                        aluno.informacoesAdicionais = {
+                          ...aluno.informacoesAdicionais,
+                          IdentificadorUnico: identificadorUnico,
+                        };
+                      }
+                      return {
+                        ...aluno,
+                        alunoId: identificadorUnico,
+                        nome: aluno.nome ?? "",
+                        anoNascimento: aluno.anoNascimento ?? "",
+                        telefoneComWhatsapp: aluno.telefoneComWhatsapp ?? "",
+                        informacoesAdicionais: aluno.informacoesAdicionais ?? {},
+                        modalidade: modalidade.nome,
+                        nomeDaTurma: turma.nome_da_turma,
+                        dataMatricula: aluno.dataMatricula ?? "",
+                        foto: aluno.foto ?? "",
+                        IdentificadorUnico: identificadorUnico,
+                      };
+                    });
+                });
+            });
+      
+          setAlunosOptions(alunosExtraidos);
         }
-    }, [modalidades, dataLoaded]);
+      }, [modalidades, dataLoaded]);
+      
 
     const onSubmit = useCallback(async () => {
         if (!selectedAluno) {
