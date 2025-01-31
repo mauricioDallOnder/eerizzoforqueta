@@ -20,9 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('Processando modalidade:', modalidade.nome);
         for (const turma of modalidade.turmas) {
             console.log('Processando turma:', turma.nome_da_turma);
-            const diaDaSemana = extrairDiaDaSemanaSemestre(turma.nome_da_turma);
+            const diaDaSemana = extrairDiaDaSemana(turma.nome_da_turma);
             console.log('Dia da semana:', diaDaSemana);
-            const novasPresencas = gerarPresencasParaAlunoSemestre(diaDaSemana, semestre, ano); // Passar o ano como parâmetro
+            const novasPresencas = gerarPresencasParaAluno(diaDaSemana, semestre, ano); // Passar o ano como parâmetro
 
             const turmaSnapshot = await db.ref(`modalidades/${modalidade.nome}/turmas`).orderByChild('nome_da_turma').equalTo(turma.nome_da_turma).once('value');
             const turmaData = turmaSnapshot.val();
