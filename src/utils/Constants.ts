@@ -249,7 +249,7 @@ export function gerarDiasDoMes(
  * "SUB09_AZ_QUARTA_17H30".
  * Se não encontrar, retorna "SEGUNDA" por padrão.
  */
-export function extrairDiaDaSemanaSemestre(nomeDaTurma: string): string {
+export function extrairDiaDaSemana(nomeDaTurma: string): string {
   const partes = nomeDaTurma.split("_");
   return (
     partes.find((parte) =>
