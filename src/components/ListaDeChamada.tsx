@@ -323,13 +323,14 @@ export const ListaDeChamada: React.FC<StudentPresenceTableProps> = ({
               }}
             >
               {/* Texto em vermelho e negrito, com ▲ antes e depois */}
+               <WarningAmberIcon color="error" />
               <Typography
                 sx={{
                   color: "red",
                   fontWeight: "bold",
                 }}
               >
-                ▲ {aluno.nome} ▲
+                 {aluno.nome} 
               </Typography>
               {/* Ícone de alerta */}
               <WarningAmberIcon color="error" />
